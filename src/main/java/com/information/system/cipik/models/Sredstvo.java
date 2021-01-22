@@ -1,6 +1,7 @@
 package com.information.system.cipik.models;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.Id;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 public class Sredstvo {
 
     @Id
@@ -19,8 +21,6 @@ public class Sredstvo {
 
     private String name, indeks;
 
-    public Sredstvo() {
-    }
 
     public Sredstvo(String name, String indeks) {
         this.name = name;

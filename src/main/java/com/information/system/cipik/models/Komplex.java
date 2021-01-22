@@ -1,6 +1,7 @@
 package com.information.system.cipik.models;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class Komplex {
 
     @Id
@@ -24,8 +26,6 @@ public class Komplex {
     @JoinColumn(name = "komplex_id")
     private List<Otdel> otdels;
 
-    public Komplex() {
-    }
 
     public Komplex(String name, String adres, Centr centr, List<Otdel> otdels) {
         this.name = name;

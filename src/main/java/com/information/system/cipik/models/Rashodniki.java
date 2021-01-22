@@ -1,6 +1,7 @@
 package com.information.system.cipik.models;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.Id;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 public class Rashodniki {
 
     @Id
@@ -19,9 +21,6 @@ public class Rashodniki {
     private Long id;
 
     private String name, ed_izm;
-
-    public Rashodniki() {
-    }
 
     public Rashodniki(String name, String ed_izm) {
         this.name = name;

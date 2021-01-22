@@ -1,6 +1,7 @@
 package com.information.system.cipik.models;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 public class Otdel {
 
     @Id
@@ -20,8 +22,6 @@ public class Otdel {
     @ManyToOne
     private Komplex komplex;
 
-    public Otdel() {
-    }
 
     public Otdel(String name) {
         this.name = name;
