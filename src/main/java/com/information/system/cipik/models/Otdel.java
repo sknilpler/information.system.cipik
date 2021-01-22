@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 
 @Getter
@@ -22,10 +23,10 @@ public class Otdel {
     @ManyToOne
     private Komplex komplex;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "otdel_id")
+    private List<Stanciya> stanciyas;
 
-    public Otdel(String name) {
-        this.name = name;
-    }
 
     public Otdel(String name, Komplex komplex) {
         this.name = name;

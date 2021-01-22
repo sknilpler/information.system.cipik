@@ -31,18 +31,7 @@ public class Komplex {
         this.name = name;
         this.adres = adres;
         this.centr = centr;
-        this.otdels = otdels;
     }
 
-    public Komplex(String name, String adres, List<Otdel> otdels) {
-        this.name = name;
-        this.adres = adres;
-        this.otdels = otdels;
-    }
-
-    public Komplex(String name, String adres) {
-        this.name = name;
-        this.adres = adres;
-    }
 
 }

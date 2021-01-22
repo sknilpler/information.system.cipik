@@ -4,10 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,6 +19,13 @@ public class Sredstvo {
 
     private String name, indeks;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "sredstvo_id")
+    private List<Norma> normas;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "sredstvo_id")
+    private List<Stanciya> stanciyas;
 
     public Sredstvo(String name, String indeks) {
         this.name = name;

@@ -5,28 +5,28 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 
 
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
-public class Rashodniki {
+public class DragMetal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String name, ed_izm;
+    private String name;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "rashod_id")
-    private List<Norma> normas;
+    private double number;
 
+    @ManyToOne
+    private Stanciya stanciya;
 
-    public Rashodniki(String name, String ed_izm) {
+    public DragMetal(String name, double number, Stanciya stanciya) {
         this.name = name;
-        this.ed_izm = ed_izm;
+        this.number = number;
+        this.stanciya = stanciya;
     }
 }

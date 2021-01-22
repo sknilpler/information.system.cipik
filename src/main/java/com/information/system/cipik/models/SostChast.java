@@ -5,26 +5,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
-public class Centr {
+public class SostChast {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String name;
+    private String naimen,zav_nom;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "centr_id")
-    private List<Komplex> komplexes;
+    @ManyToOne
+    private Stanciya stanciya;
 
-    public Centr(String name) {
-        this.name = name;
+    public SostChast(String naimen, String zav_nom, Stanciya stanciya) {
+        this.naimen = naimen;
+        this.zav_nom = zav_nom;
+        this.stanciya = stanciya;
     }
-
 }
