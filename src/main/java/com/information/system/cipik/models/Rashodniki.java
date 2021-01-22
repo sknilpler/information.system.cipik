@@ -4,8 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 
 @Getter
@@ -19,10 +21,6 @@ public class Rashodniki {
     private Long id;
 
     private String name, ed_izm;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "rashod_id")
-    private List<Norma> normas;
 
 
     public Rashodniki(String name, String ed_izm) {
