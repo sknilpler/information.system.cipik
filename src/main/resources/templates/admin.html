@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${title}"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h1 th:text="${title}"/>
+</div>
+<div class="container mt-5">
+    <h5>Администрирование учетных записей пользователей</h5>
+    <a href="/users">Пользователи</a>
+</div>
+<div class="container mt-5">
+    <h5>Редактирование данных о подразделениях</h5>
+    <a href="/koplexes">Комплексы</a><br>
+    <a href="/otdels">Отделы</a><br>
+    <a href="/centers">Центр</a>
+</div>
+<div class="container mt-5">
+    <h5>Редактирование норм</h5><br>
+    <a href="/norms">Нормы расхода</a><br>
+    <a href="/rashodniki">Расходники</a>
+</div>
+
+
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>
