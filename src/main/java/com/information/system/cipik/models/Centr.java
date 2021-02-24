@@ -17,7 +17,8 @@ public class Centr {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String name, shortName;
+    private String name;
+    private String shortName;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "centr_id")

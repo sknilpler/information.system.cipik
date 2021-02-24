@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Редактирование центра</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h1>Редактирование данных о центрах</h1>
+</div>
+
+<form action="/admin/centr/add" method="post">
+
+    <div class="container mt-1 md-12">
+        <label class="md-2" for="fullname">Полное название центра</label>
+        <div class="md-7">
+            <input type="text" th:value="${centr.name}" id="fullname" name="name" class="form-control"
+                   placeholder="Введите полное название центра"/>
+        </div>
+    </div>
+
+    <div class="container mt-1 col-md-12">
+        <label class="md-2" for="shortname">Короткое название центра</label>
+        <div class="md-7">
+            <input type="text" th:value="${centr.shortName}" id="shortname" name="shortName" class="form-control"
+                   placeholder="Введите сокращенное название центра"/>
+        </div>
+    </div>
+
+    <div class="container mt-1 form-actions floatRight">
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <!-- <button type="button" class="btn btn-warning btn-sm">Сбросить форму</button> -->
+    </div>
+    <br>
+
+</form>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>
