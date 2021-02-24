@@ -19,6 +19,8 @@ public class Komplex {
 
     private String name, adres;
 
+    private String shortName;
+
     @ManyToOne
     private Centr centr;
 
@@ -27,10 +29,19 @@ public class Komplex {
     private List<Otdel> otdels;
 
 
-    public Komplex(String name, String adres, Centr centr, List<Otdel> otdels) {
+    public Komplex(String name, String adres, String shortName, Centr centr, List<Otdel> otdels) {
         this.name = name;
         this.adres = adres;
         this.centr = centr;
+        this.shortName = shortName;
+        this.otdels = otdels;
+    }
+
+    public Komplex(String name, String adres, String shortName, Centr centr) {
+        this.name = name;
+        this.adres = adres;
+        this.centr = centr;
+        this.shortName = shortName;
     }
 
 

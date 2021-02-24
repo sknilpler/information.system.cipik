@@ -17,14 +17,15 @@ public class Centr {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String name;
+    private String name, shortName;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "centr_id")
     private List<Komplex> komplexes;
 
-    public Centr(String name) {
+    public Centr(String name, String shortName) {
         this.name = name;
+        this.shortName = shortName;
     }
 
 }
