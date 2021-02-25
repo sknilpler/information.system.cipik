@@ -22,7 +22,7 @@ public class MainController {
     @GetMapping("/admin")
     public String admin(Model model){
         model.addAttribute("title", "Администрирование основных данных");
-        return "admin";
+        return "admin/admin";
     }
 
 }

@@ -13,7 +13,7 @@
 
 
     <form  th:object="${centr}" th:action="'/admin/centrs/'+*{id}+'/edit'"  method="post">
-<!--        <div th:each="centr : ${centrs}"></div>-->
+
         <div class="container mt-1 md-12">
             <label class="md-2" for="fullname">Полное название центра</label>
             <div class="md-7">
@@ -32,7 +32,7 @@
 
         <div class="container mt-1 form-actions floatRight">
             <button type="submit" class="btn btn-success">Сохранить</button>
-            <!-- <button type="button" class="btn btn-warning btn-sm">Сбросить форму</button> -->
+            <button type="button" onclick="window.location.reload();" class="btn btn-warning">Очистить поля</button>
         </div>
         <br>
 
@@ -41,14 +41,3 @@
 
 <div th:insert="blocks/footer :: footer"></div>
 </body>
-
-
-<div class="form-group col-md-12">
-    <label class="col-md-2 control-lable" for="shortname">Выберите центр</label>
-    <div class="col-md-7">
-        <select class="form-control" th:field="${centr.id}" id="dropCentr" name="dropCentr">
-            <option value="0">Выберите центр</option>
-            <option th:each="centr : ${centrs}" th:value="${centr.id}" th:text="${centr.shortName}"></option>
-        </select>
-    </div>
-</div>

@@ -64,8 +64,7 @@
             <table class="table table-hover">
                 <thead>
                 <tr>
-                    <th>Код</th>
-                    <th>Сокращённое название</th>
+                    <th style="width: 200px;">Сокращённое название</th>
                     <th>Полное название</th>
                     <th>Адрес</th>
                     <th>Центр</th>
@@ -74,7 +73,6 @@
                 </thead>
                 <tbody>
                 <tr th:each="komplex : ${komplexs}">
-                    <td th:text="${komplex.id}"></td>
                     <td th:text="${komplex.shortName}"></td>
                     <td th:text="${komplex.name}"></td>
                     <td th:text="${komplex.adres}"></td>
