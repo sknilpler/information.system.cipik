@@ -4,4 +4,5 @@ import com.information.system.cipik.models.Centr;
 import org.springframework.data.repository.CrudRepository;
 
 public interface CentrRepository extends CrudRepository<Centr,Long> {
+
 }

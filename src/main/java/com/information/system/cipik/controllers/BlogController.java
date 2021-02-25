@@ -55,10 +55,8 @@ public class BlogController {
         if (!postRepository.existsById(id)){
             return "redirect:/blog";
         }
-        Optional<Post> post = postRepository.findById(id);
-        ArrayList<Post> res = new ArrayList<>();
-        post.ifPresent(res::add);
-        model.addAttribute("post",res);
+        Post post = postRepository.findById(id).orElseThrow();
+        model.addAttribute("post",post);
         return "blog-edit";
     }
 

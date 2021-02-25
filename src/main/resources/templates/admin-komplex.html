@@ -9,108 +9,85 @@
 <body>
 <header th:insert="blocks/header :: header"></header>
 <div class="container mt-5">
-    <h1 th:text="${title}"/>
+    <h1>Редактирование данных о комплексах</h1>
 </div>
 
-<a href="#" onclick="history.back();">Возврат на страницу приветствия</a>
+<form method="post">
 
-<div class="generic-container">
-    <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading"><span class="lead">Комплекс</span></div>
-        <div class="panel-body">
-            <div class="formcontainer">
-
-                <form th:action="@{/komplex/add}" method="post" name="myForm" class="form-horizontal">
-
-                    <div class="row">
-                        <div class="form-group col-md-12">
-                            <label class="col-md-2 control-lable" for="fullname">Полное название комплекса</label>
-                            <div class="col-md-7">
-                                <input type="text" th:value="${komplex.name}" id="fullname" class="form-control input-sm" placeholder="Введите полное название комплекса" required />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="form-group col-md-12">
-                            <label class="col-md-2 control-lable" for="shortname">Короткое название комплекса</label>
-                            <div class="col-md-7">
-                                <input type="text" th:value="${komplex.shortName}" id="shortname" class="form-control input-sm" placeholder="Введите сокращенное навание комплекса" required/>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="form-group col-md-12">
-                            <label class="col-md-2 control-lable" for="address">Адрес</label>
-                            <div class="col-md-7">
-                                <input type="text" th:value="${komplex.adres}" id="address" class="form-control input-sm" placeholder="Введите адрес комплекса"/>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="form-group col-md-12">
-                            <label class="col-md-2 control-lable" for="shortname">Выберите центр</label>
-                            <div class="col-md-7">
-                                <select class="form-control" th:field="${centr.id}" id="dropCentr" name="dropCentr">
-                                    <option value="0">Выберите центр</option>
-                                    <option th:each="centr : ${centrs}" th:value="${centr.id}" th:text="${centr.shortName}"></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="form-actions floatRight">
-                            <button type="submit" class="btn-succsess">Сохранить</button>
-                           <!-- <button type="button" class="btn btn-warning btn-sm">Сбросить форму</button> -->
-                        </div>
-                    </div>
-                </form>
-            </div>
+    <div class="container mt-1 md-12">
+        <label class="md-2" for="fullname">Полное название комплекса</label>
+        <div class="md-7">
+            <input type="text" id="fullname" name="name" class="form-control"
+                   placeholder="Введите полное название комплекса"/>
         </div>
     </div>
 
-
-
-    <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading"><span class="lead">Список комплексов </span></div>
-        <br>
-        <div class="row">
-            <div class="form-group col-md-12">
-                <label class="col-md-2 control-lable" for="searching">Поиск</label>
-                <div class="col-md-7">
-                    <input type="search" id="searching" class="form-control input-sm"/>
-                </div>
-            </div>
+    <div class="container mt-1 col-md-12">
+        <label class="md-2" for="shortname">Короткое название комплекса</label>
+        <div class="md-7">
+            <input type="text" id="shortname" name="shortName" class="form-control"
+                   placeholder="Введите сокращенное название комплекса"/>
         </div>
-        <div class="panel-body">
-            <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>Код</th>
-                        <th>Сокращённое название</th>
-                        <th>Адрес</th>
-                        <th>Центр</th>
-                        <th style="width: 200px;"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="komplex : ${komplexs}">
-                        <td th:text="${komplex.id}"></td>
-                        <td th:text="${komplex.shortName}"></td>
-                        <td th:text="${komplex.adres}"></td>
-                        <td th:text="${komplex.centr.shortName}"></td>
-                        <td><button type="button" class="btn btn-success">Изменить</button>
-                            <button type="button" class="btn btn-danger custom-width">Удалить</button></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+    </div>
+
+    <div class="container mt-1 col-md-12">
+        <label class="md-2" for="adres">Адрес комплекса</label>
+        <div class="md-7">
+            <input type="text" id="adres" name="adres" class="form-control"
+                   placeholder="Введите адрес комплекса"/>
+        </div>
+    </div>
+
+    <div class="container mt-1 col-md-12">
+        <label class="md-2 control-lable" for="shortname">Выберите центр</label>
+        <div class="md-7">
+            <select class="form-control" id="dropCentr" name="dropCentr">
+                <option value="0">Выберите центр</option>
+                <option th:each="centr : ${centrs}" th:value="${centr.id}" th:text="${centr.shortName}"></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="container mt-1 form-actions floatRight">
+        <button type="submit" class="btn btn-success">Добавить</button>
+        <button type="button" onclick="window.location.reload();" class="btn btn-warning">Очистить поля</button>
+    </div>
+    <br>
+
+</form>
+
+
+<div class="container panel panel-default">
+    <div class="panel-heading"><span class="lead">Список комплексов</span></div>
+    <div class="panel-body">
+        <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Код</th>
+                    <th>Сокращённое название</th>
+                    <th>Полное название</th>
+                    <th>Адрес</th>
+                    <th>Центр</th>
+                    <th style="width: 310px;"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="komplex : ${komplexs}">
+                    <td th:text="${komplex.id}"></td>
+                    <td th:text="${komplex.shortName}"></td>
+                    <td th:text="${komplex.name}"></td>
+                    <td th:text="${komplex.adres}"></td>
+                    <td th:text="${komplex.centr.shortName}"></td>
+                    <td>
+                        <form th:action="'/admin/komplexs/'+${komplex.id}+'/remove'" method="post">
+                            <a th:href="'/admin/komplexs/'+${komplex.id}+'/edit'" class="btn btn-warning">Редактировать</a>
+                            <button class="btn btn-danger" type="submit">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
