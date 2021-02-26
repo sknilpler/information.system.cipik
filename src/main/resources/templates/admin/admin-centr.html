@@ -32,7 +32,7 @@
 
     <div class="container mt-1 form-actions floatRight">
         <button type="submit" class="btn btn-success">Добавить</button>
-        <button type="button" onclick="window.location.reload();" class="btn btn-warning">Очистить поля</button>
+        <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
     </div>
     <br>
 
@@ -58,7 +58,7 @@
                     <td th:text="${centr.name}"></td>
                     <td>
                         <form th:action="'/admin/centrs/'+${centr.id}+'/remove'" method="post">
-                            <a th:href="'/admin/centrs/'+${centr.id}+'/edit'" class="btn btn-warning">Редактировать</a>
+                            <a th:href="'/admin/centrs/'+${centr.id}+'/edit'" class="btn btn-primary">Редактировать</a>
                             <button class="btn btn-danger" type="submit">Удалить</button>
                         </form>
                     </td>

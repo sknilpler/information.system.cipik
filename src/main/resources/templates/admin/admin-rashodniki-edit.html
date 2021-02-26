@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Редактирование отдела</title>
+    <title>Редактирование типов расходных материалов</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
@@ -9,29 +9,26 @@
 <body>
 <header th:insert="blocks/header :: header"></header>
 <div class="container mt-5">
-    <h1>Редактирование данных об отделе</h1>
+    <h1>Редактирование данных о типе расходного материала</h1>
 
 
-    <form  th:object="${otdel}" th:action="'/admin/otdels/'+*{id}+'/edit'"  method="post">
+    <form  th:object="${rash}" th:action="'/admin/rashs/'+*{id}+'/edit'"  method="post">
 
         <div class="container mt-1 md-12">
-            <label class="md-2" for="fullname">Название отдела</label>
+            <label class="md-2" for="name">Название расходного материала</label>
             <div class="md-7">
-                <input type="text" th:field="*{name}" id="fullname" name="name" class="form-control"
-                       placeholder="Введите название отдела"/>
+                <input type="text" th:field="*{name}" id="name" name="name" class="form-control"
+                       placeholder="Введите название расходного материала"/>
             </div>
         </div>
 
         <div class="container mt-1 col-md-12">
-            <label class="md-2 control-lable" for="dropKomplex">Выберите комплекс</label>
+            <label class="md-2" for="ed_izm">Ед. изм.</label>
             <div class="md-7">
-                <select class="form-control" th:field="*{komplex}" id="dropKomplex" name="dropKomplex">
-                    <option value="0">Выберите комплекс</option>
-                    <option th:each="komplex : ${komplexs}" th:value="${komplex.id}" th:text="${komplex.shortName}"></option>
-                </select>
+                <input type="text" th:field="*{ed_izm}" id="ed_izm" name="ed_izm" class="form-control"
+                       placeholder="Введите ед. изм. расходного материала"/>
             </div>
         </div>
-
 
         <div class="container mt-1 form-actions floatRight">
             <button type="submit" class="btn btn-success">Сохранить</button>

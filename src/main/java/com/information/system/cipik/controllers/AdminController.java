@@ -3,9 +3,11 @@ package com.information.system.cipik.controllers;
 import com.information.system.cipik.models.Centr;
 import com.information.system.cipik.models.Komplex;
 import com.information.system.cipik.models.Otdel;
+import com.information.system.cipik.models.Rashodniki;
 import com.information.system.cipik.repo.CentrRepository;
 import com.information.system.cipik.repo.KomplexRepository;
 import com.information.system.cipik.repo.OtdelRepository;
+import com.information.system.cipik.repo.RashodnikiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,8 +25,10 @@ public class AdminController {
     KomplexRepository komplexRepository;
     @Autowired
     OtdelRepository otdelRepository;
+    @Autowired
+    RashodnikiRepository rashodnikiRepository;
 
-
+////////////////центра///////////////
     @GetMapping("/admin/centrs/add")
     public String centrAll(Model model) {
         Iterable<Centr> centrs = centrRepository.findAll();
@@ -65,7 +69,7 @@ public class AdminController {
         return "redirect:/admin/centrs/add";
     }
 
-    ////////////////////////////////////////////////////
+    ////////////////////комплексы////////////////////////////////
     @GetMapping("/admin/komplexs/add")
     public String komplexAll(Model model) {
         Iterable<Centr> centrs = centrRepository.findAll();
@@ -112,7 +116,7 @@ public class AdminController {
         komplexRepository.deleteById(id);
         return "redirect:/admin/komplexs/add";
     }
-    ////////////////////////////////////////////////
+    ///////////////////отделы/////////////////////////////
 
     @GetMapping("/admin/otdels/add")
     public String otdelAll(Model model) {
@@ -157,5 +161,45 @@ public class AdminController {
         Otdel otdel = otdelRepository.findById(id).orElseThrow();
         otdelRepository.deleteById(id);
         return "redirect:/admin/otdels/add";
+    }
+    //////////////расходники///////////
+    @GetMapping("/admin/rashs/add")
+    public String rashAll(Model model) {
+        Iterable<Rashodniki> rashodnikis = rashodnikiRepository.findAll();
+        model.addAttribute("rashs", rashodnikis);
+        return "admin/admin-rashodniki";
+    }
+
+    @PostMapping("/admin/rashs/add")
+    public String rashAdd(@RequestParam String name, @RequestParam String ed_izm, Model model) {
+        Rashodniki rash = new Rashodniki(name, ed_izm);
+        rashodnikiRepository.save(rash);
+        return "redirect:/admin/rashs/add";
+    }
+
+    @GetMapping("/admin/rashs/{id}/edit")
+    public String rashEdit(@PathVariable(value = "id") long id, Model model) {
+        if (!rashodnikiRepository.existsById(id)) {
+            return "redirect:/admin/rashs/add";
+        }
+        Rashodniki rash = rashodnikiRepository.findById(id).orElseThrow();
+        model.addAttribute("rash", rash);
+        return "admin/admin-rashodniki-edit";
+    }
+
+    @PostMapping("/admin/rashs/{id}/edit")
+    public String rashUpdate(@PathVariable(value = "id") long id, @RequestParam String name, @RequestParam String ed_izm, Model model) {
+        Rashodniki rash = rashodnikiRepository.findById(id).orElseThrow();
+        rash.setName(name);
+        rash.setEd_izm(ed_izm);
+        rashodnikiRepository.save(rash);
+        return "redirect:/admin/rashs/add";
+    }
+
+    @PostMapping("/admin/rashs/{id}/remove")
+    public String rashDelete(@PathVariable(value = "id") long id, Model model) {
+        Rashodniki rashodniki = rashodnikiRepository.findById(id).orElseThrow();
+        rashodnikiRepository.deleteById(id);
+        return "redirect:/admin/rashs/add";
     }
 }

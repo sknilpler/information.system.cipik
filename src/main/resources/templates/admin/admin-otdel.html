@@ -34,7 +34,7 @@
 
     <div class="container mt-1 form-actions floatRight">
         <button type="submit" class="btn btn-success">Добавить</button>
-        <button type="button" onclick="window.location.reload();" class="btn btn-warning">Очистить поля</button>
+        <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
     </div>
     <br>
 
@@ -59,7 +59,7 @@
                     <td th:text="${otdel.komplex.shortName}"></td>
                     <td>
                         <form th:action="'/admin/otdels/'+${otdel.id}+'/remove'" method="post">
-                            <a th:href="'/admin/otdels/'+${otdel.id}+'/edit'" class="btn btn-warning">Редактировать</a>
+                            <a th:href="'/admin/otdels/'+${otdel.id}+'/edit'" class="btn btn-primary">Редактировать</a>
                             <button class="btn btn-danger" type="submit">Удалить</button>
                         </form>
                     </td>
