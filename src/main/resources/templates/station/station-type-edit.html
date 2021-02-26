@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Редактирование данных о телеметрическом средстве</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h1>Редактирование данных о телеметрическом средстве</h1>
+
+
+    <form  th:object="${sredstvo}" th:action="'/station/sredstvos/'+*{id}+'/edit'"  method="post">
+
+        <div class="container mt-1 md-12">
+            <label class="md-2" for="name">Наименование средства</label>
+            <div class="md-7">
+                <input type="text" th:field="*{name}" id="name" name="name" class="form-control"
+                       placeholder="Введите наименование"/>
+            </div>
+        </div>
+
+        <div class="container mt-1 col-md-12">
+            <label class="md-2" for="indeks">Индекс средства</label>
+            <div class="md-7">
+                <input type="text" th:field="*{indeks}" id="indeks" name="indeks" class="form-control"
+                       placeholder="Введите индекс"/>
+            </div>
+        </div>
+
+        <div class="container mt-1 form-actions floatRight">
+            <button type="submit" class="btn btn-success">Сохранить</button>
+            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Сбросить поля</button>
+        </div>
+        <br>
+
+    </form>
+</div>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>

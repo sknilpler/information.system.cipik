@@ -1,13 +1,7 @@
 package com.information.system.cipik.controllers;
 
-import com.information.system.cipik.models.Centr;
-import com.information.system.cipik.models.Komplex;
-import com.information.system.cipik.models.Otdel;
-import com.information.system.cipik.models.Rashodniki;
-import com.information.system.cipik.repo.CentrRepository;
-import com.information.system.cipik.repo.KomplexRepository;
-import com.information.system.cipik.repo.OtdelRepository;
-import com.information.system.cipik.repo.RashodnikiRepository;
+import com.information.system.cipik.models.*;
+import com.information.system.cipik.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +21,8 @@ public class AdminController {
     OtdelRepository otdelRepository;
     @Autowired
     RashodnikiRepository rashodnikiRepository;
+    @Autowired
+    SredstvoRepository sredstvoRepository;
 
 ////////////////центра///////////////
     @GetMapping("/admin/centrs/add")
@@ -201,5 +197,52 @@ public class AdminController {
         Rashodniki rashodniki = rashodnikiRepository.findById(id).orElseThrow();
         rashodnikiRepository.deleteById(id);
         return "redirect:/admin/rashs/add";
+    }
+
+    //////////////////средства//////////////////////
+
+    @GetMapping("/station/sredstvos")
+    public String sredstvoAll(Model model) {
+        Iterable<Sredstvo> sredstvos = sredstvoRepository.findAll();
+        model.addAttribute("sredstvos", sredstvos);
+        return "station/station-type-list";
+    }
+
+    @GetMapping("/station/sredstvos/add")
+    public String sredstvoAdd(Model model) {
+        return "station/station-type-add";
+    }
+
+    @PostMapping("/station/sredstvos/add")
+    public String sredstvoAdding(@RequestParam String name, @RequestParam String indeks, Model model) {
+        Sredstvo sredstvo = new Sredstvo(name, indeks);
+        sredstvoRepository.save(sredstvo);
+        return "redirect:/station/sredstvos";
+    }
+
+    @GetMapping("/station/sredstvos/{id}/edit")
+    public String sredstvoEdit(@PathVariable(value = "id") long id, Model model) {
+        if (!sredstvoRepository.existsById(id)) {
+            return "redirect:/station/sredstvos";
+        }
+        Sredstvo sredstvo = sredstvoRepository.findById(id).orElseThrow();
+        model.addAttribute("sredstvo", sredstvo);
+        return "station/station-type-edit";
+    }
+
+    @PostMapping("/station/sredstvos/{id}/edit")
+    public String sredstvoUpdate(@PathVariable(value = "id") long id, @RequestParam String name, @RequestParam String indeks, Model model) {
+        Sredstvo sredstvo = sredstvoRepository.findById(id).orElseThrow();
+        sredstvo.setName(name);
+        sredstvo.setIndeks(indeks);
+        sredstvoRepository.save(sredstvo);
+        return "redirect:/station/sredstvos";
+    }
+
+    @PostMapping("/station/sredstvos/{id}/remove")
+    public String sredstvoDelete(@PathVariable(value = "id") long id, Model model) {
+        Sredstvo sredstvo = sredstvoRepository.findById(id).orElseThrow();
+        sredstvoRepository.deleteById(id);
+        return "redirect:/station/sredstvos";
     }
 }

@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Типы телеметрических средств</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container">
+    <div class="mt-1 form-actions floatRight">
+        <a th:href="'/station/sredstvos/add'" class="btn btn-success">Добавить</a>
+    </div>
+    <hr class="my-4">
+    <div class="panel-heading"><span class="lead">Список типов средств в центре</span></div>
+    <div class="panel-body">
+        <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Наименование</th>
+                    <th>Индекс</th>
+                    <th style="width: 310px;"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="sredstvo : ${sredstvos}">
+                    <td th:text="${sredstvo.name}"></td>
+                    <td th:text="${sredstvo.indeks}"></td>
+                    <td>
+                        <form th:action="'/station/sredstvos/'+${sredstvo.id}+'/remove'" method="post">
+                            <a th:href="'/station/sredstvos/'+${sredstvo.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                            <button class="btn btn-danger" type="submit">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+</body>

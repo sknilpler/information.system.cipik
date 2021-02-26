@@ -12,21 +12,25 @@
     <h1 th:text="${title}"/>
 </div>
 <div class="container mt-5">
-    <h5>Администрирование учетных записей пользователей</h5>
+    <h6>Администрирование учетных записей пользователей</h6>
     <a href="admin/users">Пользователи</a>
 </div>
 <div class="container mt-5">
-    <h5>Редактирование данных о подразделениях</h5>
+    <h6>Редактирование данных о подразделениях</h6>
+    <a href="admin/centrs/add">Центр</a><br>
     <a href="admin/komplexs/add">Комплексы</a><br>
-    <a href="admin/otdels/add">Отделы</a><br>
-    <a href="admin/centrs/add">Центр</a>
+    <a href="admin/otdels/add">Отделы</a>
+
 </div>
 <div class="container mt-5">
-    <h5>Редактирование норм</h5><br>
-    <a href="admin/norms">Нормы расхода</a><br>
-    <a href="admin/rashs/add">Расходники</a>
+    <h6>Редактирование норм</h6><br>
+    <a href="admin/rashs/add">Расходники</a><br>
+    <a href="admin/norms">Нормы расхода</a>
 </div>
-
+<div class="container mt-5">
+    <h6>Редактирование данных о средствах</h6><br>
+    <a href="station/sredstvos">Типы средств в центре</a>
+</div>
 
 
 <div th:insert="blocks/footer :: footer"></div>

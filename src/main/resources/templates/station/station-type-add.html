@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Добавление телеметрического средства</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container">
+    <div class="mt-5">
+        <h1>Добавление телеметрического средства</h1>
+    </div>
+
+    <form method="post">
+<!--        <div class="col-md-20">-->
+<!--            <div class="row g-3">-->
+                <div class="col-sm-6">
+                    <label class="md-2" for="name">Наименование средства</label>
+                    <div class="md-7">
+                        <input type="text" id="name" name="name" class="form-control"
+                               placeholder="Введите наименование"/>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="md-2" for="indeks">Индекс средства</label>
+                    <div class="md-7">
+                        <input type="text" id="indeks" name="indeks" class="form-control"
+                               placeholder="Введите индекс"/>
+                    </div>
+                </div>
+<!--            </div>-->
+<!--        </div>-->
+        <div class="mt-1 form-actions floatRight">
+            <button type="submit" class="btn btn-success">Добавить</button>
+            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
+        </div>
+        <hr class="my-4">
+
+    </form>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+</body>

@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Нормы расходников на ТО</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container">
+    <div class="mt-1 form-actions floatRight">
+        <a th:href="'/admin/norms/add'" class="btn btn-success">Добавить</a>
+    </div>
+    <hr class="my-4">
+    <div class="panel-heading"><span class="lead">Список расходников на каждую станцию</span></div>
+    <div class="panel-body">
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Наименование</th>
+                            <th>Индекс</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="sredstvo : ${sredstvos}">
+                            <td th:text="${sredstvo.name}"></td>
+                            <td th:text="${sredstvo.indeks}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Наименование</th>
+                            <th>Количество</th>
+                            <th>Ед. изм.</th>
+                            <th style="width: 310px;"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="norm : ${norms}">
+                            <td th:text="${norm.rashodniki.name}"></td>
+                            <td th:text="${norm.rashodniki.ed_izm}"></td>
+                            <td th:text="${norm.number}"></td>
+                            <td>
+                                <form th:action="'/admin/norms/'+${norm.id}+'/remove'" method="post">
+                                    <a th:href="'/admin/norms/'+${norm.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                                    <button class="btn btn-danger" type="submit">Удалить</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
