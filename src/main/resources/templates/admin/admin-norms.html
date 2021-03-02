@@ -4,21 +4,31 @@
     <title>Нормы расходников на ТО</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js" ></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <style>
+            #tb tr:hover {background:#E2EEFF;}
+            #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+    </style>
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
-<div class="container">
+<div class="container-fluid">
     <div class="mt-1 form-actions floatRight">
         <a th:href="'/admin/norms/add'" class="btn btn-success">Добавить</a>
+        <input id="textSearch" type="text" name="keyword" th:onkeyup="'javascript:editSearch(\'' + ${norms} +'\');'">
     </div>
     <hr class="my-4">
-    <div class="panel-heading"><span class="lead">Список расходников на каждую станцию</span></div>
+    <blockquote class="blockquote text-center">
+        <p class="mb-0">Список расходников на каждую станцию</p>
+    </blockquote>
+    <hr>
     <div class="panel-body">
         <div class="row g-3">
             <div class="col-sm-6">
+                <span class="lead">Список станции</span>
                 <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="tb">
                         <thead>
                         <tr>
                             <th>Наименование</th>
@@ -27,15 +37,40 @@
                         </thead>
                         <tbody>
                         <tr th:each="sredstvo : ${sredstvos}">
-                            <td th:text="${sredstvo.name}"></td>
-                            <td th:text="${sredstvo.indeks}"></td>
+                            <form action="#" th:object="${sredstvo}" th:action="@{/admin/getNormsForSredstvo} + *{id}" method="get">
+                                <td th:text="*{name}"></td>
+                                <td th:text="*{indeks}"></td>
+                            </form>
                         </tr>
                         </tbody>
                     </table>
+                    <script th:inline="javascript">
+                        function getParentTag(node, tag) {
+    if (node) {
+        return (node.tagName == tag) ? node : getParentTag(node.parentElement, tag);
+    }
+    return null;
+}
+
+var tb = document.getElementById('tb');
+tb.setAttribute('activeRowIndex', 0);
+tb.addEventListener('click', cli);
+function cli(e) {
+    var row = getParentTag(e.target, 'TR');
+    if ((!row) || (row.rowIndex == 0)) {
+        return;
+    }
+    var tbl = this, idx = tbl.getAttribute('activeRowIndex');
+    tbl.rows[idx].classList.remove('activeRow');
+    row.classList.add('activeRow');
+    tbl.setAttribute('activeRowIndex', row.rowIndex);
+}
+                    </script>
                 </div>
             </div>
 
             <div class="col-sm-6">
+                <span class="lead">Список расходников для выбранной станции</span>
                 <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
                     <table class="table table-hover">
                         <thead>
@@ -47,10 +82,10 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="norm : ${norms}">
+                        <tr th:each="norm : ${norms}" style="cursor: pointer">
                             <td th:text="${norm.rashodniki.name}"></td>
-                            <td th:text="${norm.rashodniki.ed_izm}"></td>
                             <td th:text="${norm.number}"></td>
+                            <td th:text="${norm.rashodniki.ed_izm}"></td>
                             <td>
                                 <form th:action="'/admin/norms/'+${norm.id}+'/remove'" method="post">
                                     <a th:href="'/admin/norms/'+${norm.id}+'/edit'" class="btn btn-primary">Редактировать</a>
@@ -60,12 +95,70 @@
                         </tr>
                         </tbody>
                     </table>
+
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 </div>
 <div th:insert="blocks/footer :: footer"></div>
+
+<script th:inline="javascript">
+
+/*<![CDATA[*/
+/*var norms = [[${norms}]];*/
+/*]]>*/
+
+function editSearch(norms){
+var value = $(this).val();
+
+    console.log(norms);
+
+  var data = FilterFunction(value, norms);
+
+  rebuildTable(data)
+}
+
+/*$('#textSearch').on('keyup', function(){
+  var value = $(this).val();
+
+    console.log(norms);
+
+  var data = FilterFunction(value, norms);
+
+  rebuildTable(data)
+});*/
+
+function FilterFunction(value,data){
+  var filteredData = [];
+  for(var i = 0; i < data.length; i++){
+    value = value.toLowerCase();
+    var column = data[i].searchColumn.toLowerCase();
+
+    if(column.includes(value)){
+      filteredData.push(data[i]);
+      console.log(data[i]);
+    }
+  }
+  return filteredData;
+}
+
+
+function rebuildTable(data){
+  var table = document.getElementById('tb')
+  table.innerHTML=''
+  for(var i = 0; i<data.length; i++){
+    var row =  `<tr>
+                            <form action="#" th:object="${sredstvo}" th:action="@{/admin/getNormsForSredstvo} + *{id}" method="get">
+                                <td th:text="*{name}"></td>
+                                <td th:text="*{indeks}"></td>
+                            </form>
+		</tr>`
+		table.innerHTML+=row
+  }
+}
+
+
+</script>
 </body>

@@ -23,6 +23,8 @@ public class AdminController {
     RashodnikiRepository rashodnikiRepository;
     @Autowired
     SredstvoRepository sredstvoRepository;
+    @Autowired
+    NormaRepository normaRepository;
 
 ////////////////центра///////////////
     @GetMapping("/admin/centrs/add")
@@ -244,5 +246,62 @@ public class AdminController {
         Sredstvo sredstvo = sredstvoRepository.findById(id).orElseThrow();
         sredstvoRepository.deleteById(id);
         return "redirect:/station/sredstvos";
+    }
+
+    //////////////////нормы расхода//////////////////////
+
+    @GetMapping("/admin/norms")
+    public String normsAll(Model model) {
+        Iterable<Norma> normas = normaRepository.findAll();
+        Iterable<Sredstvo> sredstvos = sredstvoRepository.findAll();
+        model.addAttribute("sredstvos", sredstvos);
+        model.addAttribute("norms", normas);
+        return "admin/admin-norms";
+    }
+
+//    @GetMapping("/admin/getNormsForSredstvo/{id}")
+//    public String normsForSredstvo(@PathVariable(value = "id") long id, Model model) {
+//        Iterable<Norma> normas = normaRepository.findAllByIdSredsvo(id);
+//        model.addAttribute("norms", normas);
+//        return "admin/admin-norms";
+//    }
+
+    @GetMapping("/admin/norms/add")
+    public String normsAdd(Model model) {
+        return "admin/admin-norms-add";
+    }
+
+    @PostMapping("/admin/norms/add")
+    public String normsAdding(@RequestParam Sredstvo sredstvo, @RequestParam Rashodniki rashodniki, @RequestParam double number, Model model) {
+        Norma norma = new Norma(sredstvo,rashodniki,number);
+        normaRepository.save(norma);
+        return "redirect:/admin/norms";
+    }
+
+    @GetMapping("/admin/norms/{id}/edit")
+    public String normsEdit(@PathVariable(value = "id") long id, Model model) {
+        if (!normaRepository.existsById(id)) {
+            return "redirect:/admin/norms";
+        }
+        Norma norma = normaRepository.findById(id).orElseThrow();
+        model.addAttribute("norma", norma);
+        return "admin/admin-norms-edit";
+    }
+
+    @PostMapping("/admin/norms/{id}/edit")
+    public String normsUpdate(@PathVariable(value = "id") long id, @RequestParam Sredstvo sredstvo, @RequestParam Rashodniki rashodniki, @RequestParam double number, Model model) {
+        Norma norma = normaRepository.findById(id).orElseThrow();
+        norma.setNumber(number);
+        norma.setSredstvo(sredstvo);
+        norma.setRashodniki(rashodniki);
+        normaRepository.save(norma);
+        return "redirect:/admin/norms";
+    }
+
+    @PostMapping("/admin/norms/{id}/remove")
+    public String normsDelete(@PathVariable(value = "id") long id, Model model) {
+        Norma norma = normaRepository.findById(id).orElseThrow();
+        normaRepository.deleteById(id);
+        return "redirect:/admin/norms";
     }
 }
