@@ -14,10 +14,6 @@
 <body>
 <header th:insert="blocks/header :: header"></header>
 <div class="container-fluid">
-    <div class="mt-1 form-actions floatRight">
-        <a th:href="'/admin/norms/add'" class="btn btn-success">Добавить</a>
-        <input id="textSearch" type="text" name="keyword" th:onkeyup="'javascript:editSearch(\'' + ${norms} +'\');'">
-    </div>
     <hr class="my-4">
     <blockquote class="blockquote text-center">
         <p class="mb-0">Список расходников на каждую станцию</p>
@@ -26,6 +22,10 @@
     <div class="panel-body">
         <div class="row g-3">
             <div class="col-sm-6">
+                <form th:action="'/admin/norms'" method="get">
+                    <input id="textSearch" type="text" name="keyword">
+                    <button type="submit" class="btn btn-secondary">Найти</button>
+                </form>
                 <span class="lead">Список станции</span>
                 <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
                     <table class="table table-hover" id="tb">
@@ -37,15 +37,20 @@
                         </thead>
                         <tbody>
                         <tr th:each="sredstvo : ${sredstvos}">
-                            <form action="#" th:object="${sredstvo}" th:action="@{/admin/getNormsForSredstvo} + *{id}" method="get">
-                                <td th:text="*{name}"></td>
-                                <td th:text="*{indeks}"></td>
-                            </form>
+<!--                            <form action="#" th:object="${sredstvo}">-->
+                                <td th:text="${sredstvo.name}" th:onclick="'javascript:rowClicked(\'' + ${sredstvo.id} + '\');'"></td>
+                                <td th:text="${sredstvo.indeks}" th:onclick="'javascript:rowClicked(\'' + ${sredstvo.id} + '\');'"></td>
+<!--                            </form>-->
                         </tr>
                         </tbody>
                     </table>
                     <script th:inline="javascript">
-                        function getParentTag(node, tag) {
+
+    function rowClicked(value) {
+        location.href = "/admin/norms/getNormsForSredstvo/" + value;
+    }
+
+function getParentTag(node, tag) {
     if (node) {
         return (node.tagName == tag) ? node : getParentTag(node.parentElement, tag);
     }
@@ -70,6 +75,9 @@ function cli(e) {
             </div>
 
             <div class="col-sm-6">
+                <div class="mt-1 form-actions floatRight">
+                    <a th:href="'/admin/norms/add'" class="btn btn-success">Добавить</a>
+                </div>
                 <span class="lead">Список расходников для выбранной станции</span>
                 <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
                     <table class="table table-hover">
@@ -107,26 +115,13 @@ function cli(e) {
 <script th:inline="javascript">
 
 /*<![CDATA[*/
-/*var norms = [[${norms}]];*/
+var list = /*[[${sredstvos}]]*/;
 /*]]>*/
 
-function editSearch(norms){
-var value = $(this).val();
-
-    console.log(norms);
-
-  var data = FilterFunction(value, norms);
-
-  rebuildTable(data)
-}
 
 /*$('#textSearch').on('keyup', function(){
   var value = $(this).val();
-
-    console.log(norms);
-
-  var data = FilterFunction(value, norms);
-
+  var data = FilterFunction(value, list);
   rebuildTable(data)
 });*/
 
@@ -134,11 +129,10 @@ function FilterFunction(value,data){
   var filteredData = [];
   for(var i = 0; i < data.length; i++){
     value = value.toLowerCase();
-    var column = data[i].searchColumn.toLowerCase();
-
-    if(column.includes(value)){
+    var name = data[i].name.toLowerCase();
+    var indeks = data[i].indeks.toLowerCase();
+    if(name.includes(value)||indeks.includes(value)){
       filteredData.push(data[i]);
-      console.log(data[i]);
     }
   }
   return filteredData;

@@ -26,6 +26,8 @@ public class AdminController {
     @Autowired
     NormaRepository normaRepository;
 
+    private Iterable<Sredstvo> listSredstv;
+
 ////////////////центра///////////////
     @GetMapping("/admin/centrs/add")
     public String centrAll(Model model) {
@@ -251,20 +253,27 @@ public class AdminController {
     //////////////////нормы расхода//////////////////////
 
     @GetMapping("/admin/norms")
-    public String normsAll(Model model) {
-        Iterable<Norma> normas = normaRepository.findAll();
-        Iterable<Sredstvo> sredstvos = sredstvoRepository.findAll();
-        model.addAttribute("sredstvos", sredstvos);
+    public String normsAll(Model model, String keyword) {
+        Iterable<Norma> normas = null;
+        if (keyword != null) {
+            listSredstv = sredstvoRepository.findAllByKeyword(keyword);
+            model.addAttribute("sredstvos", listSredstv);
+        } else {
+            Iterable<Sredstvo> sredstvos = sredstvoRepository.findAll();
+            model.addAttribute("sredstvos", sredstvos);
+            listSredstv = sredstvos;
+        }
         model.addAttribute("norms", normas);
         return "admin/admin-norms";
     }
 
-//    @GetMapping("/admin/getNormsForSredstvo/{id}")
-//    public String normsForSredstvo(@PathVariable(value = "id") long id, Model model) {
-//        Iterable<Norma> normas = normaRepository.findAllByIdSredsvo(id);
-//        model.addAttribute("norms", normas);
-//        return "admin/admin-norms";
-//    }
+    @GetMapping("/admin/norms/getNormsForSredstvo/{id}")
+    public String normsForSredstvo(@PathVariable(value = "id") long id, Model model) {
+        Iterable<Norma> normas = normaRepository.findAllBySredstvoId(id);
+        model.addAttribute("norms", normas);
+        model.addAttribute("sredstvos",listSredstv);
+        return "admin/admin-norms";
+    }
 
     @GetMapping("/admin/norms/add")
     public String normsAdd(Model model) {
