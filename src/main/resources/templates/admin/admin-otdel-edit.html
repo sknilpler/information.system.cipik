@@ -18,15 +18,15 @@
             <label class="md-2" for="fullname">Название отдела</label>
             <div class="md-7">
                 <input type="text" th:field="*{name}" id="fullname" name="name" class="form-control"
-                       placeholder="Введите название отдела"/>
+                       placeholder="Введите название отдела" required/>
             </div>
         </div>
 
         <div class="container mt-1 col-md-12">
             <label class="md-2 control-lable" for="dropKomplex">Выберите комплекс</label>
             <div class="md-7">
-                <select class="form-control" th:field="*{komplex}" id="dropKomplex" name="dropKomplex">
-                    <option value="0">Выберите комплекс</option>
+                <select class="form-control" th:field="*{komplex}" id="dropKomplex" name="dropKomplex" required>
+                    <option value="">Выберите комплекс</option>
                     <option th:each="komplex : ${komplexs}" th:value="${komplex.id}" th:text="${komplex.shortName}"></option>
                 </select>
             </div>

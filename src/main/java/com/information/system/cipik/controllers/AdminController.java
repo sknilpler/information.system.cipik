@@ -27,6 +27,7 @@ public class AdminController {
     NormaRepository normaRepository;
 
     private Iterable<Sredstvo> listSredstv;
+    private Sredstvo sredstvoAddToNorm;
 
 ////////////////центра///////////////
     @GetMapping("/admin/centrs/add")
@@ -255,6 +256,7 @@ public class AdminController {
     @GetMapping("/admin/norms")
     public String normsAll(Model model, String keyword) {
         Iterable<Norma> normas = null;
+        sredstvoAddToNorm = new Sredstvo("","");
         if (keyword != null) {
             listSredstv = sredstvoRepository.findAllByKeyword(keyword);
             model.addAttribute("sredstvos", listSredstv);
@@ -263,6 +265,7 @@ public class AdminController {
             model.addAttribute("sredstvos", sredstvos);
             listSredstv = sredstvos;
         }
+        model.addAttribute("selected", sredstvoAddToNorm);
         model.addAttribute("norms", normas);
         return "admin/admin-norms";
     }
@@ -270,20 +273,31 @@ public class AdminController {
     @GetMapping("/admin/norms/getNormsForSredstvo/{id}")
     public String normsForSredstvo(@PathVariable(value = "id") long id, Model model) {
         Iterable<Norma> normas = normaRepository.findAllBySredstvoId(id);
+        sredstvoAddToNorm = sredstvoRepository.findById(id).orElseThrow();
         model.addAttribute("norms", normas);
         model.addAttribute("sredstvos",listSredstv);
+        model.addAttribute("selected", sredstvoAddToNorm);
         return "admin/admin-norms";
     }
 
     @GetMapping("/admin/norms/add")
     public String normsAdd(Model model) {
-        return "admin/admin-norms-add";
+        if (!sredstvoAddToNorm.getName().equals("")) {
+            model.addAttribute("rashodniks", rashodnikiRepository.findAll());
+            model.addAttribute("sredstvo", sredstvoAddToNorm);
+            return "admin/admin-norm-add";
+        } else {
+            return "redirect:/admin/norms";
+        }
     }
 
     @PostMapping("/admin/norms/add")
-    public String normsAdding(@RequestParam Sredstvo sredstvo, @RequestParam Rashodniki rashodniki, @RequestParam double number, Model model) {
-        Norma norma = new Norma(sredstvo,rashodniki,number);
-        normaRepository.save(norma);
+    public String normsAdding(@RequestParam Long dropRash, @RequestParam double number, Model model) {
+        if (!sredstvoAddToNorm.getName().equals("")) {
+            Rashodniki rashodniki = rashodnikiRepository.findById(dropRash).orElseThrow();
+            Norma norma = new Norma(sredstvoAddToNorm, rashodniki, number);
+            normaRepository.save(norma);
+        }
         return "redirect:/admin/norms";
     }
 
@@ -293,16 +307,18 @@ public class AdminController {
             return "redirect:/admin/norms";
         }
         Norma norma = normaRepository.findById(id).orElseThrow();
+        model.addAttribute("rashodniks",rashodnikiRepository.findAll());
+        model.addAttribute("sredstvo",sredstvoAddToNorm);
         model.addAttribute("norma", norma);
         return "admin/admin-norms-edit";
     }
 
     @PostMapping("/admin/norms/{id}/edit")
-    public String normsUpdate(@PathVariable(value = "id") long id, @RequestParam Sredstvo sredstvo, @RequestParam Rashodniki rashodniki, @RequestParam double number, Model model) {
+    public String normsUpdate(@PathVariable(value = "id") long id, @RequestParam Rashodniki dropRash, @RequestParam double number, Model model) {
+        System.out.println(dropRash.getName());
         Norma norma = normaRepository.findById(id).orElseThrow();
         norma.setNumber(number);
-        norma.setSredstvo(sredstvo);
-        norma.setRashodniki(rashodniki);
+        //norma.setRashodniki(rashodnikiRepository.findById(dropRash).orElseThrow());
         normaRepository.save(norma);
         return "redirect:/admin/norms";
     }

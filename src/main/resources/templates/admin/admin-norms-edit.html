@@ -1,46 +1,43 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Добавление нормы расхода</title>
+    <title>Редактирование нормы расхода</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <script type="text/javascript" src="/js/jquery.min.js" ></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
 <div class="container">
     <div class="mt-5">
-        <h3 th:text="'Добавление расходника для '+${sredstvo.name}+ ' индекс: '+${sredstvo.indeks}"></h3>
+        <h3 th:text="'Редактирование расходника для '+${sredstvo.name}+ ' индекс: '+${sredstvo.indeks}"></h3>
     </div>
 
-    <form method="post">
+    <form  th:object="${norma}" th:action="'/admin/norms/'+*{id}+'/edit'"  method="post">
         <div class="col-sm-6">
             <label class="md-2" for="dropRash">Расходный материал</label>
             <select class="form-control" id="dropRash" name="dropRash" required>
                 <option value="">Выберите расходник</option>
-                <option th:each="rashodnik : ${rashodniks}" th:value="${rashodnik.id}"
-                        th:text="${rashodnik.name}+', '+${rashodnik.ed_izm}"></option>
+                <option th:each="rashodniki : ${rashodniks}" th:value="${rashodniki.id}" th:text="${rashodniki.name}+', '+${rashodniki.ed_izm}"></option>
             </select>
         </div>
 
         <div class="col-sm-6">
             <label class="md-2" for="number">Количество</label>
             <div class="md-7">
-                <input type="text" id="number" name="number" class="form-control"
+                <input type="text" th:field="*{number}" id="number" name="number" class="form-control"
                        placeholder="Введите количество" onkeypress="validate(event)" required/>
             </div>
         </div>
         <div class="mt-1 form-actions floatRight">
-            <button type="submit" class="btn btn-success">Добавить</button>
-            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
+            <button type="submit" class="btn btn-success">Сохранить</button>
+            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Сбросить поля</button>
         </div>
         <hr class="my-4">
 
     </form>
 </div>
 <div th:insert="blocks/footer :: footer"></div>
-
 <script>
 //функция проверки ввода цифр в поле input
  function validate(evt) {

@@ -45,21 +45,34 @@
                         </tbody>
                     </table>
                     <script th:inline="javascript">
+var sredstvo = /*[[${selected.name}]]*/;
 
-    function rowClicked(value) {
-        location.href = "/admin/norms/getNormsForSredstvo/" + value;
-    }
+
+function rowClicked(value) {
+    location.href = "/admin/norms/getNormsForSredstvo/" + value;
+};
+
+function checkParams() {
+console.log("srabotalo!");
+console.log(sredstvo);
+            var name = $('#spanSredstvoName').val();
+            if(sredstvo==""){
+                alert("Вы не выбрали средство!");
+            }
+};
 
 function getParentTag(node, tag) {
     if (node) {
         return (node.tagName == tag) ? node : getParentTag(node.parentElement, tag);
     }
     return null;
-}
+};
+
 
 var tb = document.getElementById('tb');
 tb.setAttribute('activeRowIndex', 0);
 tb.addEventListener('click', cli);
+
 function cli(e) {
     var row = getParentTag(e.target, 'TR');
     if ((!row) || (row.rowIndex == 0)) {
@@ -76,9 +89,9 @@ function cli(e) {
 
             <div class="col-sm-6">
                 <div class="mt-1 form-actions floatRight">
-                    <a th:href="'/admin/norms/add'" class="btn btn-success">Добавить</a>
+                    <a onclick="checkParams()" th:href="'/admin/norms/add'" class="btn btn-success" id="addButton">Добавить</a>
                 </div>
-                <span class="lead">Список расходников для выбранной станции</span>
+                <span class="lead" th:text="'Список расходников для станции '+${selected.name}+ ' индекс: '+${selected.indeks}"></span>
                 <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
                     <table class="table table-hover">
                         <thead>
@@ -112,47 +125,48 @@ function cli(e) {
 </div>
 <div th:insert="blocks/footer :: footer"></div>
 
-<script th:inline="javascript">
+<!--<script th:inline="javascript">-->
 
-/*<![CDATA[*/
-var list = /*[[${sredstvos}]]*/;
-/*]]>*/
-
-
-/*$('#textSearch').on('keyup', function(){
-  var value = $(this).val();
-  var data = FilterFunction(value, list);
-  rebuildTable(data)
-});*/
-
-function FilterFunction(value,data){
-  var filteredData = [];
-  for(var i = 0; i < data.length; i++){
-    value = value.toLowerCase();
-    var name = data[i].name.toLowerCase();
-    var indeks = data[i].indeks.toLowerCase();
-    if(name.includes(value)||indeks.includes(value)){
-      filteredData.push(data[i]);
-    }
-  }
-  return filteredData;
-}
+<!--/*<![CDATA[*/-->
+<!--var list = /*[[${sredstvos}]]*/;-->
+<!--/*]]>*/-->
 
 
-function rebuildTable(data){
-  var table = document.getElementById('tb')
-  table.innerHTML=''
-  for(var i = 0; i<data.length; i++){
-    var row =  `<tr>
-                            <form action="#" th:object="${sredstvo}" th:action="@{/admin/getNormsForSredstvo} + *{id}" method="get">
-                                <td th:text="*{name}"></td>
-                                <td th:text="*{indeks}"></td>
-                            </form>
-		</tr>`
-		table.innerHTML+=row
-  }
-}
+<!--/*$('#textSearch').on('keyup', function(){-->
+<!--  var value = $(this).val();-->
+<!--  var data = FilterFunction(value, list);-->
+<!--  rebuildTable(data)-->
+<!--});*/-->
+
+<!--function FilterFunction(value,data){-->
+<!--  var filteredData = [];-->
+<!--  for(var i = 0; i < data.length; i++){-->
+<!--    value = value.toLowerCase();-->
+<!--    var name = data[i].name.toLowerCase();-->
+<!--    var indeks = data[i].indeks.toLowerCase();-->
+<!--    if(name.includes(value)||indeks.includes(value)){-->
+<!--      filteredData.push(data[i]);-->
+<!--    }-->
+<!--  }-->
+<!--  return filteredData;-->
+<!--}-->
 
 
-</script>
+<!--function rebuildTable(data){-->
+<!--  var table = document.getElementById('tb')-->
+<!--  table.innerHTML=''-->
+<!--  for(var i = 0; i<data.length; i++){-->
+<!--    var row =  `<tr>-->
+<!--                            <form action="#" th:object="${sredstvo}" th:action="@{/admin/getNormsForSredstvo} + *{id}" method="get">-->
+<!--                                <td th:text="*{name}"></td>-->
+<!--                                <td th:text="*{indeks}"></td>-->
+<!--                            </form>-->
+<!--		</tr>`-->
+<!--		table.innerHTML+=row-->
+<!--  }-->
+<!--}-->
+
+
+
+<!--</script>-->
 </body>

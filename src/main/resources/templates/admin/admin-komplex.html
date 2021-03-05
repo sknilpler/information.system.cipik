@@ -20,7 +20,7 @@
                     <label class="md-2" for="fullname">Полное название комплекса</label>
                     <div class="md-7">
                         <input type="text" id="fullname" name="name" class="form-control"
-                               placeholder="Введите полное название комплекса"/>
+                               placeholder="Введите полное название комплекса" required/>
                     </div>
                 </div>
 
@@ -28,7 +28,7 @@
                     <label class="md-2" for="shortname">Короткое название комплекса</label>
                     <div class="md-7">
                         <input type="text" id="shortname" name="shortName" class="form-control"
-                               placeholder="Введите сокращенное название комплекса"/>
+                               placeholder="Введите сокращенное название комплекса" required/>
                     </div>
                 </div>
 
@@ -37,15 +37,15 @@
                     <label class="md-2" for="adres">Адрес комплекса</label>
                     <div class="md-7">
                         <input type="text" id="adres" name="adres" class="form-control"
-                               placeholder="Введите адрес комплекса"/>
+                               placeholder="Введите адрес комплекса" required/>
                     </div>
                 </div>
 
                 <div class="col-sm-6">
                     <label class="md-2 control-lable" for="shortname">Выберите центр</label>
                     <div class="md-7">
-                        <select class="form-control" id="dropCentr" name="dropCentr">
-                            <option value="0">Выберите центр</option>
+                        <select class="form-control" id="dropCentr" name="dropCentr" required>
+                            <option value="">Выберите центр</option>
                             <option th:each="centr : ${centrs}" th:value="${centr.id}"
                                     th:text="${centr.shortName}"></option>
                         </select>
