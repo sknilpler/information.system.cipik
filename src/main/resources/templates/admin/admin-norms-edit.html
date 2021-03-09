@@ -9,6 +9,7 @@
 <body>
 <header th:insert="blocks/header :: header"></header>
 <div class="container">
+    <a href="#" onclick="history.back();">Назад</a>
     <div class="mt-5">
         <h3 th:text="'Редактирование расходника для '+${sredstvo.name}+ ' индекс: '+${sredstvo.indeks}"></h3>
     </div>

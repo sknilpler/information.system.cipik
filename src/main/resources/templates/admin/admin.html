@@ -15,6 +15,7 @@
     <h6>Администрирование учетных записей пользователей</h6>
     <a href="admin/users">Пользователи</a>
 </div>
+<hr>
 <div class="container mt-5">
     <h6>Редактирование данных о подразделениях</h6>
     <a href="admin/centrs/add">Центр</a><br>
@@ -22,16 +23,29 @@
     <a href="admin/otdels/add">Отделы</a>
 
 </div>
+<hr>
 <div class="container mt-5">
-    <h6>Редактирование норм</h6><br>
+    <h6>Редактирование норм</h6>
     <a href="admin/rashs/add">Расходники</a><br>
     <a href="admin/norms">Нормы расхода</a>
 </div>
+<hr>
 <div class="container mt-5">
-    <h6>Редактирование данных о средствах</h6><br>
+    <h6>Редактирование данных о средствах</h6>
     <a href="station/sredstvos">Типы средств в центре</a>
 </div>
-
+<hr>
+<div class="container mt-5">
+    <a href="admin/download_backup">Скачать резервную копию базы</a><br><br>
+    <h6>Восстановление БД из файла Backup</h6>
+    <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
+    <form method="post" th:action="@{/admin/upload_backup}" enctype="multipart/form-data">
+        <div class="form-group">
+            <input type="file" name="file" class="form-control-file">
+        </div>
+        <button type="submit" class="btn btn-primary">Восстановить</button>
+    </form>
+</div>
 
 <div th:insert="blocks/footer :: footer"></div>
 </body>
