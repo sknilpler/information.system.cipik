@@ -2,13 +2,20 @@ package com.information.system.cipik.controllers;
 
 import com.information.system.cipik.models.*;
 import com.information.system.cipik.repo.*;
+import com.information.system.cipik.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class AdminController {
@@ -25,9 +32,90 @@ public class AdminController {
     SredstvoRepository sredstvoRepository;
     @Autowired
     NormaRepository normaRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    RoleRepository roleRepository;
+    @Autowired
+    private UserService userService;
 
     private Iterable<Sredstvo> listSredstv;
     private Sredstvo sredstvoAddToNorm;
+
+//////////////пользователи created by Tashmetov Tahir////////////////////////
+
+//    @GetMapping("/registration")
+//    public String registration(Model model){
+//        model.addAttribute(new User());
+//        return "registration";
+//    }
+//
+//    @PostMapping("/registration")
+//    public String addUser(@RequestParam String username, @RequestParam String password, @RequestParam String passwordConfirm, Model model) {
+//        User user = new User(username, password, passwordConfirm);
+//        if(userService.chekUserName(username)){
+//            //if(!userService.saveUser(user)){
+//            model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
+//            return "registration";
+//        }
+//        if(!user.getPassword().equals(user.getPasswordConfirm())){
+//            model.addAttribute("passwordError", "Пароли не совпадают");
+//            return "registration";
+//        }
+//        userService.saveUser(user);
+////        String oneTimePassword = OTPGenerator.getOneTimePassword();
+////        userService.sendOneTimePasswordMail(username, oneTimePassword);
+////        //userService.sendOneTimePasswordSMS(username, oneTimePassword);
+////
+////        request.getSession().setAttribute("user", user);
+////        request.getSession().setAttribute("oneTimePassword", oneTimePassword);
+//        return "redirect:/login";
+//    }
+
+    @GetMapping("/admin/all-users")
+    public String userList(Model model) {
+        //Получаем пользователя, под которым выполнен вход (страница доступна только апдмину, соответсвенно пользователь будет только с ролью админа.
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //Получаем списко всех пользователей, для отображения на странице
+        List<User> var_list = userService.allUsers();
+        //Удаляем текущего пользователя из списка для отображения, чтобы он не мог удалить сам себя
+        var_list.remove(userRepository.findByUsername(auth.getName()));
+        Iterable<User> users = var_list;
+        model.addAttribute("allUsers", users);
+        return "admin/all-users";
+    }
+
+    //Формируем динамически страницу для каждого пользователя. Внутри страницы можно сделать операции над пользователем
+    @GetMapping("/admin/all-users/user-details/{id}")
+    public String userDetails(@PathVariable(value = "id") long id, Model model) {
+        if (!userRepository.existsById(id)) {
+            return "redirect:/admin/all-users";
+        }
+        Optional<User> user = userRepository.findById(id);
+        ArrayList<User> res = new ArrayList<>();
+        user.ifPresent(res::add);
+        model.addAttribute("user", res);
+        //Создаем объект var_AdminRole и добавляем его в атрибуты страницы.
+        //чтобы потом определять пользователей у которого есть такая роль и не выводить кнопку "Сделать администратором" на странице user-details
+        Role var_AdminRole = new Role(2L, "ROLE_ADMIN");
+        model.addAttribute("var_AdminRole", var_AdminRole);
+        return "admin/user-details";
+    }
+
+    @PostMapping("/admin/all-users/user-details/{id}/add_admin")
+    public String add_admin(@PathVariable(value = "id") long id,Model model) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.getRoles().add(new Role(2L, "ROLE_ADMIN"));
+        userRepository.save(user);
+        return "redirect:/admin/all-users";
+    }
+
+    @PostMapping("/admin/all-users/user-details/{id}/remove")
+    public String delete_user(@PathVariable(value = "id") long id,Model model) {
+        User user = userRepository.findById(id).orElseThrow();
+        userRepository.delete(user);
+        return "redirect:/admin/all-users";
+    }
 
 ////////////////центра///////////////
     @GetMapping("/admin/centrs/add")

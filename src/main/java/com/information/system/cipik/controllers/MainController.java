@@ -25,4 +25,10 @@ public class MainController {
         return "admin/admin";
     }
 
+    @GetMapping("/login")
+    public String login(Model model) {
+        model.addAttribute("title", "login");
+        return "login";
+    }
+
 }

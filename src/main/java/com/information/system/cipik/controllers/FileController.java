@@ -125,13 +125,19 @@ public class FileController {
         }
 
         if (processComplete == 0) {
-            System.out.println("Successfully restored from SQL : " + file.getOriginalFilename());
+            System.out.println("Успешно восстановлено из SQL : " + file.getOriginalFilename());
         } else {
-            System.out.println("Error at restoring");
+            System.out.println("Ошибка восстановления");
         }
 
         // return success response
         attributes.addFlashAttribute("message", "Файл " + file.getOriginalFilename() + " успешно загружен, база данных восстановлена!");
+
+        if (convertFile.delete()) {
+            System.out.println(convertFile.getName() + " временный файл бэкапа удален!");
+        } else {
+            System.out.println("Не удалось удалить файл бэкапа " + convertFile.getName());
+        }
 
         return "redirect:/admin";
     }
@@ -143,7 +149,7 @@ public class FileController {
      * @return Расширение
      */
     private static String getFileExtension(MultipartFile file) {
-        String fileName = file.getName();
+        String fileName = file.getOriginalFilename();
         // если в имени файла есть точка и она не является первым символом в названии файла
         if (fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0)
             // то вырезаем все знаки после последней точки в названии файла, то есть ХХХХХ.txt -> txt
