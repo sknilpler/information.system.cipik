@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+/**
+ * Сущность составная часть станции
+ */
 @Getter
 @Setter
 @Entity

@@ -7,6 +7,9 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 
+/**
+ * Сущность РПР
+ */
 @Getter
 @Setter
 @Entity

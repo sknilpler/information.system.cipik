@@ -6,7 +6,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-
+/**
+ * Сущность драгметаллы
+ */
 @Getter
 @Setter
 @Entity

@@ -44,34 +44,6 @@ public class AdminController {
 
 //////////////пользователи created by Tashmetov Tahir////////////////////////
 
-//    @GetMapping("/registration")
-//    public String registration(Model model){
-//        model.addAttribute(new User());
-//        return "registration";
-//    }
-//
-//    @PostMapping("/registration")
-//    public String addUser(@RequestParam String username, @RequestParam String password, @RequestParam String passwordConfirm, Model model) {
-//        User user = new User(username, password, passwordConfirm);
-//        if(userService.chekUserName(username)){
-//            //if(!userService.saveUser(user)){
-//            model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
-//            return "registration";
-//        }
-//        if(!user.getPassword().equals(user.getPasswordConfirm())){
-//            model.addAttribute("passwordError", "Пароли не совпадают");
-//            return "registration";
-//        }
-//        userService.saveUser(user);
-////        String oneTimePassword = OTPGenerator.getOneTimePassword();
-////        userService.sendOneTimePasswordMail(username, oneTimePassword);
-////        //userService.sendOneTimePasswordSMS(username, oneTimePassword);
-////
-////        request.getSession().setAttribute("user", user);
-////        request.getSession().setAttribute("oneTimePassword", oneTimePassword);
-//        return "redirect:/login";
-//    }
-
     @GetMapping("/admin/all-users")
     public String userList(Model model) {
         //Получаем пользователя, под которым выполнен вход (страница доступна только апдмину, соответсвенно пользователь будет только с ролью админа.

@@ -7,6 +7,9 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 
+/**
+ * Сущность доработки
+ */
 @Getter
 @Setter
 @Entity

@@ -7,6 +7,9 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.List;
 
+/**
+ * Сущность средство
+ */
 @Getter
 @Setter
 @Entity

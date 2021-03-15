@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Администрирование</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+
+<!--Страница для вывода всех пользователей-->
+<div class="container-fluid">
+    <h1>Склад</h1>
+
+    <div class="bd-example">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th scope="col">№</th>
+                <th scope="col">Счет</th>
+                <th scope="col">Статья</th>
+                <th scope="col">Наименование</th>
+                <th scope="col">Номенклатурный №</th>
+                <th scope="col">Цена</th>
+                <th scope="col">Ед. изм.</th>
+                <th scope="col">Код</th>
+                <th scope="col">Кол-во</th>
+                <th scope="col">Доп. приход</th>
+                <th scope="col">Всего приход</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="el : ${allItems}">
+                <th scope="row" th:text="${el.id}"></th>
+                <td th:text="${el.bill}"></td>
+                <td th:text="${el.expense_item}"></td>
+                <td th:text="${el.name}"></td>
+                <td th:text="${el.number}"></td>
+                <td th:text="${el.price}"></td>
+                <td th:text="${el.unit}"></td>
+                <td th:text="${el.code}"></td>
+                <td th:text="${el.count}"></td>
+                <td th:text="${el.dlc_count}"></td>
+                <td th:text="${el.all_count}"></td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <div class="pagination justify-content-start">
+        <div class="d-flex justify-content-start flex-wrap">
+            <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
+            <a th:href="'/userPage/item-add'" class="btn btn-success mx-1">Добавить</a>
+        </div>
+    </div>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

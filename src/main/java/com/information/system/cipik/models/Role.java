@@ -8,6 +8,9 @@ import org.springframework.security.core.GrantedAuthority;
 import javax.persistence.*;
 import java.util.Set;
 
+/**
+ * Сущность пользовательская роль
+ */
 @Getter
 @Setter
 @Entity
@@ -15,12 +18,13 @@ import java.util.Set;
 public class Role implements GrantedAuthority {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
     @Transient
     //Непонятно зачем )
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany
     private Set<User> users;
 
     public Role(Long id) {
@@ -29,6 +33,10 @@ public class Role implements GrantedAuthority {
 
     public Role(Long id, String name) {
         this.id = id;
+        this.name = name;
+    }
+
+    public Role(String name) {
         this.name = name;
     }
 

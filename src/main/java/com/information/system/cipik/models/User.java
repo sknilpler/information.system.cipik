@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.Set;
 
 
+/**
+ * Сущность пользователь
+ */
 @Getter
 @Setter
 @Entity

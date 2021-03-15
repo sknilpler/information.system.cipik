@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Администрирование</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+</head>
+
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container-sm">
+    <p class="fs-6 text-danger" th:text="${itemNameError}"></p>
+    <form action="/userPage/item-add" th:object="${newItem}" method="post" class="row g-3">
+        <div class="col-sm-2">
+            <label for="inputBill" class="form-label">Счет</label>
+            <input type="text" th:field="*{bill}" class="form-control" name="inputBill" id="inputBill" required>
+        </div>
+        <div class="col-sm-2">
+            <label for="inputExpenseItem" class="form-label">Статья</label>
+            <input type="text" th:field="*{expense_item}" class="form-control" name="inputExpenseItem" id="inputExpenseItem" required>
+        </div>
+        <div class="col-sm-8">
+            <label for="inputName" class="form-label">Наименование</label>
+            <input type="text" th:field="*{name}" class="form-control" name="inputName" id="inputName" required>
+        </div>
+        <div class="col-sm-4">
+            <label for="inputNumber" class="form-label">Номенклатурный номер</label>
+            <input type="text" th:field="*{number}" class="form-control" name="inputNumber" id="inputNumber" required>
+        </div>
+        <div class="col-sm-2">
+            <label for="inputPrice" class="form-label">Цена</label>
+            <input type="text" th:field="*{price}" class="form-control" name="inputPrice" id="inputPrice" required>
+        </div>
+        <div class="col-sm-2">
+            <label for="inputUnit" class="form-label">Ед. изм.</label>
+            <input type="text" th:field="*{unit}" class="form-control" name="inputUnit" id="inputUnit" required>
+        </div>
+        <div class="col-sm-2">
+            <label for="inputCode" class="form-label">Код</label>
+            <input type="text" th:field="*{code}" class="form-control" name="inputCode" id="inputCode" required>
+        </div>
+        <div class="col-sm-2">
+            <label for="inputCount" class="form-label">Количество</label>
+            <input type="text" th:field="*{count}" class="form-control" name="inputCount" id="inputCount" required>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Добавить</button>
+            <a th:href="'/userPage/item-all'" class="btn btn-secondary my-2">Назад</a>
+        </div>
+    </form>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

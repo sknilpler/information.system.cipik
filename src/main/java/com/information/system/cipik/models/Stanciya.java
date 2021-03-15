@@ -8,6 +8,9 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Сущность станция
+ */
 @Entity
 @Setter
 @Getter

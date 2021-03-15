@@ -8,28 +8,22 @@ import javax.persistence.*;
 import java.util.List;
 
 /**
- * Сущность центр
+ * Сущность СИЗ
  */
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
-public class Centr {
+public class IndividualProtectionMeans {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-    private String name;
-    private String shortName;
+    private String nameSIZ;
+    private String ed_izm;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "centr_id")
-    private List<Komplex> komplexes;
-
-    public Centr(String name, String shortName) {
-        this.name = name;
-        this.shortName = shortName;
-    }
+    @JoinColumn(name = "siz_id")
+    private List<IPMStandard> ipmStandards;
 
 }

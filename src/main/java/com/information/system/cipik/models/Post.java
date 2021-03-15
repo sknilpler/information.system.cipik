@@ -8,34 +8,31 @@ import javax.persistence.*;
 import java.util.List;
 
 /**
- * Сущность отдел
+ * Сущность должность
  */
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
-public class Otdel {
+public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String name;
+    private String postName;
 
-    @ManyToOne
-    private Komplex komplex;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "otdel_id")
-    private List<Stanciya> stanciyas;
+    public Post(String postName) {
+        this.postName = postName;
+    }
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "otdel_id")
+    @JoinColumn(name = "post_id")
     private List<Employee> employees;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "post_id")
+    private IPMStandard ipmStandard;
 
-    public Otdel(String name, Komplex komplex) {
-        this.name = name;
-        this.komplex = komplex;
-    }
+
 }

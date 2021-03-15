@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+/**
+ * Сущность норма расхода
+ */
 @Entity
 @Setter
 @Getter
