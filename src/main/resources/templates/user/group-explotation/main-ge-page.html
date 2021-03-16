@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Группа эксплуатации</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h6>Аппаратура и средства</h6>
+    <a sec:authorize="hasRole('ROLE_USER')" href="/user/station/sredstvos">Типы средств в центре</a><br>
+    <a sec:authorize="hasRole('ROLE_USER')" href="/user/stations">Станции (пусто)</a>
+</div>
+<hr>
+<div class="container mt-5">
+    <h6>Редактирование норм</h6>
+    <a sec:authorize="hasRole('ROLE_USER')" href="/user/station/rashs/add">Расходники</a><br>
+    <a sec:authorize="hasRole('ROLE_USER')" href="/user/station/norms">Нормы расхода</a>
+</div>
+<hr>
+<div class="container mt-5">
+    <h6>Регламентированные работы</h6>
+    <a sec:authorize="hasRole('ROLE_USER')" href="/user/poverki">Поверки (пусто)</a>
+</div>
+<hr>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

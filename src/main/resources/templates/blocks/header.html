@@ -10,9 +10,6 @@
                 <a class="p-2 text-dark" href="/">Главная</a>
                 <a class="p-2 text-dark" href="/about">О нас</a>
                 <a sec:authorize="!isAuthenticated()" class="p-2 text-dark" href="/login">Вход</a>
-                <a sec:authorize="hasRole('ROLE_USER')" class="p-2 text-dark" href="/userPage/item-all">Склад</a>
-                <a sec:authorize="hasRole('ROLE_USER')" class="p-2 text-dark" href="/stations">Аппаратура и средства</a>
-                <a sec:authorize="hasRole('ROLE_USER')" class="p-2 text-dark" href="/poverki">Поверки</a>
                 <a sec:authorize="hasRole('ROLE_ADMIN')" class="p-2 text-dark" href="/admin">Администрирование</a>
             </nav>
             <a sec:authorize="!isAuthenticated()" class="btn btn-outline-primary" href="/registration">Зарегистрироваться</a>

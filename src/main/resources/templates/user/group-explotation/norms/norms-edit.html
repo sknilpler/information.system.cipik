@@ -14,7 +14,7 @@
         <h3 th:text="'Редактирование расходника для '+${sredstvo.name}+ ' индекс: '+${sredstvo.indeks}"></h3>
     </div>
 
-    <form  th:object="${norma}" th:action="'/admin/norms/'+*{id}+'/edit'"  method="post">
+    <form  th:object="${norma}" th:action="'/user/station/norms/'+*{id}+'/edit'"  method="post">
         <div class="col-sm-6">
             <label class="md-2" for="dropRash">Расходный материал</label>
             <select class="form-control" id="dropRash" name="dropRash" required>

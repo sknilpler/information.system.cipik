@@ -70,25 +70,25 @@ body {
 </head>
 <body>
 <body class="text-center">
-<main class="form-signin">
-    <form action="/login" method="post">
-        <h1 class="h3 mb-3 fw-normal">Пожалуйста, авторизуйтесь</h1>
+    <main class="form-signin">
+        <form action="/login" method="post">
+            <h1 class="h3 mb-3 fw-normal">Пожалуйста, авторизуйтесь</h1>
 
 
-        <div class="fs-6 text-danger" th:if="${param.error}">
-            Неправильный логин или пароль.
-        </div>
+            <div class="fs-6 text-danger" th:if="${param.error}">
+                Неправильный логин или пароль.
+            </div>
 
-        <label for="username" class="visually-hidden">Имя пользователя</label>
-        <input type="text" id="username" name="username" placeholder="Введите имя пользователя" class="form-control"
-               autofocus="true"><br>
-        <label for="inputPassword" class="visually-hidden">Пароль</label>
-        <input type="password" id="inputPassword" name="password" placeholder="Введите пароль" class="form-control"><br>
-        <button type="submit" class="w-100 btn btn-lg btn-primary">Войти</button>
-        <a class="p-2 text-dark" href="/">На главную</a>
-        <p class="mt-5 mb-3 text-muted">&copy;2021</p>
-    </form>
-</main>
+            <label for="username" class="visually-hidden">Имя пользователя</label>
+            <input type="text" id="username" name="username" placeholder="Введите имя пользователя" class="form-control"
+                   autofocus="true"><br>
+            <label for="inputPassword" class="visually-hidden">Пароль</label>
+            <input type="password" id="inputPassword" name="password" placeholder="Введите пароль" class="form-control"><br>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Войти</button>
+            <a class="p-2 text-dark" href="/">На главную</a>
+            <p class="mt-5 mb-3 text-muted">&copy;2021</p>
+        </form>
+    </main>
 </body>
 </body>
 </html>

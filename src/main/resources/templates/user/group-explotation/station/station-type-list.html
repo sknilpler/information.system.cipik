@@ -10,7 +10,7 @@
 <header th:insert="blocks/header :: header"></header>
 <div class="container">
     <div class="mt-1 form-actions floatRight">
-        <a th:href="'/station/sredstvos/add'" class="btn btn-success">Добавить</a>
+        <a th:href="'/user/station/sredstvos/add'" class="btn btn-success">Добавить</a>
     </div>
     <hr class="my-4">
     <div class="panel-heading"><span class="lead">Список типов средств в центре</span></div>
@@ -29,8 +29,8 @@
                     <td th:text="${sredstvo.name}"></td>
                     <td th:text="${sredstvo.indeks}"></td>
                     <td>
-                        <form th:action="'/station/sredstvos/'+${sredstvo.id}+'/remove'" method="post">
-                            <a th:href="'/station/sredstvos/'+${sredstvo.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                        <form th:action="'/user/station/sredstvos/'+${sredstvo.id}+'/remove'" method="post">
+                            <a th:href="'/user/station/sredstvos/'+${sredstvo.id}+'/edit'" class="btn btn-primary">Редактировать</a>
                             <button class="btn btn-danger" type="submit">Удалить</button>
                         </form>
                     </td>

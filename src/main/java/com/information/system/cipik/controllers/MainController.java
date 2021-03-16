@@ -25,6 +25,18 @@ public class MainController {
         return "admin/admin";
     }
 
+    @GetMapping("user/mto")
+    public String mto(Model model){
+        model.addAttribute("title", "Главная страница МТО");
+        return "user/mto/main-mto-page";
+    }
+
+    @GetMapping("user/ge")
+    public String ge(Model model){
+        model.addAttribute("title", "Главная страница ГЭ");
+        return "user/group-explotation/main-ge-page";
+    }
+
     @GetMapping("/login")
     public String login(Model model) {
         model.addAttribute("title", "login");

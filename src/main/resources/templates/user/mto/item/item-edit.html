@@ -3,14 +3,15 @@
 <head>
     <title>Администрирование</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
 </head>
 
 <body>
 <header th:insert="blocks/header :: header"></header>
 <div class="container-sm">
     <p class="fs-6 text-danger" th:text="${itemNameError}"></p>
-    <form action="/userPage/item-add" th:object="${newItem}" method="post" class="row g-3">
+    <form th:action="'/userPage/item/'+*{id}+'/edit'" th:object="${item}" method="post" class="row g-3">
         <div class="col-sm-2">
             <label for="inputBill" class="form-label">Счет</label>
             <input type="text" th:field="*{bill}" class="form-control" name="inputBill" id="inputBill" required>

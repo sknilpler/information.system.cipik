@@ -59,8 +59,8 @@
                         <td th:text="${rash.name}"></td>
                         <td th:text="${rash.ed_izm}"></td>
                         <td>
-                            <form th:action="'/admin/rashs/'+${rash.id}+'/remove'" method="post">
-                                <a th:href="'/admin/rashs/'+${rash.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                            <form th:action="'/user/station/rashs/'+${rash.id}+'/remove'" method="post">
+                                <a th:href="'/user/station/rashs/'+${rash.id}+'/edit'" class="btn btn-primary">Редактировать</a>
                                 <button class="btn btn-danger" type="submit">Удалить</button>
                             </form>
                         </td>

@@ -3,7 +3,8 @@
 <head>
     <title>Администрирование</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
 
 </head>
 <body>
@@ -28,6 +29,7 @@
                 <th scope="col">Кол-во</th>
                 <th scope="col">Доп. приход</th>
                 <th scope="col">Всего приход</th>
+                <th scope="col" style="width: 310px;"></th>
             </tr>
             </thead>
             <tbody>
@@ -43,6 +45,12 @@
                 <td th:text="${el.count}"></td>
                 <td th:text="${el.dlc_count}"></td>
                 <td th:text="${el.all_count}"></td>
+                <td>
+                    <form th:action="'/userPage/item/'+${el.id}+'/remove'" method="post">
+                        <a th:href="'/userPage/item/'+${el.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                        <button class="btn btn-danger" type="submit">Удалить</button>
+                    </form>
+                </td>
             </tr>
             </tbody>
 
