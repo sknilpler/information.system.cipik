@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Сотрудники</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container-sm">
+    <!--    <p class="fs-6 text-danger" th:text="${itemNameError}"></p>-->
+    <form th:action="'/userPage/employee/'+*{id}+'/edit'" th:object="${employee}" method="post" class="row g-3">
+        <div class="col-sm-8">
+            <label for="surname" class="form-label">Фамилия</label>
+            <input type="text" th:field="*{surname}" class="form-control" name="surname" id="surname" required>
+        </div>
+        <div class="col-sm-8">
+            <label for="name" class="form-label">Имя</label>
+            <input type="text" th:field="*{name}" class="form-control" name="name" id="name" required>
+        </div>
+        <div class="col-sm-8">
+            <label for="patronymic" class="form-label">Отчество</label>
+            <input type="text" th:field="*{patronymic}" class="form-control" name="patronymic" id="patronymic" required>
+        </div>
+        <div class="col-sm-4">
+            <label for="tabNomer" class="form-label">Табельный номер</label>
+            <input type="text" th:field="*{tabNomer}" class="form-control" name="tabNomer" id="tabNomer" required>
+        </div>
+        <div class="col-sm-2">
+            <label for="dataStartWork" class="form-label">Дата трудоустройства</label>
+            <input type="date" th:field="*{dataStartWork}" class="form-control" name="dataStartWork" id="dataStartWork" required>
+        </div>
+        <div class="col-sm-2">
+            <label for="sex" class="form-label">Пол</label>
+            <select class="form-select" aria-label="example"  th:field="*{sex}" name="sex" id="sex" required>
+                <option selected="">Выберите пол</option>
+                <option value="1">Мужской</option>
+                <option value="2">Женский</option>
+            </select>
+        </div>
+        <div class="col-sm-4">
+            <select class="form-control" id="post" name="post" required>
+                <option value="">Должность</option>
+                <option th:each="post : ${posts}" th:value="${post.id}"
+                        th:text="${post.postName}"></option>
+            </select>
+        </div>
+        <div class="col-sm-4">
+            <select class="form-control" id="otdel" name="otdel" required>
+                <option value="">Отдел</option>
+                <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
+                        th:text="${otdel.name}"></option>
+            </select>
+        </div>
+
+        <hr>
+        <p class="lead">
+            Метрики
+        </p>
+
+        <div class="col-sm-2">
+            <label for="height" class="form-label">Рост</label>
+            <input type="text" th:field="*{height}" class="form-control" name="height" id="height">
+        </div>
+        <div class="col-sm-2">
+            <label for="clothingSize" class="form-label">Размер одежды</label>
+            <input type="text" th:field="*{clothingSize}" class="form-control" name="clothingSize" id="clothingSize">
+        </div>
+        <div class="col-sm-2">
+            <label for="headgearSize" class="form-label">Размер головного убора</label>
+            <input type="text" th:field="*{headgearSize}" class="form-control" name="headgearSize" id="headgearSize">
+        </div>
+        <div class="col-sm-2">
+            <label for="shoeSize" class="form-label">Размер ноги</label>
+            <input type="text" th:field="*{shoeSize}" class="form-control" name="shoeSize" id="shoeSize">
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Добавить</button>
+            <a th:href="'/userPage/employee/employees-all'" class="btn btn-secondary my-2">Назад</a>
+        </div>
+    </form>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

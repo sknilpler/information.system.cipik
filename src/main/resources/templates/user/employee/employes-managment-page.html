@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Сотрудники</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+
+<!--Страница для вывода всех сотрудников-->
+<div class="container-fluid">
+    <h1>Список всех сотрудников</h1>
+
+    <div class="bd-example">
+        <table class="table table-bordered">
+            <thead>
+            <tr align="center">
+                <th scope="col" rowspan="2">№</th>
+                <th scope="col" rowspan="2">ФИО</th>
+                <th scope="col" rowspan="2">Должность</th>
+                <th scope="col" rowspan="2">Табельный №</th>
+                <th scope="col" rowspan="2">Дата трудоустройства</th>
+                <th scope="col" rowspan="2">Пол</th>
+                <th scope="col" rowspan="2">Рост</th>
+                <th scope="col" colspan="3">Размеры</th>
+            <th scope="col" style="width: 310px;" rowspan="2"></th>
+            </tr>
+            <tr align="center">
+                <th scope="col" >Одежды</th>
+                <th scope="col">Обуви</th>
+                <th scope="col">Головного убора</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="el : ${employees}">
+                <th scope="row" th:text="${el.id}"></th>
+                <td th:text="${el.surname}+' '+${el.name}+' '+${el.patronymic}}"></td>
+                <td th:text="${el.post.postName}"></td>
+                <td th:text="${el.tabNomer}"></td>
+                <td th:text="${el.dataStartWork}"></td>
+                <td th:text="${el.sex}"></td>
+                <td th:text="${el.height}"></td>
+                <td th:text="${el.clothingSize}"></td>
+                <td th:text="${el.shoeSize}"></td>
+                <td th:text="${el.headgearSize}"></td>
+                <td>
+                    <form th:action="'/userPage/employee/'+${el.id}+'/remove'" method="post">
+                        <a th:href="'/userPage/employee/'+${el.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                        <button class="btn btn-danger" type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <div class="pagination justify-content-start">
+        <div class="d-flex justify-content-start flex-wrap">
+            <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
+            <a th:href="'/userPage/employee/employee-add'" class="btn btn-success mx-1">Добавить</a>
+        </div>
+    </div>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>
