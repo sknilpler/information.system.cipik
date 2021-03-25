@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Должностей</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h1>Редактирование должностей</h1>
+</div>
+
+<form method="post">
+
+    <div class="container mt-1 md-12">
+        <label class="md-2" for="postName">Название должности</label>
+        <div class="md-7">
+            <input type="text" id="postName" name="postName" class="form-control"
+                   placeholder="Введите название должности" required/>
+        </div>
+    </div>
+
+    <div class="container mt-1 form-actions floatRight">
+        <button type="submit" class="btn btn-success">Добавить</button>
+        <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
+    </div>
+    <br>
+
+</form>
+
+<div class="container panel panel-default">
+    <div class="panel-heading"><span class="lead">Список должностей</span></div>
+    <div class="panel-body">
+        <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Код</th>
+                    <th>Название</th>
+                    <th style="width: 310px;"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="post : ${posts}">
+                    <td th:text="${post.id}"></td>
+                    <td th:text="${post.postName}"></td>
+                    <td>
+                        <form th:action="'/userPage/posts/'+${post.id}+'/remove'" method="post">
+                            <a th:href="'/userPage/posts/'+${post.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                            <button class="btn btn-danger" type="submit">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>

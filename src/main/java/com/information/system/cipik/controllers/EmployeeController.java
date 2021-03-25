@@ -1,17 +1,18 @@
 package com.information.system.cipik.controllers;
 
 import com.information.system.cipik.models.Employee;
+import com.information.system.cipik.models.Post;
 import com.information.system.cipik.repo.EmployeeRepository;
 import com.information.system.cipik.repo.KomplexRepository;
 import com.information.system.cipik.repo.OtdelRepository;
 import com.information.system.cipik.repo.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @Controller
 public class EmployeeController {
@@ -45,11 +46,15 @@ public class EmployeeController {
         model.addAttribute("komplexes", komplexRepository.findAll());
         model.addAttribute("posts", postRepository.findAll());
         model.addAttribute("otdels", otdelRepository.findAll());
+        model.addAttribute("dataStart", new Date());
         return "user/employee/employee-add";
     }
 
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
     @PostMapping("/userPage/employee/employee-add")
-    public String addEmployee(@ModelAttribute("newEmployee") Employee newEmployee, Model model) {
+    public String addEmployee(@ModelAttribute("newEmployee") Employee newEmployee, @ModelAttribute("dataStart") Date dataStart, Model model) {
+        System.out.println("дата: "+dataStart);
+            newEmployee.setDataStartWork(dataStart);
         employeeRepository.save(newEmployee);
         return "redirect:/userPage/employee/employees-all";
     }
@@ -62,15 +67,57 @@ public class EmployeeController {
         Employee employee = employeeRepository.findById(id).orElseThrow();
         model.addAttribute("posts", postRepository.findAll());
         model.addAttribute("otdels", otdelRepository.findAll());
+        model.addAttribute("komplexes", komplexRepository.findAll());
         model.addAttribute("employee", employee);
+        model.addAttribute("dataStart",employee.getDataStartWork());
         return "user/employee/employee-edit";
     }
 
     @PostMapping("/userPage/employee/{id}/edit")
-    public String employeeUpdate(@PathVariable(value = "id") long id, @ModelAttribute("employee") Employee newEmployee, Model model) {
+    public String employeeUpdate(@PathVariable(value = "id") long id, @ModelAttribute("employee") Employee newEmployee, @ModelAttribute("dataStart") Date dataStart, Model model) {
         newEmployee.setId(id);
-        System.out.println(newEmployee.getId());
+        newEmployee.setDataStartWork(dataStart);
+        System.out.println(newEmployee.getDataStartWork());
         employeeRepository.save(newEmployee);
         return "redirect:/userPage/employee/employees-all";
+    }
+
+    @GetMapping("/userPage/posts/add")
+    public String postsAll(Model model) {
+        Iterable<Post> posts = postRepository.findAll();
+        model.addAttribute("posts", posts);
+        return "user/employee/post/post-all";
+    }
+
+    @PostMapping("/userPage/posts/add")
+    public String postAdd(@RequestParam String postName, Model model) {
+        Post post = new Post(postName);
+        postRepository.save(post);
+        return "redirect:/userPage/posts/add";
+    }
+
+    @GetMapping("/userPage/posts/{id}/edit")
+    public String postEdit(@PathVariable(value = "id") long id, Model model) {
+        if (!postRepository.existsById(id)) {
+            return "redirect:/userPage/posts/add";
+        }
+        Post post = postRepository.findById(id).orElseThrow();
+        model.addAttribute("post", post);
+        return "user/employee/post/post-edit";
+    }
+
+    @PostMapping("/userPage/posts/{id}/edit")
+    public String postUpdate(@PathVariable(value = "id") long id, @RequestParam String postName, Model model) {
+        Post post = postRepository.findById(id).orElseThrow();
+        post.setPostName(postName);
+        postRepository.save(post);
+        return "redirect:/userPage/posts/add";
+    }
+
+    @PostMapping("/userPage/posts/{id}/remove")
+    public String postDelete(@PathVariable(value = "id") long id, Model model) {
+        Post post = postRepository.findById(id).orElseThrow();
+        postRepository.deleteById(id);
+        return "redirect:/userPage/posts/add";
     }
 }

@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Редактирование должности</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h1>Редактирование должности</h1>
+
+
+    <form  th:object="${post}" th:action="'/userPage/posts/'+*{id}+'/edit'"  method="post">
+
+        <div class="container mt-1 md-12">
+            <label class="md-2" for="postName">Название должности</label>
+            <div class="md-7">
+                <input type="text" th:field="*{postName}" id="postName" name="postName" class="form-control"
+                       placeholder="Введите название должности" required/>
+            </div>
+        </div>
+
+        <div class="container mt-1 form-actions floatRight">
+            <button type="submit" class="btn btn-success">Сохранить</button>
+            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Сбросить поля</button>
+        </div>
+        <br>
+
+    </form>
+</div>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>

@@ -12,15 +12,15 @@
 <div class="container-sm">
     <!--    <p class="fs-6 text-danger" th:text="${itemNameError}"></p>-->
     <form th:action="'/userPage/employee/'+*{id}+'/edit'" th:object="${employee}" method="post" class="row g-3">
-        <div class="col-sm-8">
+        <div class="col-sm-4">
             <label for="surname" class="form-label">Фамилия</label>
             <input type="text" th:field="*{surname}" class="form-control" name="surname" id="surname" required>
         </div>
-        <div class="col-sm-8">
+        <div class="col-sm-4">
             <label for="name" class="form-label">Имя</label>
             <input type="text" th:field="*{name}" class="form-control" name="name" id="name" required>
         </div>
-        <div class="col-sm-8">
+        <div class="col-sm-4">
             <label for="patronymic" class="form-label">Отчество</label>
             <input type="text" th:field="*{patronymic}" class="form-control" name="patronymic" id="patronymic" required>
         </div>
@@ -28,52 +28,62 @@
             <label for="tabNomer" class="form-label">Табельный номер</label>
             <input type="text" th:field="*{tabNomer}" class="form-control" name="tabNomer" id="tabNomer" required>
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-4">
             <label for="dataStartWork" class="form-label">Дата трудоустройства</label>
-            <input type="date" th:field="*{dataStartWork}" class="form-control" name="dataStartWork" id="dataStartWork" required>
+            <input type="date" th:field="${dataStart}" class="form-control" name="dataStartWork" id="dataStartWork" required>
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-4">
             <label for="sex" class="form-label">Пол</label>
             <select class="form-select" aria-label="example"  th:field="*{sex}" name="sex" id="sex" required>
-                <option selected="">Выберите пол</option>
-                <option value="1">Мужской</option>
-                <option value="2">Женский</option>
+                <option value="Мужской">Мужской</option>
+                <option value="Женский">Женский</option>
             </select>
         </div>
         <div class="col-sm-4">
+            <label for="komplex" class="form-label">Комплекс</label>
+            <select class="form-control" id="komplex" name="komplex" onchange="selectKomplex();" required>
+                <option value="">Комплекс</option>
+                <option th:each="k : ${komplexes}" th:value="${k.id}"
+                        th:text="${k.shortName}"></option>
+            </select>
+        </div>
+        <div class="col-sm-4">
+            <label for="otdel" class="form-label">Отдел</label>
+            <select class="form-control" id="otdel" name="otdel" disabled required>
+                <option value="">Отдел</option>
+                <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
+                        th:text="${otdel.name}"></option>
+            </select>
+        </div>
+        <div class="col-sm-4">
+            <label for="post" class="form-label">Должность</label>
             <select class="form-control" id="post" name="post" required>
                 <option value="">Должность</option>
                 <option th:each="post : ${posts}" th:value="${post.id}"
                         th:text="${post.postName}"></option>
             </select>
         </div>
-        <div class="col-sm-4">
-            <select class="form-control" id="otdel" name="otdel" required>
-                <option value="">Отдел</option>
-                <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
-                        th:text="${otdel.name}"></option>
-            </select>
-        </div>
+
 
         <hr>
         <p class="lead">
             Метрики
         </p>
 
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             <label for="height" class="form-label">Рост</label>
             <input type="text" th:field="*{height}" class="form-control" name="height" id="height">
         </div>
-        <div class="col-sm-2">
-            <label for="clothingSize" class="form-label">Размер одежды</label>
+        <div class="col-sm-3">
+            <label for="clothingSize" class="form-label">Одежда</label>
             <input type="text" th:field="*{clothingSize}" class="form-control" name="clothingSize" id="clothingSize">
         </div>
-        <div class="col-sm-2">
-            <label for="headgearSize" class="form-label">Размер головного убора</label>
+        <div class="col-sm-3">
+            <label for="headgearSize" class="form-label">Головной убор</label>
             <input type="text" th:field="*{headgearSize}" class="form-control" name="headgearSize" id="headgearSize">
         </div>
-        <div class="col-sm-2">
-            <label for="shoeSize" class="form-label">Размер ноги</label>
+        <div class="col-sm-3">
+            <label for="shoeSize" class="form-label">Обувь</label>
             <input type="text" th:field="*{shoeSize}" class="form-control" name="shoeSize" id="shoeSize">
         </div>
 
@@ -83,6 +93,42 @@
         </div>
     </form>
 </div>
+
+<script th:inline="javascript">
+function selectKomplex() {
+document.getElementById("otdel").removeAttribute("disabled");
+ /*<![CDATA[*/
+    var komplexes = [];
+    /*[# th:each="n:${komplexes}"]*/
+        komplexes.push("[(${n})]");
+    /*[/]*/
+
+    /*[# th:each="elVar : ${komplexes}"]*/
+ 	    var index = /*[[${elVar.id}]]*/ ;
+ 	    komplexes[index] = /*[[${elVar.shortName}]]*/
+    /*[/]*/
+ /*]]>*/
+
+  	var x = document.getElementById("komplex").value;
+ 	var otdels = [];
+
+ /*[# th:each="el : ${otdels}"]*/
+ 	   var index_S = /*[[${el.komplex.id}]]*/
+ 		if (x == index_S) {
+ 		    var var_arr = [];
+ 		    var_arr.push(/*[[${el.name}]]*/ , /*[[${el.id}]]*/);
+ 			otdels.push(var_arr);
+ 		}
+ /*[/]*/
+
+ otdel.options.length = 1;
+ 	for (var i = 0; i < otdels.length; i++) {
+ 		let newOption = new Option(otdels[i][0], otdels[i][1],);
+ 		otdel.append(newOption);
+ 	}
+}
+</script>
+
 <div th:insert="blocks/footer :: footer"></div>
 </body>
 </html>
