@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Типы СИЗ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h1>Редактиривание данных о типах СИЗ</h1>
+</div>
+
+<form method="post">
+
+    <div class="container mt-1 md-12">
+        <label class="md-2" for="nameSIZ">Полное название СИЗ</label>
+        <div class="md-7">
+            <input type="text" id="nameSIZ" name="nameSIZ" class="form-control"
+                   placeholder="Введите полное название" required/>
+        </div>
+    </div>
+
+    <div class="container mt-1 col-md-12">
+        <label class="md-2" for="ed_izm">Единицы измерения</label>
+        <div class="md-7">
+            <input type="text" id="ed_izm" name="ed_izm" class="form-control"
+                   placeholder="Введите ед. изм. СИЗ" required/>
+        </div>
+    </div>
+
+    <div class="container mt-1 form-actions floatRight">
+        <button type="submit" class="btn btn-success">Добавить</button>
+        <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
+    </div>
+    <div class="pagination justify-content-start">
+        <div class="d-flex justify-content-start flex-wrap">
+            <a th:href="'/user/mto'" class="btn btn-secondary mx-auto">Назад</a>
+        </div>
+    </div>
+    <br>
+
+</form>
+
+<div class="container panel panel-default">
+    <div class="panel-heading"><span class="lead">Список типов СИЗ</span></div>
+    <div class="panel-body">
+        <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Код</th>
+                    <th>Наименование</th>
+                    <th>Ед. изм.</th>
+                    <th style="width: 310px;"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="ipm : ${ipms}">
+                    <td th:text="${ipm.id}"></td>
+                    <td th:text="${ipm.nameSIZ}"></td>
+                    <td th:text="${ipm.ed_izm}"></td>
+                    <td>
+                        <form th:action="'/userPage/siz-types/'+${ipm.id}+'/remove'" method="post">
+                            <a th:href="'/userPage/siz-types/'+${ipm.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                            <button class="btn btn-danger" type="submit">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>

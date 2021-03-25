@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Добавление нормы СИЗ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js" ></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container">
+    <a href="#" onclick="history.back();">Назад</a>
+    <div class="mt-5">
+        <h3 th:text="'Добавление нормы СИЗ для должности '+${post.postName}"></h3>
+    </div>
+
+    <form method="post">
+        <div class="col-sm-6">
+            <label class="md-2" for="dropSIZ">Средства индивидуальной защиты</label>
+            <select class="form-control" id="dropSIZ" name="dropSIZ" required>
+                <option value="">Выберите СИЗ</option>
+                <option th:each="siz : ${sizs}" th:value="${siz.id}"
+                        th:text="${siz.nameSIZ}+', '+${siz.ed_izm}"></option>
+            </select>
+        </div>
+
+        <div class="col-sm-6">
+            <label class="md-2" for="issuanceRate">Количество</label>
+            <div class="md-7">
+                <input type="text" id="issuanceRate" name="issuanceRate" class="form-control"
+                       placeholder="Введите количество" onkeypress="validate(event)" required/>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label class="md-2" for="serviceLife">Срок службы</label>
+            <div class="md-7">
+                <input type="text" id="serviceLife" name="serviceLife" class="form-control"
+                       placeholder="Введите срок службы (месяцев)" onkeypress="validate(event)" required/>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label class="md-2" for="regulatoryDocuments">Регламентирующие документы</label>
+            <div class="md-7">
+                <input type="text" id="regulatoryDocuments" name="regulatoryDocuments" class="form-control"
+                       placeholder="Введите название документа" required/>
+            </div>
+        </div>
+
+        <div class="mt-1 form-actions floatRight">
+            <button type="submit" class="btn btn-success">Добавить</button>
+            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
+        </div>
+        <hr class="my-4">
+
+    </form>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+
+<script>
+//функция проверки ввода цифр в поле input
+ function validate(evt) {
+  var theEvent = evt || window.event;
+  var key = theEvent.keyCode || theEvent.which;
+  key = String.fromCharCode( key );
+  var regex = /[0-9]/;
+  if( !regex.test(key) ) {
+    theEvent.returnValue = false;
+    if(theEvent.preventDefault) theEvent.preventDefault();
+  }
+}
+</script>
+</body>

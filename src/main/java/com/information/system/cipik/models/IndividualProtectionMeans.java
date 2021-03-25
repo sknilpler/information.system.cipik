@@ -26,4 +26,8 @@ public class IndividualProtectionMeans {
     @JoinColumn(name = "siz_id")
     private List<IPMStandard> ipmStandards;
 
+    public IndividualProtectionMeans(String nameSIZ, String ed_izm) {
+        this.nameSIZ = nameSIZ;
+        this.ed_izm = ed_izm;
+    }
 }

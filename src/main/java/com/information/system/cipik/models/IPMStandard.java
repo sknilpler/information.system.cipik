@@ -39,4 +39,5 @@ public class IPMStandard {
         this.serviceLife = serviceLife;
         this.regulatoryDocuments = regulatoryDocuments;
     }
+
 }

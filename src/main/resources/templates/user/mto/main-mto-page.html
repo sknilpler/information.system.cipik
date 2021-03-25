@@ -10,7 +10,9 @@
 <header th:insert="blocks/header :: header"></header>
 <div class="container mt-5">
     <h6>СИЗ</h6>
-    <a sec:authorize="hasRole('ROLE_USER')" href="/userPage/norms">Нормы выдачи</a>
+    <a sec:authorize="hasRole('ROLE_USER')" href="/userPage/siz-types">Типы СИЗ</a><br>
+    <a sec:authorize="hasRole('ROLE_USER')" href="/userPage/siz/norms">Нормы выдачи</a><br>
+    <a sec:authorize="hasRole('ROLE_USER')" href="/userPage/issued-siz">Выданный СИЗ</a>
 </div>
 <hr>
 
