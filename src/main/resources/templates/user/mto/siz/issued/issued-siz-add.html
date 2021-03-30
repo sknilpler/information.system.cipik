@@ -1,0 +1,198 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Выдача СИЗ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <style>
+            #tb tr:hover {background:#E2EEFF;}
+            #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+
+    </style>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container-fluid">
+    <hr class="my-4">
+    <blockquote class="blockquote text-center">
+        <p class="mb-0">НОРМЫ обеспечения средствами индивидуальной защиты работников филиала</p>
+    </blockquote>
+    <hr>
+    <div class="panel-body">
+        <div class="row g-3">
+            <div class="col-sm-6">
+
+                <label for="otdel" class="form-label">Отдел</label>
+                <select class="form-control" id="otdel" name="otdel" th:onchange="'javascript:loadEmployeesForSelectedOtdel();'" required>
+                    <option value="">Отдел</option>
+                    <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
+                            th:text="${otdel.name}"></option>
+                </select>
+                <span class="lead">Список сотрудников</span>
+                <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;" th:fragment="table-employees">
+                    <table class="table table-hover" id="tb">
+                        <thead>
+                        <tr>
+                            <th>ФИО</th>
+                            <th>Должность</th>
+                        </tr>
+                        </thead>
+                        <tbody >
+                        <tr th:each="e : ${employees}">
+                            <td th:text="${e.surname}+' '+${#strings.substring(e.name,0,1)}+' '+${#strings.substring(e.patronymic,0,1)}"
+                                th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                            <td th:text="${e.post.postName}"
+                                th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <!--                <div class="mt-1 form-actions floatRight">-->
+                <!--                    <a onclick="checkParams()" th:href="'/userPage/siz/norms/add'" class="btn btn-success" id="addButton">Добавить</a>-->
+                <!--                </div>-->
+                <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;" th:fragment="table-siz">
+                <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Наименование</th>
+                            <th>Кол-во по норме</th>
+                            <th style="width: 150px;"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="s : ${siz}" style="cursor: pointer">
+                            <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
+                            <td th:text="${s.issuanceRate}"></td>
+                            <td>
+                                <form th:action="'/userPage/issued-siz/'+${s.id}+'/add'" method="post">
+                                    <button class="btn btn-danger" type="submit">Выдать</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="col-sm-12">
+            <div class="table-issuedSiz" th:fragment="table-issuedSiz">
+            <span class="lead" th:text="'Список выданного СИЗ сотруднику '+${selectedEmployee.surname}+' '+${selectedEmployee.name}+' '+${selectedEmployee.patronymic}"></span>
+            <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Наименование</th>
+                        <th>Дата выдачи</th>
+                        <th>Дата окончания носки</th>
+                        <th style="width: 410px;"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
+                        <td th:text="${s.item.name}"></td>
+                        <td th:text="${s.dateIssued}"></td>
+                        <td th:text="${s.dateEndWear}"></td>
+                        <td>
+                            <form th:action="'/userPage/issued-siz/'+${s.id}+'/writeoff'" method="post">
+                                <button class="btn btn-danger" type="submit">Списать</button>
+                            </form>
+                            <form th:action="'/userPage/issued-siz/'+${s.id}+'/renew'" method="post">
+                                <button class="btn btn-primary" type="submit">Продлить</button>
+                            </form>
+                            <form th:action="'/userPage/issued-siz/'+${s.id}+'/cancel'" method="post">
+                                <button class="btn btn-warning" type="submit">Отменить выдачу</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script th:inline="javascript">
+var post = /*[[${selected.postName}]]*/;
+var employees = [];
+
+function loadEmployeesForSelectedOtdel(){
+var e = document.getElementById("otdel");
+var otdelId = e.value;
+    $.ajax({
+   	  type: 'get',
+   	  url: '/userPage/issued-siz/getEmployeeForOtdel/'+otdelId,
+   	  success: function(data){
+   		  $('.table-employees').html(data);
+   		},
+    })
+}
+
+///////////////////////////////////////////////
+
+function rowClicked(value){
+    $.ajax({
+   	  type: 'get',
+   	  url: '/userPage/issued-siz/getSizForEmployee/'+value,
+   	  success: function(data){
+   		  $('.table-siz').html(data);
+   		},
+    })
+    loadIssuedSiz(value);
+}
+
+function loadIssuedSiz(value){
+    $.ajax({
+   	  type: 'get',
+   	  url: '/userPage/issued-siz/getIssuedSizForEmployee/'+value,
+   	  success: function(data){
+   		  $('.table-issuedSiz').html(data);
+   		},
+    })
+}
+
+//////////////////////////////////////////
+
+function checkParams() {
+console.log("srabotalo!");
+console.log(post);
+            var name = $('#spanSredstvoName').val();
+            if(post==""){
+                alert("Вы не выбрали должность!");
+            }
+};
+
+function getParentTag(node, tag) {
+    if (node) {
+        return (node.tagName == tag) ? node : getParentTag(node.parentElement, tag);
+    }
+    return null;
+};
+
+var tb = document.getElementById('tb');
+tb.setAttribute('activeRowIndex', 0);
+tb.addEventListener('click', cli);
+
+function cli(e) {
+    var row = getParentTag(e.target, 'TR');
+    if ((!row) || (row.rowIndex == 0)) {
+        return;
+    }
+    var tbl = this, idx = tbl.getAttribute('activeRowIndex');
+    tbl.rows[idx].classList.remove('activeRow');
+    row.classList.add('activeRow');
+    tbl.setAttribute('activeRowIndex', row.rowIndex);
+}
+                    </script>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>

@@ -1,9 +1,7 @@
 package com.information.system.cipik.controllers;
 
 import com.information.system.cipik.models.*;
-import com.information.system.cipik.repo.IPMStandardRepository;
-import com.information.system.cipik.repo.PostRepository;
-import com.information.system.cipik.repo.SIZRepository;
+import com.information.system.cipik.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Controller
 public class SIZController {
@@ -21,9 +21,18 @@ public class SIZController {
     IPMStandardRepository ipmStandardRepository;
     @Autowired
     PostRepository postRepository;
+    @Autowired
+    OtdelRepository otdelRepository;
+    @Autowired
+    EmployeeRepository employeeRepository;
+    @Autowired
+    IssuedSIZRepository issuedSIZRepository;
+    @Autowired
+    ItemsRepository itemsRepository;
 
     private Iterable<Post> listPosts;
     private Post postAddToNorm;
+    private Post postToIssued;
 
     @GetMapping("/userPage/siz-types")
     public String allSIZ(Model model) {
@@ -151,5 +160,80 @@ public class SIZController {
 
     ///////////////// выданный СИЗ/////////////////
 
+    /**
+     * Первоначальная загрузка страницы выдачи СИЗ
+     * @param model
+     * @param keyword
+     * @return
+     */
+    @GetMapping("/userPage/issued-siz")
+    public String issuedSIZAll(Model model, String keyword) {
+        Post post = new Post("");
+        Employee employee = new Employee("","","","","",null,null);
+        Iterable<Post> posts = postRepository.findAll();
+        model.addAttribute("posts", posts);
+        model.addAttribute("otdels", otdelRepository.findAll());
+        model.addAttribute("employees", employeeRepository.findAll());
+        model.addAttribute("selectedEmployee",employee);
+        model.addAttribute("selected", post);
+        return "user/mto/siz/issued/issued-siz-add";
+    }
+
+    /**
+     * Обновление таблицы сотрудников по выбранному отделу
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/issued-siz/getEmployeeForOtdel/{id}")
+    public String getEmployeeForOtdel(@PathVariable(value = "id") long id, Model model) {
+        List<Employee> employees = employeeRepository.findAllByOtdelId(id);
+        model.addAttribute("employees", employees);
+        return "user/mto/siz/issued/issued-siz-add :: table-employees";
+    }
+
+    /**
+     * Обновление таблицы Нормы СИЗ для выбранного сотрудника и должности
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/issued-siz/getSizForEmployee/{id}")
+    public String getSizForEmployee(@PathVariable(value = "id") long id, Model model) {
+        Post post = postRepository.findByEmployeeId(id);
+        List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(post.getId());
+        model.addAttribute("siz", ipmStandards);
+        model.addAttribute("selected", post);
+        return "user/mto/siz/issued/issued-siz-add :: table-siz";
+    }
+
+    /**
+     * Обновление таблицы уже выданного СИЗ сотруднику
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/issued-siz/getIssuedSizForEmployee/{id}")
+    public String getIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeId(id);
+        Employee employee = employeeRepository.findById(id).orElseThrow();
+        model.addAttribute("selectedEmployee",employee);
+        model.addAttribute("vidanSIZ",issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
+    }
+
+    /**
+     * Функция выдачи СИЗ сотруднику
+     * @param id
+     * @param model
+     * @return
+     */
+    @PostMapping("/userPage/issued-siz/{id}/add")
+    public String addIssuedSiz(@PathVariable(value = "id") long id, Model model) {
+
+       // IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+
+        return "redirect:/userPage/siz/norms";
+    }
 
 }

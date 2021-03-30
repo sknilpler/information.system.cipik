@@ -1,5 +1,6 @@
 package com.information.system.cipik.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,9 +38,11 @@ public class Employee {
     private List<IssuedSIZ> issuedSIZS;
 
     @ManyToOne
+    @JsonIgnore
     private Post post;
 
     @ManyToOne
+    @JsonIgnore
     private Otdel otdel;
 
     public Employee(String surname, String name, String patronymic, String sex, String tabNomer,
@@ -83,5 +86,33 @@ public class Employee {
         this.sex = sex;
         this.post = post;
         this.otdel = otdel;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "id=" + id +
+                ", surname='" + surname + '\'' +
+                ", name='" + name + '\'' +
+                ", patronymic='" + patronymic + '\'' +
+                ", tabNomer='" + tabNomer + '\'' +
+                ", dataStartWork=" + dataStartWork +
+                ", height='" + height + '\'' +
+                ", clothingSize='" + clothingSize + '\'' +
+                ", headgearSize='" + headgearSize + '\'' +
+                ", shoeSize='" + shoeSize + '\'' +
+                ", sex='" + sex + '\'' +
+                ", gasMaskSize='" + gasMaskSize + '\'' +
+                ", respiratorSize='" + respiratorSize + '\'' +
+                ", mittensSize='" + mittensSize + '\'' +
+                ", gloveSize='" + gloveSize + '\'' +
+                ", addres='" + addres + '\'' +
+                ", telephone='" + telephone + '\'' +
+                ", endWork=" + endWork +
+                ", birthdayDate=" + birthdayDate +
+                ", issuedSIZS=" + issuedSIZS +
+                ", post=" + post +
+                ", otdel=" + otdel +
+                '}';
     }
 }

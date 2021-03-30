@@ -1,5 +1,6 @@
 package com.information.system.cipik.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,10 +29,12 @@ public class Post {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "post_id")
+    @JsonIgnore
     private List<Employee> employees;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "post_id")
+    @JsonIgnore
     private IPMStandard ipmStandard;
 
 
