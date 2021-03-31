@@ -26,6 +26,10 @@ public class IndividualProtectionMeans {
     @JoinColumn(name = "siz_id")
     private List<IPMStandard> ipmStandards;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "siz_id")
+    private List<IssuedSIZ> issuedSIZS;
+
     public IndividualProtectionMeans(String nameSIZ, String ed_izm) {
         this.nameSIZ = nameSIZ;
         this.ed_izm = ed_izm;

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -33,6 +35,7 @@ public class SIZController {
     private Iterable<Post> listPosts;
     private Post postAddToNorm;
     private Post postToIssued;
+    private Employee employeeForIssuedSIZ;
 
     @GetMapping("/userPage/siz-types")
     public String allSIZ(Model model) {
@@ -117,10 +120,10 @@ public class SIZController {
 
     @PostMapping("/userPage/siz/norms/add")
     public String normsAdding(@RequestParam Long dropSIZ, @RequestParam int issuanceRate,
-                              @RequestParam int serviceLife, @RequestParam String regulatoryDocuments, Model model) {
+                              @RequestParam int serviceLife, @RequestParam String regulatoryDocuments,@RequestParam String typeIPM, Model model) {
         if (!postAddToNorm.getPostName().equals("")) {
             IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElseThrow();
-            IPMStandard norma = new IPMStandard(postAddToNorm, siz, issuanceRate,serviceLife,regulatoryDocuments);
+            IPMStandard norma = new IPMStandard(postAddToNorm, siz, issuanceRate,serviceLife,regulatoryDocuments,typeIPM);
             ipmStandardRepository.save(norma);
         }
         return "redirect:/userPage/siz/norms";
@@ -217,6 +220,7 @@ public class SIZController {
     public String getIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
         List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeId(id);
         Employee employee = employeeRepository.findById(id).orElseThrow();
+        employeeForIssuedSIZ = employee;
         model.addAttribute("selectedEmployee",employee);
         model.addAttribute("vidanSIZ",issuedSIZS);
         return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
@@ -231,9 +235,54 @@ public class SIZController {
     @PostMapping("/userPage/issued-siz/{id}/add")
     public String addIssuedSiz(@PathVariable(value = "id") long id, Model model) {
 
-       // IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        List<IssuedSIZ> issuedSIZS = null;
+        Date dateIssued = new Date();
+        IPMStandard ipmStandard = ipmStandardRepository.findById(id).orElseThrow();
+        int serviceLife = ipmStandard.getServiceLife();
+        int number = ipmStandard.getIssuanceRate();
+        Calendar c = Calendar.getInstance();
+        c.setTime(dateIssued);
+        c.add(Calendar.MONTH, serviceLife);
+        Date dateEndWear = c.getTime();
+        String typeSIZ = ipmStandard.getTypeIPM();
+        if (typeSIZ.equals("Одежда")) {
+            issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForClothing(id, employeeForIssuedSIZ.getId());
+        } else if (typeSIZ.equals("Головной убор")) {
+            issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForHead(id, employeeForIssuedSIZ.getId());
+        } else if (typeSIZ.equals("Обувь")) {
+            issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForShoe(id, employeeForIssuedSIZ.getId());
+        } else if (typeSIZ.equals("Противогаз")) {
+            issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGasMask(id, employeeForIssuedSIZ.getId());
+        } else if (typeSIZ.equals("Респиратор")) {
+            issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForRespirator(id, employeeForIssuedSIZ.getId());
+        } else if (typeSIZ.equals("Перчатки")) {
+            issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGlove(id, employeeForIssuedSIZ.getId());
+        } else if (typeSIZ.equals("Рукавицы")) {
+            issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForMittens(id, employeeForIssuedSIZ.getId());
+        } else {
+            System.out.println("Выбран несуществующий тип СИЗ");
+        }
+        System.out.println("kol-vo: "+issuedSIZS.size());
+        if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
+            if (issuedSIZS.size() < number) {
+                System.out.println("СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + number + " запрошенных");
+                number = issuedSIZS.size();
+            }
+            for (int i = 0; i < number; i++) {
+                IssuedSIZ siz = issuedSIZS.get(i);
+                siz.setEmployee(employeeForIssuedSIZ);
+                siz.setDateIssued(dateIssued);
+                siz.setDateEndWear(dateEndWear);
+                siz.setStatus("Выдано");
+                issuedSIZRepository.save(siz);
+            }
+        } else {
+            System.out.println("На складе отсутствует выбранный СИЗ");
+        }
 
-        return "redirect:/userPage/siz/norms";
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
+        return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
     }
 
 }

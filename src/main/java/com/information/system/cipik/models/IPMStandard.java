@@ -20,7 +20,7 @@ public class IPMStandard {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     //должность
-    @OneToOne
+    @ManyToOne
     private Post post;
     //СИЗ
     @ManyToOne
@@ -31,13 +31,27 @@ public class IPMStandard {
     private int serviceLife;
     //регламентирующие документы
     private String regulatoryDocuments;
+    private String typeIPM;
 
-    public IPMStandard(Post post, IndividualProtectionMeans individualProtectionMeans, int issuanceRate, int serviceLife, String regulatoryDocuments) {
+    public IPMStandard(Post post, IndividualProtectionMeans individualProtectionMeans, int issuanceRate, int serviceLife, String regulatoryDocuments,String typeIPM) {
         this.post = post;
         this.individualProtectionMeans = individualProtectionMeans;
         this.issuanceRate = issuanceRate;
         this.serviceLife = serviceLife;
         this.regulatoryDocuments = regulatoryDocuments;
+        this.typeIPM = typeIPM;
     }
 
+    @Override
+    public String toString() {
+        return "IPMStandard{" +
+                "id=" + id +
+                ", post=" + post +
+                ", individualProtectionMeans=" + individualProtectionMeans +
+                ", issuanceRate=" + issuanceRate +
+                ", serviceLife=" + serviceLife +
+                ", regulatoryDocuments='" + regulatoryDocuments + '\'' +
+                ", typeIPM='" + typeIPM + '\'' +
+                '}';
+    }
 }

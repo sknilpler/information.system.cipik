@@ -23,16 +23,24 @@ public class IssuedSIZ {
     private Employee employee;
 
     @ManyToOne
-    private Item item;
+    private IndividualProtectionMeans individualProtectionMeans;
 
     //дата выдачи и окончания носки
     private Date dateIssued, dateEndWear;
     private String status;
+    private String size;
+    private String height;
 
-    public IssuedSIZ(Employee employee, Item item, Date dateIssued, Date dateEndWear) {
-        this.employee = employee;
-        this.item = item;
-        this.dateIssued = dateIssued;
-        this.dateEndWear = dateEndWear;
+    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size) {
+        this.individualProtectionMeans = individualProtectionMeans;
+        this.status = "На складе";
+        this.size = size;
+    }
+
+    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size, String height) {
+        this.individualProtectionMeans = individualProtectionMeans;
+        this.status = "На складе";
+        this.size = size;
+        this.height = height;
     }
 }

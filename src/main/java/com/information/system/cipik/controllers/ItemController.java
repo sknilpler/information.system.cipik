@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.time.LocalDate;
+
 @Controller
 public class ItemController {
     @Autowired
@@ -36,7 +38,9 @@ public class ItemController {
             model.addAttribute("itemNameError", "Данная позиция уже существует в базе");
             return "user/mto/item/item-add";
         }
-        itemsRepository.save(newItem);
+        LocalDate dateOfReceive = LocalDate.now();
+        newItem.setDateOfReceive(dateOfReceive);
+            itemsRepository.save(newItem);
         return "redirect:/userPage/item-all";
     }
 

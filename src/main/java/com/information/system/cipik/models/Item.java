@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -25,15 +26,12 @@ public class Item {
     private String price;
     private String unit; //Еденицы измерения
     private String code;
+    private LocalDate dateOfReceive;
     private int count;
     private int dlc_count;
     private int all_count;
     private boolean issued;
 
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "item_id")
-    private List<IssuedSIZ> issuedSIZS;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "item_id")
@@ -47,7 +45,7 @@ public class Item {
         this.price = price;
         this.unit = unit;
         this.code = code;
-        this.count = count;
+        this.count= count;
         this.issued = false;
     }
 

@@ -70,9 +70,9 @@
                             <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
                             <td th:text="${s.issuanceRate}"></td>
                             <td>
-                                <form th:action="'/userPage/issued-siz/'+${s.id}+'/add'" method="post">
-                                    <button class="btn btn-danger" type="submit">Выдать</button>
-                                </form>
+<!--                                <form >-->
+                                    <a class="btn btn-danger" th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</a>
+<!--                                </form>-->
                             </td>
                         </tr>
                         </tbody>
@@ -92,12 +92,12 @@
                         <th>Наименование</th>
                         <th>Дата выдачи</th>
                         <th>Дата окончания носки</th>
-                        <th style="width: 410px;"></th>
+                        <th style="width: 500px;"></th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
-                        <td th:text="${s.item.name}"></td>
+                        <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
                         <td th:text="${s.dateIssued}"></td>
                         <td th:text="${s.dateEndWear}"></td>
                         <td>
@@ -161,7 +161,16 @@ function loadIssuedSiz(value){
 }
 
 //////////////////////////////////////////
-
+function updateIssuedSiz(value){
+    $.ajax({
+   	  type: 'post',
+   	  url: '/userPage/issued-siz/'+value+'/add',
+   	  success: function(data){
+   		  $('.table-issuedSiz').html(data);
+   		},
+    })
+}
+//////////////////////////////////////////
 function checkParams() {
 console.log("srabotalo!");
 console.log(post);

@@ -32,10 +32,10 @@ public class Post {
     @JsonIgnore
     private List<Employee> employees;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "post_id")
     @JsonIgnore
-    private IPMStandard ipmStandard;
+    private List<IPMStandard> ipmStandard;
 
 
 }
