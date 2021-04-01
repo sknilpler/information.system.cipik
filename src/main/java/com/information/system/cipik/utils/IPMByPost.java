@@ -1,16 +1,15 @@
 package com.information.system.cipik.utils;
 
+import com.information.system.cipik.models.IndividualProtectionMeans;
 import lombok.Data;
 
 @Data
 public class IPMByPost {
-    private String namesiz;
-    private String ed_izm;
+    private Long id;
     private int issuanceRate;
+    private IndividualProtectionMeans individualProtectionMeans;
+    //норма выдачи
+    private int notIssuanceNum;
+    private int issuanceNum;
 
-    public IPMByPost(String namesiz, String ed_izm, int issuanceRate) {
-        this.namesiz = namesiz;
-        this.ed_izm = ed_izm;
-        this.issuanceRate = issuanceRate;
-    }
 }

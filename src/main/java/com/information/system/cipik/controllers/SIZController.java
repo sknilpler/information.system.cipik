@@ -5,10 +5,7 @@ import com.information.system.cipik.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -161,6 +158,94 @@ public class SIZController {
         return "redirect:/userPage/siz/norms";
     }
 
+    ////////////////СИЗ на складе///////////////////
+
+    /**
+     * Первоначальное открытие страницы склада СИЗ
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/not-issued-siz")
+    public String notIssuedSIZAll(Model model) {
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
+        model.addAttribute("typeSIZS",individualProtectionMeans);
+        model.addAttribute("notIssuedSIZ",issuedSIZS);
+        return "user/mto/siz/siz-from-stock";
+    }
+
+    /**
+     * Добавление нового СИЗ
+     * @param typeSIZ
+     * @param size
+     * @param height
+     * @param model
+     * @return
+     */
+    @PostMapping("/userPage/not-issued-siz")
+    public String notIssuedSIZAdd(@RequestParam Long typeSIZ, @RequestParam String size, @RequestParam String height, @RequestParam int number, Model model) {
+        IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ).orElseThrow();
+        IssuedSIZ issuedSIZ =null;
+        for (int i = 0; i < number; i++) {
+        if (height.equals("")) {
+            issuedSIZ = new IssuedSIZ(ipm,size);
+        }else{
+            issuedSIZ = new IssuedSIZ(ipm,size,height);
+        }
+            issuedSIZRepository.save(issuedSIZ);
+        }
+       return  "redirect:/userPage/not-issued-siz";
+    }
+
+    /**
+     * Редактирование данных о СИЗ
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/not-issued-siz/{id}/edit")
+    public String notIssuedSIZEdit(@PathVariable(value = "id") long id, Model model){
+        if (!issuedSIZRepository.existsById(id)) {
+            return "redirect:/userPage/not-issued-siz";
+        }
+        IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow();
+        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
+        model.addAttribute("typeSIZS",individualProtectionMeans);
+        model.addAttribute("siz",siz);
+        return "user/mto/siz/siz-from-stock-edit";
+    }
+
+    /**
+     * Сохранение отредактированных данных о СИЗ
+     * @param id
+     * @param siz
+     * @param size
+     * @param height
+     * @param model
+     * @return
+     */
+    @PostMapping("/userPage/not-issued-siz/{id}/edit")
+    public String notIssuedSIZUpdate(@PathVariable(value = "id") long id,@RequestParam IndividualProtectionMeans siz, @RequestParam String size, @RequestParam String height, Model model){
+        IssuedSIZ isiz = issuedSIZRepository.findById(id).orElseThrow();
+        isiz.setSiz(siz);
+        isiz.setSize(size);
+        isiz.setHeight(height);
+        issuedSIZRepository.save(isiz);
+        return "redirect:/userPage/not-issued-siz";
+    }
+
+    /**
+     * Удаление выбранного СИЗ
+     * @param id
+     * @param model
+     * @return
+     */
+    @PostMapping("/userPage/not-issued-siz/{id}/remove")
+    public String notIssuedSIZDelete(@PathVariable(value = "id") long id, Model model){
+        issuedSIZRepository.deleteById(id);
+        return "redirect:/userPage/not-issued-siz";
+    }
+
     ///////////////// выданный СИЗ/////////////////
 
     /**
@@ -179,6 +264,7 @@ public class SIZController {
         model.addAttribute("employees", employeeRepository.findAll());
         model.addAttribute("selectedEmployee",employee);
         model.addAttribute("selected", post);
+        model.addAttribute("ipmStandardRepository", ipmStandardRepository);
         return "user/mto/siz/issued/issued-siz-add";
     }
 
@@ -203,10 +289,12 @@ public class SIZController {
      */
     @GetMapping("/userPage/issued-siz/getSizForEmployee/{id}")
     public String getSizForEmployee(@PathVariable(value = "id") long id, Model model) {
+        System.out.println(id);
         Post post = postRepository.findByEmployeeId(id);
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(post.getId());
         model.addAttribute("siz", ipmStandards);
         model.addAttribute("selected", post);
+        model.addAttribute("ipmStandardRepository", ipmStandardRepository);
         return "user/mto/siz/issued/issued-siz-add :: table-siz";
     }
 
@@ -234,7 +322,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/issued-siz/{id}/add")
     public String addIssuedSiz(@PathVariable(value = "id") long id, Model model) {
-
+        String message = "";
         List<IssuedSIZ> issuedSIZS = null;
         Date dateIssued = new Date();
         IPMStandard ipmStandard = ipmStandardRepository.findById(id).orElseThrow();
@@ -260,12 +348,12 @@ public class SIZController {
         } else if (typeSIZ.equals("Рукавицы")) {
             issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForMittens(id, employeeForIssuedSIZ.getId());
         } else {
-            System.out.println("Выбран несуществующий тип СИЗ");
+            message = "Выбран несуществующий тип СИЗ";
         }
         System.out.println("kol-vo: "+issuedSIZS.size());
         if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
             if (issuedSIZS.size() < number) {
-                System.out.println("СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + number + " запрошенных");
+                message = "СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + number + " запрошенных";
                 number = issuedSIZS.size();
             }
             for (int i = 0; i < number; i++) {
@@ -277,11 +365,12 @@ public class SIZController {
                 issuedSIZRepository.save(siz);
             }
         } else {
-            System.out.println("На складе отсутствует выбранный СИЗ");
+            message = "Нужные размеры на складе отсутствуют";
         }
-
-        model.addAttribute("vidanSIZ", issuedSIZS);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
+        model.addAttribute("issuedError", message);
         return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
     }
 

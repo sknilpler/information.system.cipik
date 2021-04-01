@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Редактирование информации о СИЗ на складе</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h1>Редактирование информации о СИЗ на складе</h1>
+
+    <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
+    <form  th:object="${siz}" th:action="'/userPage/not-issued-siz/'+*{id}+'/edit'"  method="post" class="row g-3">
+
+        <div class="col-sm-6">
+            <label for="typeSIZ" class="md-2">Типы СИЗ для работников</label>
+            <select class="form-control" id="typeSIZ" name="typeSIZ" th:field="*{siz}" required>
+                <option value="">Выберите СИЗ</option>
+                <option th:each="t : ${typeSIZS}" th:value="${t.id}"
+                        th:text="${t.nameSIZ}"></option>
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <label class="md-2" for="size">Размеры СИЗ</label>
+            <div class="md-7">
+                <input type="text" id="size" name="size" th:field="*{size}" class="form-control"
+                       placeholder="Введите размеры" required/>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <label class="md-2" for="height">Рост (для одежды)</label>
+            <div class="md-7">
+                <input type="text" id="height" name="height" th:field="*{height}" class="form-control"
+                       placeholder="Введите рост"/>
+            </div>
+        </div>
+
+
+        <div class="container mt-1 form-actions floatRight">
+            <button type="submit" class="btn btn-success">Сохранить</button>
+            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Сбросить поля</button>
+        </div>
+        <br>
+
+    </form>
+    </div>
+</div>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

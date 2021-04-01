@@ -15,115 +15,150 @@
 <body>
 <header th:insert="blocks/header :: header"></header>
 <div class="container-fluid">
-    <hr class="my-4">
-    <blockquote class="blockquote text-center">
-        <p class="mb-0">НОРМЫ обеспечения средствами индивидуальной защиты работников филиала</p>
-    </blockquote>
-    <hr>
     <div class="panel-body">
-        <div class="row g-3">
+        <div class="row align-items-md-stretch mb-4">
             <div class="col-sm-6">
-
-                <label for="otdel" class="form-label">Отдел</label>
-                <select class="form-control" id="otdel" name="otdel" th:onchange="'javascript:loadEmployeesForSelectedOtdel();'" required>
-                    <option value="">Отдел</option>
-                    <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
-                            th:text="${otdel.name}"></option>
-                </select>
-                <span class="lead">Список сотрудников</span>
-                <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;" th:fragment="table-employees">
-                    <table class="table table-hover" id="tb">
-                        <thead>
-                        <tr>
-                            <th>ФИО</th>
-                            <th>Должность</th>
-                        </tr>
-                        </thead>
-                        <tbody >
-                        <tr th:each="e : ${employees}">
-                            <td th:text="${e.surname}+' '+${#strings.substring(e.name,0,1)}+' '+${#strings.substring(e.patronymic,0,1)}"
-                                th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
-                            <td th:text="${e.post.postName}"
-                                th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                    <label for="otdel" class="form-label">Отдел</label>
+                    <select class="form-control" id="otdel" name="otdel"
+                            th:onchange="'javascript:loadEmployeesForSelectedOtdel();'" required>
+                        <option value="">Выберите отдел</option>
+                        <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
+                                th:text="${otdel.name}"></option>
+                    </select>
+                    <span class="lead">Список сотрудников</span>
+                    <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                         th:fragment="table-employees">
+                        <table class="table table-hover" id="tb">
+                            <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Должность</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="e : ${employees}">
+                                <td th:text="${e.surname}+' '+${#strings.substring(e.name,0,1)}+' '+${#strings.substring(e.patronymic,0,1)}"
+                                    th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                                <td th:text="${e.post.postName}"
+                                    th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-
+            <br>
             <div class="col-sm-6">
-                <!--                <div class="mt-1 form-actions floatRight">-->
-                <!--                    <a onclick="checkParams()" th:href="'/userPage/siz/norms/add'" class="btn btn-success" id="addButton">Добавить</a>-->
-                <!--                </div>-->
-                <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;" th:fragment="table-siz">
-                <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>Наименование</th>
-                            <th>Кол-во по норме</th>
-                            <th style="width: 150px;"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="s : ${siz}" style="cursor: pointer">
-                            <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
-                            <td th:text="${s.issuanceRate}"></td>
-                            <td>
-<!--                                <form >-->
-                                    <a class="btn btn-danger" th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</a>
-<!--                                </form>-->
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                    <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                         th:fragment="table-siz">
+                        <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Наименование</th>
+                                <th>Кол-во по норме</th>
+                                <th>Остаток на складе</th>
+                                <th style="width: 150px;"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="s : ${siz}" style="cursor: pointer">
+                                <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
+                                <td th:text="${s.issuanceRate}"></td>
+                                <td th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
+                                <td>
+                                    <!--                                <form >-->
+                                    <a class="btn btn-danger"
+                                       th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</a>
+                                    <!--                                </form>-->
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
 
+                    </div>
                 </div>
             </div>
-
         </div>
         <div class="col-sm-12">
-            <div class="table-issuedSiz" th:fragment="table-issuedSiz">
-            <span class="lead" th:text="'Список выданного СИЗ сотруднику '+${selectedEmployee.surname}+' '+${selectedEmployee.name}+' '+${selectedEmployee.patronymic}"></span>
-            <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>Наименование</th>
-                        <th>Дата выдачи</th>
-                        <th>Дата окончания носки</th>
-                        <th style="width: 500px;"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
-                        <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
-                        <td th:text="${s.dateIssued}"></td>
-                        <td th:text="${s.dateEndWear}"></td>
-                        <td>
-                            <form th:action="'/userPage/issued-siz/'+${s.id}+'/writeoff'" method="post">
-                                <button class="btn btn-danger" type="submit">Списать</button>
-                            </form>
-                            <form th:action="'/userPage/issued-siz/'+${s.id}+'/renew'" method="post">
-                                <button class="btn btn-primary" type="submit">Продлить</button>
-                            </form>
-                            <form th:action="'/userPage/issued-siz/'+${s.id}+'/cancel'" method="post">
-                                <button class="btn btn-warning" type="submit">Отменить выдачу</button>
-                            </form>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
+                <div class="table-issuedSiz" th:fragment="table-issuedSiz">
+                    <span class="lead"
+                          th:text="'Список выданного СИЗ сотруднику '+${selectedEmployee.surname}+' '+${selectedEmployee.name}+' '+${selectedEmployee.patronymic}"></span>
+                    <p class="fs-6 text-danger" th:text="${issuedError}"></p>
+                    <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Наименование</th>
+                                <th>Дата выдачи</th>
+                                <th>Дата окончания носки</th>
+                                <th style="width: 500px;"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
+                                <td th:text="${s.siz.nameSIZ}"></td>
+                                <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
+                                <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
+                                <td>
+                                    <form th:action="'/userPage/issued-siz/'+${s.id}+'/writeoff'" method="post">
+                                        <button class="btn btn-danger" type="submit">Списать</button>
+                                    </form>
+                                    <form >
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Продлить</button>
+                                    </form>
+                                    <form th:action="'/userPage/issued-siz/'+${s.id}+'/cancel'" method="post">
+                                        <button class="btn btn-warning" type="submit">Отменить выдачу</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            </div>
+
         </div>
     </div>
 </div>
 </div>
 
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
 <script th:inline="javascript">
+
+$('#myModal').on('shown.bs.modal', function () {
+  $('#myInput').trigger('focus')
+})
+
 var post = /*[[${selected.postName}]]*/;
-var employees = [];
+var employee_id
 
 function loadEmployeesForSelectedOtdel(){
 var e = document.getElementById("otdel");
@@ -140,6 +175,13 @@ var otdelId = e.value;
 ///////////////////////////////////////////////
 
 function rowClicked(value){
+   employee_id = value;
+   updateSizForEmployee(value)
+   loadIssuedSiz(value);
+}
+
+function updateSizForEmployee(value){
+ console.log(value)
     $.ajax({
    	  type: 'get',
    	  url: '/userPage/issued-siz/getSizForEmployee/'+value,
@@ -147,7 +189,6 @@ function rowClicked(value){
    		  $('.table-siz').html(data);
    		},
     })
-    loadIssuedSiz(value);
 }
 
 function loadIssuedSiz(value){
@@ -169,7 +210,8 @@ function updateIssuedSiz(value){
    		  $('.table-issuedSiz').html(data);
    		},
     })
-}
+    updateSizForEmployee(employee_id);
+ }
 //////////////////////////////////////////
 function checkParams() {
 console.log("srabotalo!");

@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>СИЗ на складе</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <style>
+            #tb tr:hover {background:#E2EEFF;}
+            #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+
+    </style>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container-fluid">
+
+    <div class="container-sm">
+        <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+        <form method="post" class="row g-3">
+        <div class="col-sm-6">
+            <label for="typeSIZ" class="md-2">Типы СИЗ для работников</label>
+            <select class="form-control" id="typeSIZ" name="typeSIZ" required>
+                <option value="">Выберите СИЗ</option>
+                <option th:each="t : ${typeSIZS}" th:value="${t.id}"
+                        th:text="${t.nameSIZ}"></option>
+            </select>
+        </div>
+
+        <div class="col-sm-3">
+            <label class="md-2" for="size">Размеры СИЗ</label>
+                <input type="text" id="size" name="size" class="form-control"
+                       placeholder="Введите размеры" required/>
+        </div>
+
+        <div class="col-sm-3">
+            <label class="md-2" for="height">Рост (для одежды)</label>
+                <input type="text" id="height" name="height" class="form-control"
+                       placeholder="Введите рост"/>
+        </div>
+
+        <div class="col-sm-3">
+            <label class="md-2" for="number">Количество подобного СИЗ</label>
+                <input type="text" id="number" name="number" class="form-control"
+                       placeholder="Введите количество"/>
+        </div>
+
+        <div class="container mt-1 form-actions floatRight">
+            <button type="submit" class="btn btn-success">Добавить</button>
+            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
+        </div>
+
+
+    </form>
+    </div>
+    </div>
+    <div class="container panel panel-default">
+        <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
+        <div class="panel-heading"><span class="lead">Список CИЗ на складе</span></div>
+        <div class="panel-body">
+            <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Наименование</th>
+                        <th>Размер</th>
+                        <th>Рост</th>
+                        <th style="width: 310px;"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="n : ${notIssuedSIZ}">
+                        <td th:text="${n.siz.nameSIZ}"></td>
+                        <td th:text="${n.size}"></td>
+                        <td th:text="${n.height}"></td>
+                        <td>
+                            <form th:action="'/userPage/not-issued-siz/'+${n.id}+'/remove'" method="post">
+                                <a th:href="'/userPage/not-issued-siz/'+${n.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                                <button class="btn btn-danger" type="submit">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

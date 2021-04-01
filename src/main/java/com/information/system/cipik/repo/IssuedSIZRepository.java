@@ -10,6 +10,9 @@ import java.util.List;
 public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
 
     List<IssuedSIZ> findAllByEmployeeId(Long id);
+    List<IssuedSIZ> findByStatus(String status);
+
+
 
     @Query(value = "SELECT issuedsiz.* FROM issuedsiz,individual_protection_means,ipmstandard WHERE\n" +
             " issuedsiz.siz_id = individual_protection_means.id AND\n" +

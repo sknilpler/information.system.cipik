@@ -23,7 +23,8 @@ public class IssuedSIZ {
     private Employee employee;
 
     @ManyToOne
-    private IndividualProtectionMeans individualProtectionMeans;
+
+    private IndividualProtectionMeans siz;
 
     //дата выдачи и окончания носки
     private Date dateIssued, dateEndWear;
@@ -32,13 +33,13 @@ public class IssuedSIZ {
     private String height;
 
     public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size) {
-        this.individualProtectionMeans = individualProtectionMeans;
+        this.siz = individualProtectionMeans;
         this.status = "На складе";
         this.size = size;
     }
 
     public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size, String height) {
-        this.individualProtectionMeans = individualProtectionMeans;
+        this.siz = individualProtectionMeans;
         this.status = "На складе";
         this.size = size;
         this.height = height;
