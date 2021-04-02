@@ -5,8 +5,13 @@ import com.information.system.cipik.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -320,7 +325,7 @@ public class SIZController {
      * @param model
      * @return
      */
-    @PostMapping("/userPage/issued-siz/{id}/add")
+    @GetMapping("/userPage/issued-siz/{id}/add")
     public String addIssuedSiz(@PathVariable(value = "id") long id, Model model) {
         String message = "";
         List<IssuedSIZ> issuedSIZS = null;
@@ -374,4 +379,91 @@ public class SIZController {
         return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
     }
 
+    /**
+     * Продление ресурса по дате для выбранного СИЗ
+     * @param id
+     * @param dateExtending
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/issued-siz/{id}/extend/{dateExtending}")
+    public String extendIssuedSiz(@PathVariable(value = "id") long id, @PathVariable(value = "dateExtending") String dateExtending, Model model) {
+        String message = "";
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date exDate = issuedSIZ.getDateEndWear();
+        try {
+            exDate = format.parse(dateExtending);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        issuedSIZ.setDateEndWear(exDate);
+        issuedSIZRepository.save(issuedSIZ);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        model.addAttribute("vidanSIZ", issuedSIZS2);
+        model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
+        model.addAttribute("issuedError", message);
+        return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
+    }
+
+    /**
+     * Отмена выдачи СИЗ
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/issued-siz/{id}/cancel")
+    public String cancelIssuedSiz(@PathVariable(value = "id") long id, Model model) {
+        String message = "";
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        issuedSIZ.setDateIssued(null);
+        issuedSIZ.setDateEndWear(null);
+        issuedSIZ.setEmployee(null);
+        issuedSIZ.setStatus("На складе");
+        issuedSIZRepository.save(issuedSIZ);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        model.addAttribute("vidanSIZ", issuedSIZS2);
+        model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
+        model.addAttribute("issuedError", message);
+        return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
+    }
+
+    /**
+     * Списание СИЗ
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/issued-siz/{id}/writeoff")
+    public String writeOfIssuedSiz(@PathVariable(value = "id") long id, Model model) {
+        String message = "";
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        issuedSIZ.setStatus("Списано");
+        issuedSIZ.setEmployee(null);
+        issuedSIZRepository.save(issuedSIZ);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        model.addAttribute("vidanSIZ", issuedSIZS2);
+        model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
+        model.addAttribute("issuedError", message);
+        return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
+    }
+
+    /**
+     * Поиск сотрудников по ключевому слову
+     * @param keyword
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/issued-siz/search/employee/{keyword}")
+    public String searchEmployee(@PathVariable(value = "keyword") String keyword, Model model) {
+        System.out.println(keyword);
+        Iterable<Employee> employees;
+        if (keyword.equals("0")){
+            employees = employeeRepository.findAll();
+        }else{
+            employees = employeeRepository.findAllByKeword(keyword);
+        }
+        model.addAttribute("employees", employees);
+        return "user/mto/siz/issued/issued-siz-add :: table-employees";
+    }
 }

@@ -5,15 +5,41 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script type="text/javascript" src="/js/jquery.min.js"></script>
-    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
     <style>
             #tb tr:hover {background:#E2EEFF;}
             #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
-
     </style>
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
+<!-- Modal window -->
+<div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLiveLabel">Продление ресурса</h5>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label class="md-2" for="extendDate">Выберите дату продления ресурса</label>
+                <input type="date" id="extendDate" name="extendDate" class="form-control"
+                       placeholder="Выберите дату" onchange="setDateExtending(this.value)" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+                <button type="button" class="btn btn-primary" onclick="extendSIZ()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
 <div class="container-fluid">
     <div class="panel-body">
         <div class="row align-items-md-stretch mb-4">
@@ -26,6 +52,12 @@
                         <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
                                 th:text="${otdel.name}"></option>
                     </select>
+                    <hr>
+                    <div>
+                        <label for="textSearch" class="form-label">Поиск по сотрудникам</label>
+                        <input id="textSearch" type="text" name="keyword" oninput="searchingByEmployee(this.value)">
+                    </div>
+                    <hr>
                     <span class="lead">Список сотрудников</span>
                     <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
                          th:fragment="table-employees">
@@ -69,10 +101,8 @@
                                 <td th:text="${s.issuanceRate}"></td>
                                 <td th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
                                 <td>
-                                    <!--                                <form >-->
                                     <a class="btn btn-danger"
                                        th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</a>
-                                    <!--                                </form>-->
                                 </td>
                             </tr>
                             </tbody>
@@ -104,15 +134,9 @@
                                 <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
                                 <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
                                 <td>
-                                    <form th:action="'/userPage/issued-siz/'+${s.id}+'/writeoff'" method="post">
-                                        <button class="btn btn-danger" type="submit">Списать</button>
-                                    </form>
-                                    <form >
-                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Продлить</button>
-                                    </form>
-                                    <form th:action="'/userPage/issued-siz/'+${s.id}+'/cancel'" method="post">
-                                        <button class="btn btn-warning" type="submit">Отменить выдачу</button>
-                                    </form>
+                                    <button class="btn btn-danger" type="button" th:onclick="'javascript:writeoffSIZ(\'' + ${s.id} + '\');'">Списать</button>
+                                    <button type="button" class="btn btn-primary" th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить</button>
+                                    <button class="btn btn-warning" type="button" th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить выдачу</button>
                                 </td>
                             </tr>
                             </tbody>
@@ -120,129 +144,161 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 </div>
-
-
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                ...
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
 
 <script th:inline="javascript">
 
-$('#myModal').on('shown.bs.modal', function () {
-  $('#myInput').trigger('focus')
-})
-
-var post = /*[[${selected.postName}]]*/;
-var employee_id
-
-function loadEmployeesForSelectedOtdel(){
-var e = document.getElementById("otdel");
-var otdelId = e.value;
-    $.ajax({
-   	  type: 'get',
-   	  url: '/userPage/issued-siz/getEmployeeForOtdel/'+otdelId,
-   	  success: function(data){
-   		  $('.table-employees').html(data);
-   		},
-    })
+var extendingSIZId;
+//// modal functions///////
+function showModalWindow(value) {
+	extendingSIZId = value;
+	$("#exampleModalLive").modal('show');
 }
 
+function closeModalWindow() {
+	$("#exampleModalLive").modal('hide');
+};
+///////////////////////////////////
+var post = /*[[${selected.postName}]]*/ ;
+var employee_id;
+
+function loadEmployeesForSelectedOtdel() {
+	var e = document.getElementById("otdel");
+	var otdelId = e.value;
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/getEmployeeForOtdel/' + otdelId,
+		success: function(data) {
+			$('.table-employees').html(data);
+		},
+	})
+};
 ///////////////////////////////////////////////
+function rowClicked(value) {
+	employee_id = value;
+	updateSizForEmployee(value);
+	loadIssuedSiz(value);
+};
 
-function rowClicked(value){
-   employee_id = value;
-   updateSizForEmployee(value)
-   loadIssuedSiz(value);
-}
+function updateSizForEmployee(value) {
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/getSizForEmployee/' + value,
+		success: function(data) {
+			$('.table-siz').html(data);
+		},
+	})
+};
 
-function updateSizForEmployee(value){
- console.log(value)
-    $.ajax({
-   	  type: 'get',
-   	  url: '/userPage/issued-siz/getSizForEmployee/'+value,
-   	  success: function(data){
-   		  $('.table-siz').html(data);
-   		},
-    })
-}
-
-function loadIssuedSiz(value){
-    $.ajax({
-   	  type: 'get',
-   	  url: '/userPage/issued-siz/getIssuedSizForEmployee/'+value,
-   	  success: function(data){
-   		  $('.table-issuedSiz').html(data);
-   		},
-    })
-}
-
+function loadIssuedSiz(value) {
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/getIssuedSizForEmployee/' + value,
+		success: function(data) {
+			$('.table-issuedSiz').html(data);
+		},
+	})
+};
 //////////////////////////////////////////
-function updateIssuedSiz(value){
-    $.ajax({
-   	  type: 'post',
-   	  url: '/userPage/issued-siz/'+value+'/add',
-   	  success: function(data){
-   		  $('.table-issuedSiz').html(data);
-   		},
-    })
-    updateSizForEmployee(employee_id);
- }
+function updateIssuedSiz(value) {
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/' + value + '/add',
+		success: function(data) {
+			$('.table-issuedSiz').html(data);
+		},
+	})
+	updateSizForEmployee(employee_id);
+};
 //////////////////////////////////////////
+var dateExtending;
+
+function setDateExtending(value) {
+	dateExtending = value;
+	console.log(dateExtending);
+};
+
+function extendSIZ() {
+	closeModalWindow();
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/' + extendingSIZId + '/extend/' + dateExtending,
+		success: function(data) {
+			$('.table-issuedSiz').html(data);
+		},
+	})
+};
+//////////////////////////////////
+function cancelIssed(value) {
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/' + value + '/cancel',
+		success: function(data) {
+			$('.table-issuedSiz').html(data);
+		},
+	});
+	updateSizForEmployee(employee_id);
+};
+//////////////////////////////////
+function writeoffSIZ(value) {
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/' + value + '/writeoff',
+		success: function(data) {
+			$('.table-issuedSiz').html(data);
+		},
+	});
+};
+//////////////////////////////////
+
+function searchingByEmployee(value) {
+	if (value.length === 0) {
+		value = 0;
+	}
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/search/employee/' + value,
+		success: function(data) {
+			$('.table-employees').html(data);
+		},
+	});
+};
+
+//////////////////////////////////
+
 function checkParams() {
-console.log("srabotalo!");
-console.log(post);
-            var name = $('#spanSredstvoName').val();
-            if(post==""){
-                alert("Вы не выбрали должность!");
-            }
+	console.log("srabotalo!");
+	console.log(post);
+	var name = $('#spanSredstvoName').val();
+	if (post == "") {
+		alert("Вы не выбрали должность!");
+	}
 };
 
 function getParentTag(node, tag) {
-    if (node) {
-        return (node.tagName == tag) ? node : getParentTag(node.parentElement, tag);
-    }
-    return null;
+	if (node) {
+		return (node.tagName == tag) ? node : getParentTag(node.parentElement, tag);
+	}
+	return null;
 };
-
 var tb = document.getElementById('tb');
 tb.setAttribute('activeRowIndex', 0);
 tb.addEventListener('click', cli);
 
 function cli(e) {
-    var row = getParentTag(e.target, 'TR');
-    if ((!row) || (row.rowIndex == 0)) {
-        return;
-    }
-    var tbl = this, idx = tbl.getAttribute('activeRowIndex');
-    tbl.rows[idx].classList.remove('activeRow');
-    row.classList.add('activeRow');
-    tbl.setAttribute('activeRowIndex', row.rowIndex);
-}
+	var row = getParentTag(e.target, 'TR');
+	if ((!row) || (row.rowIndex == 0)) {
+		return;
+	}
+	var tbl = this,
+		idx = tbl.getAttribute('activeRowIndex');
+	tbl.rows[idx].classList.remove('activeRow');
+	row.classList.add('activeRow');
+	tbl.setAttribute('activeRowIndex', row.rowIndex);
+};
                     </script>
 
 <div th:insert="blocks/footer :: footer"></div>
