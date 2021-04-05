@@ -9,92 +9,138 @@
     <style>
             #tb tr:hover {background:#E2EEFF;}
             #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+.side-navbar {
+  width: 220px;
+  margin-left: -200px;
+  background-color: #100901;
+  transition: 0.5s;
+}
 
+.nav-link:active,
+.nav-link:focus,
+.nav-link:hover {
+  background-color: #ffffff26;
+}
+
+.my-container {
+  transition: 0.4s;
+}
+
+.active-nav {
+  margin-left: 0;
+}
+
+/* for main section */
+.active-cont {
+  margin-left: 10px;
+}
     </style>
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
-<div class="container-fluid">
 
-    <div class="container-sm">
-        <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
-        <form method="post" class="row g-3">
-        <div class="col-sm-6">
-            <label for="typeSIZ" class="md-2">Типы СИЗ для работников</label>
-            <select class="form-control" id="typeSIZ" name="typeSIZ" required>
-                <option value="">Выберите СИЗ</option>
-                <option th:each="t : ${typeSIZS}" th:value="${t.id}"
-                        th:text="${t.nameSIZ}"></option>
-            </select>
-        </div>
+<!-- Side panel -->
+<div class="d-flex">
+    <div th:insert="user/mto/sidebar :: sidebar"></div>
+    <!-- Side panel -->
+    <div class="my-container active-cont container-fluid">
 
-        <div class="col-sm-3">
-            <label class="md-2" for="size">Размеры СИЗ</label>
-                <input type="text" id="size" name="size" class="form-control"
-                       placeholder="Введите размеры" required/>
-        </div>
+        <div class="container-sm">
+            <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                <form method="post" class="row g-3">
+                    <div class="col-sm-6">
+                        <label for="typeSIZ" class="md-2">Типы СИЗ для работников</label>
+                        <select class="form-control" id="typeSIZ" name="typeSIZ" required>
+                            <option value="">Выберите СИЗ</option>
+                            <option th:each="t : ${typeSIZS}" th:value="${t.id}"
+                                    th:text="${t.nameSIZ}"></option>
+                        </select>
+                    </div>
 
-        <div class="col-sm-3">
-            <label class="md-2" for="height">Рост (для одежды)</label>
-                <input type="text" id="height" name="height" class="form-control"
-                       placeholder="Введите рост"/>
-        </div>
+                    <div class="col-sm-3">
+                        <label class="md-2" for="size">Размеры СИЗ</label>
+                        <input type="text" id="size" name="size" class="form-control"
+                               placeholder="Введите размеры" required/>
+                    </div>
 
-        <div class="col-sm-3">
-            <label class="md-2" for="number">Количество подобного СИЗ</label>
-                <input type="text" id="number" name="number" class="form-control"
-                       placeholder="Введите количество"/>
-        </div>
+                    <div class="col-sm-3">
+                        <label class="md-2" for="height">Рост (для одежды)</label>
+                        <input type="text" id="height" name="height" class="form-control"
+                               placeholder="Введите рост"/>
+                    </div>
 
-        <div class="container mt-1 form-actions floatRight">
-            <button type="submit" class="btn btn-success">Добавить</button>
-            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
-        </div>
+                    <div class="col-sm-3">
+                        <label class="md-2" for="number">Количество подобного СИЗ</label>
+                        <input type="text" id="number" name="number" class="form-control"
+                               placeholder="Введите количество"/>
+                    </div>
+
+                    <div class="container mt-1 form-actions floatRight">
+                        <button type="submit" class="btn btn-success">Добавить</button>
+                        <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить
+                            поля
+                        </button>
+                    </div>
 
 
-    </form>
-    </div>
-    </div>
-    <div class="container panel panel-default">
-        <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
-            <div>
-                <label for="textSearch" class="form-label">Поиск</label>
-                <input id="textSearch" type="text" name="keyword" oninput="searching(this.value)">
-            </div>
-            <hr>
-        <div class="panel-heading"><span class="lead"><strong>Список CИЗ на складе</strong></span></div>
-        <div class="panel-body">
-            <div class="table-sock-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;" th:fragment="table-sock-siz">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>Наименование</th>
-                        <th>Размер</th>
-                        <th>Рост</th>
-                        <th style="width: 310px;"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="n : ${notIssuedSIZ}">
-                        <td th:text="${n.siz.nameSIZ}"></td>
-                        <td th:text="${n.size}"></td>
-                        <td th:text="${n.height}"></td>
-                        <td>
-                            <form th:action="'/userPage/not-issued-siz/'+${n.id}+'/remove'" method="post">
-                                <a th:href="'/userPage/not-issued-siz/'+${n.id}+'/edit'" class="btn btn-primary btn-sm">Редактировать</a>
-                                <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
-                            </form>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                </form>
             </div>
         </div>
+        <div class="container panel panel-default">
+            <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
+                <div>
+                    <label for="textSearch" class="form-label">Поиск</label>
+                    <input id="textSearch" type="text" name="keyword" oninput="searching(this.value)">
+                </div>
+                <hr>
+                <div class="panel-heading"><span class="lead"><strong>Список CИЗ на складе</strong></span></div>
+                <div class="panel-body">
+                    <div class="table-sock-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                         th:fragment="table-sock-siz">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Наименование</th>
+                                <th>Размер</th>
+                                <th>Рост</th>
+                                <th style="width: 310px;"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="n : ${notIssuedSIZ}">
+                                <td th:text="${n.siz.nameSIZ}"></td>
+                                <td th:text="${n.size}"></td>
+                                <td th:text="${n.height}"></td>
+                                <td>
+                                    <form th:action="'/userPage/not-issued-siz/'+${n.id}+'/remove'" method="post">
+                                        <a th:href="'/userPage/not-issued-siz/'+${n.id}+'/edit'"
+                                           class="btn btn-primary btn-sm">Редактировать</a>
+                                        <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    </div>
-</div>
 </div>
 <script th:inline="javascript">
+
+///////////////open sidebar///////////////////
+
+      var menu_btn = document.querySelector("#menu-btn");
+      var sidebar = document.querySelector("#sidebar");
+      var container = document.querySelector(".my-container");
+      menu_btn.addEventListener("click", () => {
+        sidebar.classList.toggle("active-nav");
+        container.classList.toggle("active-cont");
+      });
+
+/////////////////////////////////
+
     function searching(value) {
 	if (value.length === 0) {
 		value = 0;

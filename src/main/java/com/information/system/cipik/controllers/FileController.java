@@ -15,13 +15,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Controller
 public class FileController {
 
-    private String folderPath = "/home/first/Рабочий стол/ПРОЕКТ информационной системы ЦИП ИК/DBBackupFiles";
+    private String folderPath = Paths.get("").toAbsolutePath().toString()+"/DBBackupFiles";
+  //  private String folderPath = "/home/first/Рабочий стол/ПРОЕКТ информационной системы ЦИП ИК/DBBackupFiles";
     private String dbUserName = "craft";
     private String dbUserPassword = "111";
     private String dbNameList = "cipik";
@@ -53,12 +56,20 @@ public class FileController {
 
         Process runtimeProcess = null;
         try {
-            runtimeProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", executeCmd});
+            String osName = System.getProperty("os.name");
+
+            if (osName.charAt(0) == 'W'){
+                runtimeProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", executeCmd});  //for Windows
+            } else {
+                runtimeProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", executeCmd});   //for Linux
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
         int processComplete = 0;
         try {
+            assert runtimeProcess != null;
             processComplete = runtimeProcess.waitFor();
         } catch (InterruptedException e) {
             e.printStackTrace();

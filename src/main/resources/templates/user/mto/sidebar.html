@@ -1,9 +1,14 @@
 <div th:fragment="sidebar">
-    <div class="side-navbar active-nav d-flex flex-column bg-light p-3" id="sidebar">
-        <a href="/" class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
+    <div class="side-navbar d-flex flex-column bg-light p-3" id="sidebar">
+        <a class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
             <!--        <svg class="bi me-2" width="30" height="24"><use xlink:href="#bootstrap"></use></svg>-->
             <span class="fs-5 fw-semibold">МТО</span>
+            <button class="btn border-0" id="menu-btn" style="margin-left: 140px; z-index: 99">
+                <img src="/images/bootstrap-icons/list.svg" alt="Bootstrap" width="16"
+                     height="16">
+            </button>
         </a>
+
         <ul class="list-unstyled ps-0">
             <li class="mb-1">
                 <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
@@ -11,12 +16,12 @@
                     <img src="/images/bootstrap-icons/chevron-down.svg" alt="Bootstrap" width="12"
                          height="12"> СИЗ
                 </button>
-                <div class="collapse show" id="home-collapse">
+                <div class="collapse" id="home-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                        <li><a href="#" class="link-dark rounded">Выдача</a></li>
-                        <li><a href="#" class="link-dark rounded">Склад</a></li>
-                        <li><a href="#" class="link-dark rounded">Нормы</a></li>
-                        <li><a href="#" class="link-dark rounded">Типы</a></li>
+                        <li><a sec:authorize="hasRole('ROLE_USER')" href="/userPage/issued-siz" class="link-dark rounded">Выдача</a></li>
+                        <li><a sec:authorize="hasRole('ROLE_USER')" href="/userPage/not-issued-siz" class="link-dark rounded">Склад</a></li>
+                        <li><a sec:authorize="hasRole('ROLE_USER')" href="/userPage/siz/norms" class="link-dark rounded">Нормы</a></li>
+                        <li><a sec:authorize="hasRole('ROLE_USER')" href="/userPage/siz-types" class="link-dark rounded">Типы</a></li>
                     </ul>
                 </div>
             </li>
@@ -28,7 +33,7 @@
                 </button>
                 <div class="collapse" id="dashboard-collapse" style="">
                     <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                        <li><a href="#" class="link-dark rounded">Список</a></li>
+                        <li><a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/employee/employees-all'" class="link-dark rounded">Список</a></li>
                     </ul>
                 </div>
             </li>
