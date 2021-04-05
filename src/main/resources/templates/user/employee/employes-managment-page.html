@@ -13,7 +13,12 @@
 <!--Страница для вывода всех сотрудников-->
 <div class="container-fluid">
     <h1>Список всех сотрудников</h1>
-
+    <form th:action="'/userPage/employee/export/excel'" method="get">
+    <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
+            aria-label="Распечатать">
+        <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+    </button>
+    </form>
     <div class="bd-example">
         <table class="table table-bordered">
             <thead>

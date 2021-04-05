@@ -466,4 +466,25 @@ public class SIZController {
         model.addAttribute("employees", employees);
         return "user/mto/siz/issued/issued-siz-add :: table-employees";
     }
+
+    /**
+     * Поиск СИЗ на складе
+     * @param keyword
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/not-issued-siz/search/stock-siz/{keyword}")
+    public String searchStockSiz(@PathVariable(value = "keyword") String keyword, Model model) {
+        System.out.println(keyword);
+        List<IssuedSIZ> issuedSIZS;
+        if (keyword.equals("0")) {
+            issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike("На складе","%"+keyword+"%","%"+keyword+"%", "%"+keyword+"%");
+        }
+        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
+        model.addAttribute("typeSIZS", individualProtectionMeans);
+        model.addAttribute("notIssuedSIZ", issuedSIZS);
+        return "user/mto/siz/siz-from-stock :: table-sock-siz";
+    }
 }

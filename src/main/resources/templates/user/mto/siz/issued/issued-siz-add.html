@@ -9,6 +9,32 @@
     <style>
             #tb tr:hover {background:#E2EEFF;}
             #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+
+.side-navbar {
+  width: 220px;
+  margin-left: -300px;
+  background-color: #100901;
+  transition: 0.5s;
+}
+
+.nav-link:active,
+.nav-link:focus,
+.nav-link:hover {
+  background-color: #ffffff26;
+}
+
+.my-container {
+  transition: 0.4s;
+}
+
+.active-nav {
+  margin-left: 0;
+}
+
+/* for main section */
+.active-cont {
+  margin-left: 10px;
+}
     </style>
 </head>
 <body>
@@ -28,7 +54,8 @@
             <div class="modal-body">
                 <label class="md-2" for="extendDate">Выберите дату продления ресурса</label>
                 <input type="date" id="extendDate" name="extendDate" class="form-control"
-                       placeholder="Выберите дату" onchange="setDateExtending(this.value)" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>
+                       placeholder="Выберите дату" onchange="setDateExtending(this.value)"
+                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
@@ -40,115 +67,135 @@
     </div>
 </div>
 <!-- Modal window -->
-<div class="container-fluid">
-    <div class="panel-body">
-        <div class="row align-items-md-stretch mb-4">
-            <div class="col-sm-6">
-                <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
-                    <label for="otdel" class="form-label">Отдел</label>
-                    <select class="form-control" id="otdel" name="otdel"
-                            th:onchange="'javascript:loadEmployeesForSelectedOtdel();'" required>
-                        <option value="">Выберите отдел</option>
-                        <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
-                                th:text="${otdel.name}"></option>
-                    </select>
-                    <hr>
-                    <div>
-                        <label for="textSearch" class="form-label">Поиск по сотрудникам</label>
-                        <input id="textSearch" type="text" name="keyword" oninput="searchingByEmployee(this.value)">
+    <!-- Side panel -->
+<div class="d-flex">
+<div th:insert="user/mto/sidebar :: sidebar"></div>
+    <!-- Side panel -->
+    <div class="my-container active-cont container-fluid">
+        <div class="panel-body">
+            <div class="row align-items-md-stretch mb-4">
+                <div class="col-sm-6">
+                    <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                        <button class="btn border-0" id="menu-btn">=</button>
+                        <select class="form-control" id="otdel" name="otdel"
+                                th:onchange="'javascript:loadEmployeesForSelectedOtdel();'" required>
+                            <option value="">Выберите отдел</option>
+                            <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
+                                    th:text="${otdel.name}"></option>
+                        </select>
+                        <hr>
+                        <div>
+                            <label for="textSearch" class="form-label">Поиск по сотрудникам</label>
+                            <input id="textSearch" type="text" name="keyword" oninput="searchingByEmployee(this.value)">
+                        </div>
+                        <hr>
+                        <span class="lead">Список сотрудников</span>
+                        <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                             th:fragment="table-employees">
+                            <table class="table table-hover" id="tb">
+                                <thead>
+                                <tr>
+                                    <th style="width: 40%">ФИО</th>
+                                    <th>Должность</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="e : ${employees}">
+                                    <td th:text="${e.surname}+' '+${#strings.substring(e.name,0,1)}+' '+${#strings.substring(e.patronymic,0,1)}"
+                                        th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                                    <td th:text="${e.post.postName}"
+                                        th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <hr>
-                    <span class="lead">Список сотрудников</span>
-                    <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
-                         th:fragment="table-employees">
-                        <table class="table table-hover" id="tb">
-                            <thead>
-                            <tr>
-                                <th>ФИО</th>
-                                <th>Должность</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="e : ${employees}">
-                                <td th:text="${e.surname}+' '+${#strings.substring(e.name,0,1)}+' '+${#strings.substring(e.patronymic,0,1)}"
-                                    th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
-                                <td th:text="${e.post.postName}"
-                                    th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
-                            </tr>
-                            </tbody>
-                        </table>
+                </div>
+                <br>
+                <div class="col-sm-6">
+                    <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                        <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                             th:fragment="table-siz">
+                            <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 40%">Наименование</th>
+                                    <th>Кол-во по норме</th>
+                                    <th>Остаток на складе</th>
+                                    <th style="width: 100px;"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="s : ${siz}" style="cursor: pointer">
+                                    <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
+                                    <td th:text="${s.issuanceRate}"></td>
+                                    <td th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
+                                    <td>
+                                        <a class="btn btn-danger btn-sm"
+                                           th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-            <br>
-            <div class="col-sm-6">
-                <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
-                    <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
-                         th:fragment="table-siz">
-                        <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
-                        <table class="table table-hover">
-                            <thead>
-                            <tr>
-                                <th>Наименование</th>
-                                <th>Кол-во по норме</th>
-                                <th>Остаток на складе</th>
-                                <th style="width: 150px;"></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="s : ${siz}" style="cursor: pointer">
-                                <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
-                                <td th:text="${s.issuanceRate}"></td>
-                                <td th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
-                                <td>
-                                    <a class="btn btn-danger"
-                                       th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</a>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
-                <div class="table-issuedSiz" th:fragment="table-issuedSiz">
-                    <span class="lead"
-                          th:text="'Список выданного СИЗ сотруднику '+${selectedEmployee.surname}+' '+${selectedEmployee.name}+' '+${selectedEmployee.patronymic}"></span>
-                    <p class="fs-6 text-danger" th:text="${issuedError}"></p>
-                    <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
-                        <table class="table table-hover">
-                            <thead>
-                            <tr>
-                                <th>Наименование</th>
-                                <th>Дата выдачи</th>
-                                <th>Дата окончания носки</th>
-                                <th style="width: 500px;"></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
-                                <td th:text="${s.siz.nameSIZ}"></td>
-                                <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
-                                <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
-                                <td>
-                                    <button class="btn btn-danger" type="button" th:onclick="'javascript:writeoffSIZ(\'' + ${s.id} + '\');'">Списать</button>
-                                    <button type="button" class="btn btn-primary" th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить</button>
-                                    <button class="btn btn-warning" type="button" th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить выдачу</button>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+            <div class="col-sm-12">
+                <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
+                    <div class="table-issuedSiz" th:fragment="table-issuedSiz">
+                        <div class="row align-items-md-stretch mb-4">
+                            <div class="col-sm-6">
+                            <span class="lead"
+                                  th:text="'Список выданного СИЗ сотруднику '+${selectedEmployee.surname}+' '+${selectedEmployee.name}+' '+${selectedEmployee.patronymic}"></span>
+                            </div>
+                            <div class="col-sm-6 d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary btn-sm float-right"
+                                        aria-label="Распечатать">
+                                    <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24"
+                                         height="24">
+                                </button>
+                            </div>
+                        </div>
+                        <p class="fs-6 text-danger" th:text="${issuedError}"></p>
+                        <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 40%">Наименование</th>
+                                    <th>Дата выдачи</th>
+                                    <th>Дата окончания носки</th>
+                                    <th style="width: 450px;"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
+                                    <td th:text="${s.siz.nameSIZ}"></td>
+                                    <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
+                                    <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" type="button"
+                                                th:onclick="'javascript:writeoffSIZ(\'' + ${s.id} + '\');'">Списать
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить
+                                        </button>
+                                        <button class="btn btn-warning btn-sm" type="button"
+                                                th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить
+                                            выдачу
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
-
 <script th:inline="javascript">
 
 var extendingSIZId;
@@ -267,7 +314,19 @@ function searchingByEmployee(value) {
 	});
 };
 
-//////////////////////////////////
+///////////////open sidebar///////////////////
+
+      var menu_btn = document.querySelector("#menu-btn");
+      var sidebar = document.querySelector("#sidebar");
+      var container = document.querySelector(".my-container");
+      menu_btn.addEventListener("click", () => {
+        sidebar.classList.toggle("active-nav");
+        container.classList.toggle("active-cont");
+      });
+
+/////////////////////////////////
+
+
 
 function checkParams() {
 	console.log("srabotalo!");
@@ -299,7 +358,8 @@ function cli(e) {
 	row.classList.add('activeRow');
 	tbl.setAttribute('activeRowIndex', row.rowIndex);
 };
-                    </script>
+
+</script>
 
 <div th:insert="blocks/footer :: footer"></div>
 </body>

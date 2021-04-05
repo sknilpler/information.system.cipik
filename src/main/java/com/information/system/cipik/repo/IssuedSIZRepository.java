@@ -11,6 +11,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
 
     List<IssuedSIZ> findAllByEmployeeId(Long id);
     List<IssuedSIZ> findByStatus(String status);
+    List<IssuedSIZ> findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status, String size, String height, String nameSIZ);
 
 
 

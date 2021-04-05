@@ -6,13 +6,19 @@ import com.information.system.cipik.repo.EmployeeRepository;
 import com.information.system.cipik.repo.KomplexRepository;
 import com.information.system.cipik.repo.OtdelRepository;
 import com.information.system.cipik.repo.PostRepository;
+import com.information.system.cipik.utils.EmployeeExcelExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @Controller
 public class EmployeeController {
@@ -119,5 +125,23 @@ public class EmployeeController {
         Post post = postRepository.findById(id).orElseThrow();
         postRepository.deleteById(id);
         return "redirect:/userPage/posts/add";
+    }
+
+    /**
+     * Экспорт списка сотрудников в EXCEL
+     * @param response
+     * @throws IOException
+     */
+    @GetMapping("/userPage/employee/export/excel")
+    public void exportEmployeeToExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        DateFormat dateFormatter = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=Список сотрудников_" + currentDateTime + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+        List<Employee> listEmployee = (List<Employee>) employeeRepository.findAll();
+        EmployeeExcelExporter excelExporter = new EmployeeExcelExporter(listEmployee);
+        excelExporter.export(response);
     }
 }
