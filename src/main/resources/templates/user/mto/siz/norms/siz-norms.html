@@ -4,6 +4,7 @@
     <title>Нормы выдачи СИЗ</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
     <script type="text/javascript" src="/js/jquery.min.js" ></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
     <style>
@@ -13,36 +14,41 @@
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
-<div class="container-fluid">
-    <hr class="my-4">
-    <blockquote class="blockquote text-center">
-        <p class="mb-0">НОРМЫ обеспечения средствами индивидуальной защиты работников филиала</p>
-    </blockquote>
-    <hr>
-    <div class="panel-body">
-        <div class="row g-3">
-            <div class="col-sm-6">
-                <form th:action="'/userPage/siz/norms'" method="get">
-                    <input id="textSearch" type="text" name="keyword">
-                    <button type="submit" class="btn btn-secondary">Найти</button>
-                </form>
-                <span class="lead">Список должностей</span>
-                <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
-                    <table class="table table-hover" id="tb">
-                        <thead>
-                        <tr>
-                            <th>Наименование</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="post : ${posts}">
-                            <!--                            <form action="#" th:object="${sredstvo}">-->
-                            <td th:text="${post.postName}" th:onclick="'javascript:rowClicked(\'' + ${post.id} + '\');'"></td>
-                            <!--                            </form>-->
-                        </tr>
-                        </tbody>
-                    </table>
-                    <script th:inline="javascript">
+<div class="d-flex">
+    <!-- Side panel -->
+    <div th:insert="user/mto/sidebar :: sidebar"></div>
+    <!-- Side panel -->
+    <div class="my-container active-cont container-fluid">
+        <hr class="my-4">
+        <blockquote class="blockquote text-center">
+            <p class="mb-0">НОРМЫ обеспечения средствами индивидуальной защиты работников филиала</p>
+        </blockquote>
+        <hr>
+        <div class="panel-body">
+            <div class="row g-3">
+                <div class="col-sm-6 h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                    <form th:action="'/userPage/siz/norms'" method="get">
+                        <input id="textSearch" type="text" name="keyword">
+                        <button type="submit" class="btn btn-secondary">Найти</button>
+                    </form>
+                    <span class="lead">Список должностей</span>
+                    <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                        <table class="table table-hover" id="tb">
+                            <thead>
+                            <tr>
+                                <th>Наименование</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="post : ${posts}">
+                                <!--                            <form action="#" th:object="${sredstvo}">-->
+                                <td th:text="${post.postName}"
+                                    th:onclick="'javascript:rowClicked(\'' + ${post.id} + '\');'"></td>
+                                <!--                            </form>-->
+                            </tr>
+                            </tbody>
+                        </table>
+                        <script th:inline="javascript">
 var post = /*[[${selected.postName}]]*/;
 
 
@@ -81,50 +87,65 @@ function cli(e) {
     row.classList.add('activeRow');
     tbl.setAttribute('activeRowIndex', row.rowIndex);
 }
-                    </script>
-                </div>
-            </div>
 
-            <div class="col-sm-6">
-                <div class="mt-1 form-actions floatRight">
-                    <a onclick="checkParams()" th:href="'/userPage/siz/norms/add'" class="btn btn-success" id="addButton">Добавить</a>
+                        </script>
+                    </div>
                 </div>
-                <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
-                <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>Наименование</th>
-                            <th>Количество</th>
-                            <th>Ед. изм.</th>
-                            <th>Срок службы</th>
-                            <th>Регламентирующие документы</th>
-                            <th style="width: 310px;"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="norm : ${norms}" style="cursor: pointer">
-                            <td th:text="${norm.individualProtectionMeans.nameSIZ}"></td>
-                            <td th:text="${norm.issuanceRate}"></td>
-                            <td th:text="${norm.individualProtectionMeans.ed_izm}"></td>
-                            <td th:text="${norm.serviceLife}"></td>
-                            <td th:text="${norm.regulatoryDocuments}"></td>
-                            <td>
-                                <form th:action="'/userPage/siz/norms/'+${norm.id}+'/remove'" method="post">
-                                    <a th:href="'/userPage/siz/norms/'+${norm.id}+'/edit'" class="btn btn-primary">Редактировать</a>
-                                    <button class="btn btn-danger" type="submit">Удалить</button>
-                                </form>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
 
+                <div class="col-sm-6 h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                    <div class="mt-1 form-actions floatRight">
+                        <a onclick="checkParams()" th:href="'/userPage/siz/norms/add'" class="btn btn-success"
+                           id="addButton">Добавить</a>
+                    </div>
+                    <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
+                    <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Наименование</th>
+                                <th>Количество</th>
+                                <th>Ед. изм.</th>
+                                <th>Срок службы</th>
+                                <th>Регламентирующие документы</th>
+                                <th style="width: 310px;"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="norm : ${norms}" style="cursor: pointer">
+                                <td th:text="${norm.individualProtectionMeans.nameSIZ}"></td>
+                                <td th:text="${norm.issuanceRate}"></td>
+                                <td th:text="${norm.individualProtectionMeans.ed_izm}"></td>
+                                <td th:text="${norm.serviceLife}"></td>
+                                <td th:text="${norm.regulatoryDocuments}"></td>
+                                <td>
+                                    <form th:action="'/userPage/siz/norms/'+${norm.id}+'/remove'" method="post">
+                                        <a th:href="'/userPage/siz/norms/'+${norm.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                                        <button class="btn btn-danger" type="submit">Удалить</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
+<script th:inline="javascript">
+    ///////////////open sidebar///////////////////
+
+      var menu_btn = document.querySelector("#menu-btn");
+      var sidebar = document.querySelector("#sidebar");
+      var container = document.querySelector(".my-container");
+      menu_btn.addEventListener("click", () => {
+        sidebar.classList.toggle("active-nav");
+        container.classList.toggle("active-cont");
+      });
+
+/////////////////////////////////
+</script>
 <div th:insert="blocks/footer :: footer"></div>
 
 </body>

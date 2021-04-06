@@ -241,14 +241,18 @@ public class SIZController {
 
     /**
      * Удаление выбранного СИЗ
-     * @param id
+     * @param list
      * @param model
      * @return
      */
-    @PostMapping("/userPage/not-issued-siz/{id}/remove")
-    public String notIssuedSIZDelete(@PathVariable(value = "id") long id, Model model){
-        issuedSIZRepository.deleteById(id);
-        return "redirect:/userPage/not-issued-siz";
+    @PostMapping("/userPage/not-issued-siz/{list}/remove")
+    public String notIssuedSIZDelete(@PathVariable(value = "list") List<Long> list, Model model){
+        for (Long id : list) {
+            issuedSIZRepository.deleteById(id);
+        }
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+        model.addAttribute("notIssuedSIZ", issuedSIZS);
+        return "user/mto/siz/siz-from-stock :: table-sock-siz";
     }
 
     ///////////////// выданный СИЗ/////////////////

@@ -4,72 +4,95 @@
     <title>Редактирование нормы СИЗ</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
-<div class="container">
-    <a href="#" onclick="history.back();">Назад</a>
-    <div class="mt-5">
-        <h3 th:text="'Редактирование нормы СИЗ для должности '+${post.postName}"></h3>
+<div class="d-flex">
+    <!-- Side panel -->
+    <div th:insert="user/mto/sidebar :: sidebar"></div>
+    <!-- Side panel -->
+    <div class="my-container active-cont container-fluid">
+
+            <div class="mt-5">
+                <h3 th:text="'Редактирование нормы СИЗ для должности '+${post.postName}"></h3>
+            </div>
+
+            <form th:object="${norma}" th:action="'/userPage/siz/norms/'+*{id}+'/edit'" method="post">
+                <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm row">
+                <div class="col-sm-6">
+                    <label class="md-2" for="dropSIZ">СИЗ</label>
+                    <select class="form-control" id="dropSIZ" name="dropSIZ" required>
+                        <option value="">Выберите СИЗ</option>
+                        <option th:each="siz : ${sizs}" th:value="${siz.id}"
+                                th:text="${siz.nameSIZ}+', '+${siz.ed_izm}"></option>
+                    </select>
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="md-2" for="typeIPM">Тип СИЗ</label>
+                    <select class="form-select" aria-label="example" th:field="*{typeIPM}" name="typeIPM" id="typeIPM"
+                            required>
+                        <option value="Одежда">Одежда</option>
+                        <option value="Головной убор">Головной убор</option>
+                        <option value="Обувь">Обувь</option>
+                        <option value="Противогаз">Противогаз</option>
+                        <option value="Респиратор">Респиратор</option>
+                        <option value="Перчатки">Перчатки</option>
+                        <option value="Рукавицы">Рукавицы</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="md-2" for="issuanceRate">Количество</label>
+                    <div class="md-7">
+                        <input type="text" th:field="*{issuanceRate}" id="issuanceRate" name="issuanceRate"
+                               class="form-control"
+                               placeholder="Введите количество" onkeypress="validate(event)" required/>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="md-2" for="serviceLife">Срок службы</label>
+                    <div class="md-7">
+                        <input type="text" th:field="*{serviceLife}" id="serviceLife" name="serviceLife"
+                               class="form-control"
+                               placeholder="Введите срок службы (месяцев)" onkeypress="validate(event)" required/>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="md-2" for="regulatoryDocuments">Регламентирующие документы</label>
+                    <div class="md-7">
+                        <input type="text" th:field="*{regulatoryDocuments}" id="regulatoryDocuments"
+                               name="regulatoryDocuments" class="form-control"
+                               placeholder="Введите название документа" required/>
+                    </div>
+                </div>
+
+                <div class="mt-1 form-actions floatRight">
+                    <button type="submit" class="btn btn-success">Сохранить</button>
+                    <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Сбросить поля
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <form  th:object="${norma}" th:action="'/userPage/siz/norms/'+*{id}+'/edit'"  method="post">
-        <div class="col-sm-6">
-            <label class="md-2" for="dropSIZ">СИЗ</label>
-            <select class="form-control" id="dropSIZ" name="dropSIZ" required>
-                <option value="">Выберите СИЗ</option>
-                <option th:each="siz : ${sizs}" th:value="${siz.id}" th:text="${siz.nameSIZ}+', '+${siz.ed_izm}"></option>
-            </select>
-        </div>
-
-        <div class="col-sm-6">
-            <label class="md-2" for="typeIPM">Тип СИЗ</label>
-            <select class="form-select" aria-label="example" th:field="*{typeIPM}" name="typeIPM" id="typeIPM" required>
-                <option value="Одежда">Одежда</option>
-                <option value="Головной убор">Головной убор</option>
-                <option value="Обувь">Обувь</option>
-                <option value="Противогаз">Противогаз</option>
-                <option value="Респиратор">Респиратор</option>
-                <option value="Перчатки">Перчатки</option>
-                <option value="Рукавицы">Рукавицы</option>
-            </select>
-        </div>
-
-        <div class="col-sm-6">
-            <label class="md-2" for="issuanceRate">Количество</label>
-            <div class="md-7">
-                <input type="text" th:field="*{issuanceRate}" id="issuanceRate" name="issuanceRate" class="form-control"
-                       placeholder="Введите количество" onkeypress="validate(event)" required/>
-            </div>
-        </div>
-
-        <div class="col-sm-6">
-            <label class="md-2" for="serviceLife">Срок службы</label>
-            <div class="md-7">
-                <input type="text" th:field="*{serviceLife}" id="serviceLife" name="serviceLife" class="form-control"
-                       placeholder="Введите срок службы (месяцев)" onkeypress="validate(event)" required/>
-            </div>
-        </div>
-
-        <div class="col-sm-6">
-            <label class="md-2" for="regulatoryDocuments">Регламентирующие документы</label>
-            <div class="md-7">
-                <input type="text" th:field="*{regulatoryDocuments}" id="regulatoryDocuments" name="regulatoryDocuments" class="form-control"
-                       placeholder="Введите название документа" required/>
-            </div>
-        </div>
-
-        <div class="mt-1 form-actions floatRight">
-            <button type="submit" class="btn btn-success">Сохранить</button>
-            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Сбросить поля</button>
-        </div>
-        <hr class="my-4">
-
-    </form>
 </div>
 <div th:insert="blocks/footer :: footer"></div>
 <script>
+    ///////////////open sidebar///////////////////
+
+      var menu_btn = document.querySelector("#menu-btn");
+      var sidebar = document.querySelector("#sidebar");
+      var container = document.querySelector(".my-container");
+      menu_btn.addEventListener("click", () => {
+        sidebar.classList.toggle("active-nav");
+        container.classList.toggle("active-cont");
+      });
+
+/////////////////////////////////
 //функция проверки ввода цифр в поле input
  function validate(evt) {
   var theEvent = evt || window.event;

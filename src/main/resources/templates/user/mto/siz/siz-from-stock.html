@@ -4,36 +4,12 @@
     <title>СИЗ на складе</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
     <script type="text/javascript" src="/js/jquery.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
     <style>
             #tb tr:hover {background:#E2EEFF;}
             #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
-.side-navbar {
-  width: 220px;
-  margin-left: -200px;
-  background-color: #100901;
-  transition: 0.5s;
-}
-
-.nav-link:active,
-.nav-link:focus,
-.nav-link:hover {
-  background-color: #ffffff26;
-}
-
-.my-container {
-  transition: 0.4s;
-}
-
-.active-nav {
-  margin-left: 0;
-}
-
-/* for main section */
-.active-cont {
-  margin-left: 10px;
-}
     </style>
 </head>
 <body>
@@ -45,7 +21,7 @@
     <!-- Side panel -->
     <div class="my-container active-cont container-fluid">
 
-        <div class="container-sm">
+        <div class="container-fluid">
             <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
                 <form method="post" class="row g-3">
                     <div class="col-sm-6">
@@ -86,7 +62,7 @@
                 </form>
             </div>
         </div>
-        <div class="container panel panel-default">
+        <div class="container-fluid">
             <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
                 <div>
                     <label for="textSearch" class="form-label">Поиск</label>
@@ -100,23 +76,37 @@
                         <table class="table table-hover">
                             <thead>
                             <tr>
+                                <th style="5%">
+                                <form>
+                                    <input type="checkbox" name="all-checkbox" >
+                                </form>
+                                </th>
+                                <th style="5%">№ п/п</th>
                                 <th>Наименование</th>
-                                <th>Размер</th>
-                                <th>Рост</th>
-                                <th style="width: 310px;"></th>
+                                <th style="10%">Размер</th>
+                                <th style="10%">Рост</th>
+                                <th style="width: 300px;">
+                                        <button class="btn btn-danger btn-sm" th:onclick="'javascript:deleteRecord();'">Удалить</button>
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="n : ${notIssuedSIZ}">
+                            <tr th:each="n,iter : ${notIssuedSIZ}">
+                                <td>
+                                    <form>
+                                        <input type="checkbox" name="record-checkbox" th:onchange="'javascript:selectRecord(this,\'' + ${n.id} + '\');'">
+                                    </form>
+                                </td>
+                                <td th:text="${iter.index+1}"></td>
                                 <td th:text="${n.siz.nameSIZ}"></td>
                                 <td th:text="${n.size}"></td>
                                 <td th:text="${n.height}"></td>
                                 <td>
-                                    <form th:action="'/userPage/not-issued-siz/'+${n.id}+'/remove'" method="post">
+<!--                                    <form >-->
                                         <a th:href="'/userPage/not-issued-siz/'+${n.id}+'/edit'"
                                            class="btn btn-primary btn-sm">Редактировать</a>
-                                        <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
-                                    </form>
+<!--                                        <button class="btn btn-danger btn-sm" type="submit">Удалить</button>-->
+<!--                                    </form>-->
                                 </td>
                             </tr>
                             </tbody>
@@ -140,19 +130,54 @@
       });
 
 /////////////////////////////////
-
     function searching(value) {
-	if (value.length === 0) {
-		value = 0;
+    	if (value.length === 0) {
+    		value = 0;
+    	}
+    	$.ajax({
+    		type: 'get',
+    		url: '/userPage/not-issued-siz/search/stock-siz/' + value,
+    		success: function(data) {
+    			$('.table-sock-siz').html(data);
+    		},
+    	});
+    };
+//////////////////////////////////////
+var selRecs = [];
+
+function selectRecord(value, id) {
+	if (value.checked) {
+		selRecs.push(id);
+	} else {
+		selRecs = arrayRemove(selRecs, id);
 	}
-	$.ajax({
-		type: 'get',
-		url: '/userPage/not-issued-siz/search/stock-siz/' + value,
+	console.log(selRecs);
+};
+
+function arrayRemove(arr, value) {
+	return arr.filter(function(ele) {
+		return ele !== value;
+	});
+}
+///////////////////////////////////////
+function deleteRecord(){
+
+//   var xmlHttp = new XMLHttpRequest();
+//   xmlHttp.open( 'GET', '/userPage/not-issued-siz/'+selRecs+'/remove', false ); // false for synchronous request
+//   xmlHttp.send( null );
+//var xhttp = new XMLHttpRequest();
+//xhttp.open('GET', '/userPage/not-issued-siz/'+selRecs+'/remove', true);
+//xhttp.send();
+
+$.ajax({
+		type: 'post',
+		url: '/userPage/not-issued-siz/'+selRecs+'/remove',
 		success: function(data) {
 			$('.table-sock-siz').html(data);
 		},
-	});
-};
+	})
+}
+////////////////////////////////////
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

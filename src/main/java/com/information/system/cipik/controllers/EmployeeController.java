@@ -138,7 +138,7 @@ public class EmployeeController {
         DateFormat dateFormatter = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=Список сотрудников_" + currentDateTime + ".xlsx";
+        String headerValue = "attachment; filename=spisok_sotrudnikov_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
         List<Employee> listEmployee = (List<Employee>) employeeRepository.findAll();
         EmployeeExcelExporter excelExporter = new EmployeeExcelExporter(listEmployee);
