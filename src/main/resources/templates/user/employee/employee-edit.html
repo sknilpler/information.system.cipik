@@ -42,7 +42,7 @@
         <div class="col-sm-4">
             <label for="komplex" class="form-label">Комплекс</label>
             <select class="form-control" id="komplex" name="komplex" onchange="selectKomplex();" required>
-                <option value="">Комплекс</option>
+                <option selected disabled value="">Комплекс</option>
                 <option th:each="k : ${komplexes}" th:value="${k.id}"
                         th:text="${k.shortName}"></option>
             </select>
@@ -50,7 +50,7 @@
         <div class="col-sm-4">
             <label for="otdel" class="form-label">Отдел</label>
             <select class="form-control" id="otdel" name="otdel" disabled required>
-                <option value="">Отдел</option>
+                <option selected disabled value="">Отдел</option>
                 <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
                         th:text="${otdel.name}"></option>
             </select>
@@ -58,7 +58,7 @@
         <div class="col-sm-4">
             <label for="post" class="form-label">Должность</label>
             <select class="form-control" id="post" name="post" required>
-                <option value="">Должность</option>
+                <option selected disabled value="">Должность</option>
                 <option th:each="post : ${posts}" th:value="${post.id}"
                         th:text="${post.postName}"></option>
             </select>

@@ -24,4 +24,8 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "        p.post_name\n" +
             "    ) LIKE %:keyword% AND e.post_id = p.id", nativeQuery = true)
     Iterable<Employee> findAllByKeword(@Param("keyword") String keyword);
+
+    List<Employee> findAllByPostId(Long id);
+
+    List<Employee> findAllByOtdelIdAndPostId(Long otdel_id,Long post_id);
 }

@@ -14,7 +14,7 @@
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
-<!-- Modal window -->
+<!-- Modal window for extend SIZ -->
 <div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -42,6 +42,34 @@
     </div>
 </div>
 <!-- Modal window -->
+
+<!-- Modal window for writeoff SIZ -->
+<div id="exampleModalLive2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel2"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLiveLabel2">Списание</h5>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label class="md-2" for="act">Акт списания</label>
+                <input type="text" id="act" name="act" class="form-control"
+                       placeholder="Введите наименование акта списания" onchange="setActWriteoff(this.value)"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+                <button type="button" class="btn btn-primary" onclick="writeoffSIZ()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
     <!-- Side panel -->
 <div class="d-flex">
 <div th:insert="user/mto/sidebar :: sidebar"></div>
@@ -57,7 +85,7 @@
 <!--                        </button>-->
                         <select class="form-control" id="otdel" name="otdel"
                                 th:onchange="'javascript:loadEmployeesForSelectedOtdel();'" required>
-                            <option value="">Выберите отдел</option>
+                            <option selected disabled value="">Выберите отдел</option>
                             <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
                                     th:text="${otdel.name}"></option>
                         </select>
@@ -73,16 +101,22 @@
                             <table class="table table-hover" id="tb">
                                 <thead>
                                 <tr>
+                                    <th style="5%">
+                                        <input type="checkbox" name="all-checkbox"  th:onchange="'javascript:selectAllRecord(this);'" disabled>
+                                    </th>
                                     <th style="width: 40%">ФИО</th>
                                     <th>Должность</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="e : ${employees}">
+                                    <td>
+                                        <input type="checkbox" name="record-checkbox" th:onchange="'javascript:selectRecord(this,\'' + ${e.id} + '\');'" disabled>
+                                    </td>
                                     <td th:text="${e.surname}+' '+${#strings.substring(e.name,0,1)}+' '+${#strings.substring(e.patronymic,0,1)}"
-                                        th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                                        th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\',\'' + ${e.post.id} + '\');'"></td>
                                     <td th:text="${e.post.postName}"
-                                        th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                                        th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\',\'' + ${e.post.id} + '\');'"></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -92,9 +126,18 @@
                 <br>
                 <div class="col-sm-6">
                     <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                        <select class="form-control" id="post" name="post"
+                                th:onchange="'javascript:loadEmployeesForSelectedPost();'">
+                            <option selected disabled value="">Выберите должность</option>
+                            <option th:each="post : ${posts}" th:value="${post.id}"
+                                    th:text="${post.postName}"></option>
+                        </select>
+                        <hr>
                         <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
                              th:fragment="table-siz">
-                            <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
+                            <div class="col-sm-6">
+                                <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
+                            </div>
                             <table class="table table-hover">
                                 <thead>
                                 <tr>
@@ -110,8 +153,8 @@
                                     <td th:text="${s.issuanceRate}"></td>
                                     <td th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
                                     <td>
-                                        <a class="btn btn-danger btn-sm"
-                                           th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</a>
+                                        <button class="btn btn-danger btn-sm" name="iss-btn"
+                                           th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'" disabled>Выдать</button>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -154,7 +197,7 @@
                                     <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" type="button"
-                                                th:onclick="'javascript:writeoffSIZ(\'' + ${s.id} + '\');'">Списать
+                                                th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'">Списать
                                         </button>
                                         <button type="button" class="btn btn-primary btn-sm"
                                                 th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить
@@ -177,20 +220,29 @@
 <script th:inline="javascript">
 
 var extendingSIZId;
+var writeoffSIZId;
 //// modal functions///////
 function showModalWindow(value) {
 	extendingSIZId = value;
 	$("#exampleModalLive").modal('show');
 }
-
+function showModalWindow2(value) {
+	writeoffSIZId = value;
+	$("#exampleModalLive2").modal('show');
+}
 function closeModalWindow() {
 	$("#exampleModalLive").modal('hide');
+	$("#exampleModalLive2").modal('hide');
 };
 ///////////////////////////////////
 var post = /*[[${selected.postName}]]*/ ;
 var employee_id;
+var selRecs = [];
 
 function loadEmployeesForSelectedOtdel() {
+if (document.getElementById("post").value !==''){
+    loadEmployeesForSelectedOtdelAndPost();
+} else {
 	var e = document.getElementById("otdel");
 	var otdelId = e.value;
 	$.ajax({
@@ -200,12 +252,60 @@ function loadEmployeesForSelectedOtdel() {
 			$('.table-employees').html(data);
 		},
 	})
+	}
+	selRecs = [];
 };
 ///////////////////////////////////////////////
-function rowClicked(value) {
-	employee_id = value;
-	updateSizForEmployee(value);
-	loadIssuedSiz(value);
+function loadEmployeesForSelectedPost() {
+if (document.getElementById("otdel").value !==''){
+    loadEmployeesForSelectedOtdelAndPost();
+} else {
+	var e = document.getElementById("post");
+	var postId = e.value;
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/getEmployeeForPost/' + postId,
+		success: function(data) {
+			$('.table-employees').html(data);
+			$('body input:checkbox').prop('disabled',false);
+		},
+	})
+	updateSizForPost();
+}
+selRecs = [];
+};
+///////////////////////////////////////////////
+function loadEmployeesForSelectedOtdelAndPost() {
+	var a = document.getElementById("otdel");
+	var b = document.getElementById("post");
+	var otdelId = a.value;
+	var postId = b.value;
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/getEmployeeForOtdelAndPost/' + otdelId+'/'+postId,
+		success: function(data) {
+			$('.table-employees').html(data);
+			$('body input:checkbox').prop('disabled',false);
+		},
+	})
+	updateSizForPost();
+	selRecs = [];
+};
+///////////////////////////////////////////////
+function rowClicked(empl_id) {
+	employee_id = empl_id;
+	updateSizForEmployee(empl_id);
+	loadIssuedSiz(empl_id);
+};
+
+function updateSizForPost(){
+$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/getSizForPost/' + document.getElementById("post").value,
+		success: function(data) {
+			$('.table-siz').html(data);
+		},
+	})
 };
 
 function updateSizForEmployee(value) {
@@ -231,19 +331,20 @@ function loadIssuedSiz(value) {
 function updateIssuedSiz(value) {
 	$.ajax({
 		type: 'get',
-		url: '/userPage/issued-siz/' + value + '/add',
+		url: '/userPage/issued-siz/' + selRecs + '/add/'+value,
 		success: function(data) {
 			$('.table-issuedSiz').html(data);
 		},
 	})
 	updateSizForEmployee(employee_id);
+	$('body input:checkbox').prop('checked',false);
+	selRecs = [];
 };
 //////////////////////////////////////////
 var dateExtending;
 
 function setDateExtending(value) {
 	dateExtending = value;
-	console.log(dateExtending);
 };
 
 function extendSIZ() {
@@ -257,6 +358,14 @@ function extendSIZ() {
 	})
 };
 //////////////////////////////////
+var actName;
+
+function setActWriteoff(value){
+    actName = value;
+}
+
+
+//////////////////////////////////
 function cancelIssed(value) {
 	$.ajax({
 		type: 'get',
@@ -268,10 +377,11 @@ function cancelIssed(value) {
 	updateSizForEmployee(employee_id);
 };
 //////////////////////////////////
-function writeoffSIZ(value) {
+function writeoffSIZ() {
+	closeModalWindow();
 	$.ajax({
 		type: 'get',
-		url: '/userPage/issued-siz/' + value + '/writeoff',
+		url: '/userPage/issued-siz/' + writeoffSIZId + '/writeoff/'+actName,
 		success: function(data) {
 			$('.table-issuedSiz').html(data);
 		},
@@ -301,9 +411,46 @@ function searchingByEmployee(value) {
         sidebar.classList.toggle("active-nav");
         container.classList.toggle("active-cont");
       });
+//////////////////////////////////////////////
 
-/////////////////////////////////
 
+function selectRecord(value, id) {
+	if (value.checked) {
+		selRecs.push(Number(id));
+	} else {
+		selRecs = arrayRemove(selRecs, Number(id));
+	}
+	var btns =  document.getElementsByName('iss-btn');
+	if(selRecs.length === 0){
+	  btns.forEach(el => el.disabled = true);
+	} else {
+	  btns.forEach(el => el.disabled = false);
+	}
+};
+
+function arrayRemove(arr, value) {
+	return arr.filter(function(ele) {
+		return ele !== value;
+	});
+}
+////////////////////////////////////
+function selectAllRecord(value){
+    if (value.checked) {
+		/*<![CDATA[*/
+ 	    var list = [];
+ 	    /*[# th:each="elVar : ${employees}"]*/
+ 	        list.push(/*[[${elVar.id}]]*/);
+ 		/*[/]*/
+ 		/*]]>*/
+        selRecs = list;
+	} else {
+		selRecs = [];
+	}
+	$('body input:checkbox').prop('checked',value.checked);
+	var btns =  document.getElementsByName('iss-btn');
+	btns.forEach(el => el.disabled = !value.checked);
+}
+//////////////////////////////////////////////////
 
 
 function checkParams() {

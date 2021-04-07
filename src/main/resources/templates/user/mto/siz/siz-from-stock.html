@@ -5,8 +5,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/table.css">
     <script type="text/javascript" src="/js/jquery.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/fixedtable.js"></script>
     <style>
             #tb tr:hover {background:#E2EEFF;}
             #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
@@ -73,40 +75,33 @@
                 <div class="panel-body">
                     <div class="table-sock-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
                          th:fragment="table-sock-siz">
-                        <table class="table table-hover">
+                        <table class="table table-hover fixtable">
                             <thead>
                             <tr>
                                 <th style="5%">
-                                <form>
-                                    <input type="checkbox" name="all-checkbox" >
-                                </form>
+                                    <input type="checkbox" name="all-checkbox"  th:onchange="'javascript:selectAllRecord(this);'" >
                                 </th>
                                 <th style="5%">№ п/п</th>
                                 <th>Наименование</th>
                                 <th style="10%">Размер</th>
                                 <th style="10%">Рост</th>
-                                <th style="width: 300px;">
-                                        <button class="btn btn-danger btn-sm" th:onclick="'javascript:deleteRecord();'">Удалить</button>
+                                <th style="width: 250px;">
+                                        <button class="btn btn-danger btn-sm" id="del_btn" th:onclick="'javascript:deleteRecord();'" disabled>Удалить</button>
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="n,iter : ${notIssuedSIZ}">
                                 <td>
-                                    <form>
                                         <input type="checkbox" name="record-checkbox" th:onchange="'javascript:selectRecord(this,\'' + ${n.id} + '\');'">
-                                    </form>
                                 </td>
                                 <td th:text="${iter.index+1}"></td>
                                 <td th:text="${n.siz.nameSIZ}"></td>
                                 <td th:text="${n.size}"></td>
                                 <td th:text="${n.height}"></td>
                                 <td>
-<!--                                    <form >-->
                                         <a th:href="'/userPage/not-issued-siz/'+${n.id}+'/edit'"
                                            class="btn btn-primary btn-sm">Редактировать</a>
-<!--                                        <button class="btn btn-danger btn-sm" type="submit">Удалить</button>-->
-<!--                                    </form>-->
                                 </td>
                             </tr>
                             </tbody>
@@ -147,11 +142,15 @@ var selRecs = [];
 
 function selectRecord(value, id) {
 	if (value.checked) {
-		selRecs.push(id);
+		selRecs.push(Number(id));
 	} else {
-		selRecs = arrayRemove(selRecs, id);
+		selRecs = arrayRemove(selRecs, Number(id));
 	}
-	console.log(selRecs);
+	if(selRecs.length === 0){
+	    document.getElementById('del_btn').disabled = true;
+	} else {
+	    document.getElementById('del_btn').disabled = false;
+	}
 };
 
 function arrayRemove(arr, value) {
@@ -159,12 +158,25 @@ function arrayRemove(arr, value) {
 		return ele !== value;
 	});
 }
+////////////////////////////////////
+function selectAllRecord(value){
+    if (value.checked) {
+		/*<![CDATA[*/
+ 	    var list = [];
+ 	    /*[# th:each="elVar : ${notIssuedSIZ}"]*/
+ 	        list.push(/*[[${elVar.id}]]*/);
+ 		/*[/]*/
+ 		/*]]>*/
+        selRecs = list;
+	} else {
+		selRecs = [];
+	}
+	$('body input:checkbox').prop('checked',value.checked);
+    document.getElementById('del_btn').disabled = !value.checked;
+}
 ///////////////////////////////////////
 function deleteRecord(){
 
-//   var xmlHttp = new XMLHttpRequest();
-//   xmlHttp.open( 'GET', '/userPage/not-issued-siz/'+selRecs+'/remove', false ); // false for synchronous request
-//   xmlHttp.send( null );
 //var xhttp = new XMLHttpRequest();
 //xhttp.open('GET', '/userPage/not-issued-siz/'+selRecs+'/remove', true);
 //xhttp.send();
@@ -177,7 +189,6 @@ $.ajax({
 		},
 	})
 }
-////////////////////////////////////
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

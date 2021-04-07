@@ -31,6 +31,7 @@ public class IssuedSIZ {
     private String status;
     private String size;
     private String height;
+    private String writeOffAct;
 
     public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size) {
         this.siz = individualProtectionMeans;
