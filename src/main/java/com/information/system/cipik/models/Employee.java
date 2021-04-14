@@ -1,9 +1,7 @@
 package com.information.system.cipik.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -17,6 +15,8 @@ import java.util.List;
 @Setter
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = {"issuedSIZS"})
+@ToString(exclude = {"issuedSIZS"})
 public class Employee {
 
     @Id
@@ -35,6 +35,7 @@ public class Employee {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "employee_id")
+    @JsonIgnore
     private List<IssuedSIZ> issuedSIZS;
 
     @ManyToOne
@@ -88,31 +89,4 @@ public class Employee {
         this.otdel = otdel;
     }
 
-    @Override
-    public String toString() {
-        return "Employee{" +
-                "id=" + id +
-                ", surname='" + surname + '\'' +
-                ", name='" + name + '\'' +
-                ", patronymic='" + patronymic + '\'' +
-                ", tabNomer='" + tabNomer + '\'' +
-                ", dataStartWork=" + dataStartWork +
-                ", height='" + height + '\'' +
-                ", clothingSize='" + clothingSize + '\'' +
-                ", headgearSize='" + headgearSize + '\'' +
-                ", shoeSize='" + shoeSize + '\'' +
-                ", sex='" + sex + '\'' +
-                ", gasMaskSize='" + gasMaskSize + '\'' +
-                ", respiratorSize='" + respiratorSize + '\'' +
-                ", mittensSize='" + mittensSize + '\'' +
-                ", gloveSize='" + gloveSize + '\'' +
-                ", addres='" + addres + '\'' +
-                ", telephone='" + telephone + '\'' +
-                ", endWork=" + endWork +
-                ", birthdayDate=" + birthdayDate +
-                ", issuedSIZS=" + issuedSIZS +
-                ", post=" + post +
-                ", otdel=" + otdel +
-                '}';
-    }
 }

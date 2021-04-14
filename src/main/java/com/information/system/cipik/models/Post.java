@@ -1,9 +1,7 @@
 package com.information.system.cipik.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -15,6 +13,8 @@ import java.util.List;
 @Setter
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = {"employees","ipmStandard"})
+@ToString(exclude = {"employees","ipmStandard"})
 public class Post {
 
     @Id
