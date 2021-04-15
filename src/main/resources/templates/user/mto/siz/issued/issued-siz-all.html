@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Выдача СИЗ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+    <style>
+            #tb tr:hover {background:#E2EEFF;}
+            #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+    </style>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<!-- Side panel -->
+<div class="d-flex">
+    <div th:insert="user/mto/sidebar :: sidebar"></div>
+    <!-- Side panel -->
+    <div class="my-container active-cont container-fluid">
+        <div class="panel-body">
+            <div class="row g-3">
+                <div class="col-sm-3">
+                    <label for="textSearch" class="form-label">Поиск по таблице</label>
+                    <input id="textSearch" class="form-control" type="text" name="keyword"
+                           oninput="searching(this.value)">
+                </div>
+                <div class="col-sm-3">
+                    <label for="issued-filter" class="form-label">Фильтр по выдачи</label>
+                    <select class="form-select" aria-label="example" name="issued-filter" id="issued-filter" th:onchange="'javascript:filter(this.value);'">
+                        <option selected disabled value="">Выберите фильтрацию</option>
+                        <option value="all">Все</option>
+                        <option value="issued">Выдан весь СИЗ</option>
+                        <option value="not-issued">Не выдан весь СИЗ</option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <span class="lead">Укомплектованность сотрудников СИЗ</span>
+            <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                 th:fragment="table-employees">
+                <table class="table table-hover" id="tb">
+                    <thead>
+                    <tr>
+                        <th style="display:none;"></th>
+                        <th style="width: 2%;">
+                            <input type="checkbox" name="all-checkbox" th:onchange="'javascript:selectAllRecord(this);'"
+                                   disabled>
+                        </th>
+                        <th style="width: 16%;">Должность</th>
+                        <th style="width: 16%;">Отдел</th>
+                        <th style="width: 17%;">Фамилия</th>
+                        <th style="width: 16%;">Имя</th>
+                        <th style="width: 16%;">Отчество</th>
+                        <th style="width: 15%;">Укомплектованность</th>
+                        <th style="width: 2%;"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${employees}">
+                        <td style="display:none;" name="id-empl" th:text="${e.id}"></td>
+                        <td>
+                            <input type="checkbox" name="record-checkbox"
+                                   th:onchange="'javascript:selectRecord(this,\'' + ${e.id} + '\');'" disabled>
+                        </td>
+                        <td th:text="${e.post.postName}"></td>
+                        <td th:text="${e.otdel.name}"></td>
+                        <td th:text="${e.surname}"></td>
+                        <td th:text="${e.name}"></td>
+                        <td th:text="${e.patronymic}"></td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar"
+                                     th:style="'width: '+${employeeRepository.getPercentStaffingOfEmployee(e.id,e.post.id)}+'%;'"
+                                     aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"
+                                     th:text="${employeeRepository.getPercentStaffingOfEmployee(e.id,e.post.id)}+'%'">
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn border-0 btn-sm">
+                                <img src="/images/bootstrap-icons/card-checklist.svg" alt="Bootstrap" width="20"
+                                     height="20">
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/pagecontrol/issued-siz-all.js"></script>
+<div th:insert="blocks/footer :: footer"></div>
+</body>

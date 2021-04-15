@@ -38,6 +38,7 @@ public class SIZController {
     private Post postAddToNorm;
     private Post postToIssued;
     private Employee employeeForIssuedSIZ;
+    private String filerIssuedSizAll;
 
     @GetMapping("/userPage/siz-types")
     public String allSIZ(Model model) {
@@ -515,12 +516,11 @@ public class SIZController {
      */
     @GetMapping("/userPage/issued-siz/search/employee/{keyword}")
     public String searchEmployee(@PathVariable(value = "keyword") String keyword, Model model) {
-        System.out.println(keyword);
         Iterable<Employee> employees;
         if (keyword.equals("0")){
             employees = employeeRepository.findAll();
         }else{
-            employees = employeeRepository.findAllByKeword(keyword);
+            employees = employeeRepository.findAllByPostAndKeyword(keyword);
         }
         model.addAttribute("employees", employees);
         return "user/mto/siz/issued/issued-siz-add :: table-employees";
@@ -534,7 +534,6 @@ public class SIZController {
      */
     @GetMapping("/userPage/not-issued-siz/search/stock-siz/{keyword}")
     public String searchStockSiz(@PathVariable(value = "keyword") String keyword, Model model) {
-        System.out.println(keyword);
         List<IssuedSIZ> issuedSIZS;
         if (keyword.equals("0")) {
             issuedSIZS = issuedSIZRepository.findByStatus("На складе");
@@ -546,4 +545,75 @@ public class SIZController {
         model.addAttribute("notIssuedSIZ", issuedSIZS);
         return "user/mto/siz/siz-from-stock :: table-sock-siz";
     }
+
+    //////////////////////Укомплектованность сотрудников СИЗ//////////////////////
+
+    /**
+     * Первоначальное открытие страницы укомплектованности СИЗ
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz")
+    public String staffingOfAllEmployeesSIZ(Model model) {
+        filerIssuedSizAll = "all";
+        Iterable<Employee> employees = employeeRepository.findAll();
+        model.addAttribute("employees",employees);
+        model.addAttribute("employeeRepository",employeeRepository);
+        return "user/mto/siz/issued/issued-siz-all";
+    }
+
+    /**
+     * Фильтрация сотрудников по укомплектованности
+     * @param keyword
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/filter/employee/{keyword}")
+    public String filterStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, Model model) {
+        filerIssuedSizAll = keyword;
+        Iterable<Employee> employees;
+        if (keyword.equals("not-issued")){
+            employees = employeeRepository.getNotFullStaffingOfEmployee();
+        } else if (keyword.equals("issued")){
+            employees = employeeRepository.getFullStaffingOfEmployee();
+        } else {
+            employees = employeeRepository.findAll();
+        }
+        model.addAttribute("employees", employees);
+        model.addAttribute("employeeRepository",employeeRepository);
+        return "user/mto/siz/issued/issued-siz-all :: table-employees";
+    }
+
+    /**
+     * Поиск укомплектованных сотрудников по ключевому слову
+     * @param keyword
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/search/employee/{keyword}")
+    public String searchStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, Model model) {
+        Iterable<Employee> employees;
+        if (keyword.equals("0")) {
+            if (filerIssuedSizAll.equals("not-issued")) {
+                employees = employeeRepository.getNotFullStaffingOfEmployee();
+            } else if (filerIssuedSizAll.equals("issued")) {
+                employees = employeeRepository.getFullStaffingOfEmployee();
+            } else {
+                employees = employeeRepository.findAll();
+            }
+        } else {
+            if (filerIssuedSizAll.equals("not-issued")) {
+                employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(keyword);
+            } else if (filerIssuedSizAll.equals("issued")) {
+                employees = employeeRepository.getFullStaffingOfEmployeeAndKeyword(keyword);
+            } else {
+                employees = employeeRepository.findAllByPostAndOtdelAndKeyword(keyword);
+            }
+        }
+        model.addAttribute("employees", employees);
+        model.addAttribute("employeeRepository",employeeRepository);
+        return "user/mto/siz/issued/issued-siz-all :: table-employees";
+    }
+
+
 }
