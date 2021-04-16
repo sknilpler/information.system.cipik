@@ -35,3 +35,25 @@ function filter(value){
     });
 }
 //////////////////////////////////////////////
+function showModalWindow(value1,value2) {
+   $.ajax({
+       type: 'get',
+       url: '/userPage/employee-siz/info-siz/employee/' + value1+'/'+value2,
+       success: function(data) {
+       	   $('.table-siz').html(data);
+       	   $("#exampleModalLive").modal('show');
+       },
+   });
+}
+//////////////////////////////////////////////
+function showModalWindow2(value) {
+	$.ajax({
+        type: 'get',
+        url: '/userPage/employee-siz/info-issued-siz/employee/' + value,
+        success: function(data) {
+        	$('.table-issued-siz').html(data);
+        	$("#exampleModalLive2").modal('show');
+        },
+     });
+}
+/////////////////////////////////////////////

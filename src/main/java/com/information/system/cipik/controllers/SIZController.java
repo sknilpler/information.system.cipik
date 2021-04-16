@@ -559,6 +559,8 @@ public class SIZController {
         Iterable<Employee> employees = employeeRepository.findAll();
         model.addAttribute("employees",employees);
         model.addAttribute("employeeRepository",employeeRepository);
+        model.addAttribute("ipmStandardRepository", issuedSIZRepository);
+        model.addAttribute("employee", employees.iterator().next());
         return "user/mto/siz/issued/issued-siz-all";
     }
 
@@ -615,5 +617,36 @@ public class SIZController {
         return "user/mto/siz/issued/issued-siz-all :: table-employees";
     }
 
+    /**
+     * Обновление таблицы укомплектованности СИЗ для выбранного сотрудника
+     * @param id_e
+     * @param id_p
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/info-siz/employee/{id_e}/{id_p}")
+    public String getInfoStaffingOfEmployee(@PathVariable(value = "id_e") long id_e,@PathVariable(value = "id_p") long id_p, Model model) {
+        List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(id_p);
+        Employee employee = employeeRepository.findById(id_e).orElseThrow();
+        model.addAttribute("siz", ipmStandards);
+        model.addAttribute("employee", employee);
+        model.addAttribute("issuedSIZRepository", issuedSIZRepository);
+        return "user/mto/siz/issued/issued-siz-all :: table-siz";
+    }
+
+    /**
+     * Обновление таблицы с информацией об уже выданном СИЗ выбранного сотрудника
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/info-issued-siz/employee/{id}")
+    public String getInfoIssuedSizOfEmployee(@PathVariable(value = "id") long id, Model model) {
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeId(id);
+        Employee employee = employeeRepository.findById(id).orElseThrow();
+        model.addAttribute("employee",employee);
+        model.addAttribute("vidanSIZ",issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all :: table-issued-siz";
+    }
 
 }

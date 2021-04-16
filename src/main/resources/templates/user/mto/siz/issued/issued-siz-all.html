@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Выдача СИЗ</title>
+    <title>Укомплектованность сотрудников СИЗ</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/sidebar.css">
@@ -14,6 +14,99 @@
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
+<!-- Modal window for norm SIZ -->
+<div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLiveLabel">Комплектность СИЗ</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                     th:fragment="table-siz">
+                    <h6 th:text="${employee.surname}+' '+${#strings.substring(employee.name,0,1)}+' '+${#strings.substring(employee.patronymic,0,1)}"></h6>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th >Наименование</th>
+                            <th style="width: 10%">По норме</th>
+                            <th style="width: 10%">Выдано</th>
+<!--                            <th style="width: 100px;"></th>-->
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="s : ${siz}" style="cursor: pointer">
+                            <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
+                            <td th:text="${s.issuanceRate}"></td>
+                            <td th:text="${issuedSIZRepository.getCountByEmployeeIdAndIPMStandart(s.id,employee.id)}"></td>
+<!--                            <td>-->
+<!--                                <button class="btn btn-danger btn-sm" name="iss-btn"-->
+<!--                                        th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'" disabled>Выдать-->
+<!--                                </button>-->
+<!--                            </td>-->
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
+<!-- Modal window for issued SIZ -->
+<div id="exampleModalLive2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLiveLabel2">Выданный СИЗ сотруднику</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-issued-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                     th:fragment="table-issued-siz">
+                    <h6 th:text="${employee.surname}+' '+${#strings.substring(employee.name,0,1)}+' '+${#strings.substring(employee.patronymic,0,1)}"></h6>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Наименование</th>
+                            <th style="width: 15%">Выдано</th>
+                            <th>Окончание носки</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
+                            <td th:text="${s.siz.nameSIZ}"></td>
+                            <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
+                            <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                Закрыть
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Modal window -->
 <!-- Side panel -->
 <div class="d-flex">
     <div th:insert="user/mto/sidebar :: sidebar"></div>
@@ -22,11 +115,6 @@
         <div class="panel-body">
             <div class="row g-3">
                 <div class="col-sm-3">
-                    <label for="textSearch" class="form-label">Поиск по таблице</label>
-                    <input id="textSearch" class="form-control" type="text" name="keyword"
-                           oninput="searching(this.value)">
-                </div>
-                <div class="col-sm-3">
                     <label for="issued-filter" class="form-label">Фильтр по выдачи</label>
                     <select class="form-select" aria-label="example" name="issued-filter" id="issued-filter" th:onchange="'javascript:filter(this.value);'">
                         <option selected disabled value="">Выберите фильтрацию</option>
@@ -34,6 +122,11 @@
                         <option value="issued">Выдан весь СИЗ</option>
                         <option value="not-issued">Не выдан весь СИЗ</option>
                     </select>
+                </div>
+                <div class="col-sm-3">
+                    <label for="textSearch" class="form-label">Поиск по таблице</label>
+                    <input id="textSearch" class="form-control" type="text" name="keyword"
+                           oninput="searching(this.value)">
                 </div>
             </div>
             <hr>
@@ -48,12 +141,13 @@
                             <input type="checkbox" name="all-checkbox" th:onchange="'javascript:selectAllRecord(this);'"
                                    disabled>
                         </th>
-                        <th style="width: 16%;">Должность</th>
-                        <th style="width: 16%;">Отдел</th>
-                        <th style="width: 17%;">Фамилия</th>
-                        <th style="width: 16%;">Имя</th>
+                        <th style="width: 19%;">Должность</th>
+                        <th style="width: 10%;">Отдел</th>
+                        <th style="width: 19%;">Фамилия</th>
+                        <th style="width: 15%;">Имя</th>
                         <th style="width: 16%;">Отчество</th>
                         <th style="width: 15%;">Укомплектованность</th>
+                        <th style="width: 2%;"></th>
                         <th style="width: 2%;"></th>
                     </tr>
                     </thead>
@@ -65,7 +159,7 @@
                                    th:onchange="'javascript:selectRecord(this,\'' + ${e.id} + '\');'" disabled>
                         </td>
                         <td th:text="${e.post.postName}"></td>
-                        <td th:text="${e.otdel.name}"></td>
+                        <td th:text="${e.otdel.komplex.shortName}"></td>
                         <td th:text="${e.surname}"></td>
                         <td th:text="${e.name}"></td>
                         <td th:text="${e.patronymic}"></td>
@@ -79,8 +173,14 @@
                             </div>
                         </td>
                         <td>
-                            <button class="btn border-0 btn-sm">
+                            <button class="btn border-0 btn-sm"  th:onclick="'javascript:showModalWindow(\'' + ${e.id} + '\',\'' + ${e.post.id} + '\');'" title="Информация об укомплектованности">
                                 <img src="/images/bootstrap-icons/card-checklist.svg" alt="Bootstrap" width="20"
+                                     height="20">
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn border-0 btn-sm"  th:onclick="'javascript:showModalWindow2(\'' + ${e.id} + '\');'" title="Информация о выданном СИЗ">
+                                <img src="/images/bootstrap-icons/journal-text.svg" alt="Bootstrap" width="20"
                                      height="20">
                             </button>
                         </td>

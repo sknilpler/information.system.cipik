@@ -101,4 +101,13 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
             " employee.id = :emp_id AND\n" +
             " ipmstandard.id = :id_ipm_st", nativeQuery = true)
     List<IssuedSIZ> findByEmployeeIdAndIPMStandart(@Param("id_ipm_st") Long id_ipm,@Param("emp_id") Long id_emp);
+
+    @Query(value = "SELECT COUNT(issuedsiz.id) FROM issuedsiz,individual_protection_means,ipmstandard,employee WHERE\n" +
+            " issuedsiz.siz_id = individual_protection_means.id AND\n" +
+            " issuedsiz.employee_id = employee.id AND\n" +
+            " ipmstandard.individual_protection_means_id = individual_protection_means.id AND\n" +
+            " employee.id = :emp_id AND\n" +
+            " ipmstandard.id = :id_ipm_st", nativeQuery = true)
+    int getCountByEmployeeIdAndIPMStandart(@Param("id_ipm_st") Long id_ipm,@Param("emp_id") Long id_emp);
+
 }
