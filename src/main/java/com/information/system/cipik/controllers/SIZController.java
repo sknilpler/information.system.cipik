@@ -649,4 +649,174 @@ public class SIZController {
         return "user/mto/siz/issued/issued-siz-all :: table-issued-siz";
     }
 
+    /**
+     * Открытие страницы редактирования укомплектованности СИЗ выбранного сотрудника
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/edit-staffing/employee/{id}")
+    public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id, Model model) {
+        Employee employee = employeeRepository.findById(id).orElseThrow();
+        employeeForIssuedSIZ = employee;
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeId(id);
+        List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(employee.getPost().getId());
+        model.addAttribute("siz", ipmStandards);
+        model.addAttribute("employee",employee);
+        model.addAttribute("vidanSIZ",issuedSIZS);
+        model.addAttribute("ipmStandardRepository", ipmStandardRepository);
+        return "user/mto/siz/issued/issued-siz-edit";
+    }
+
+    /**
+     * Продление ресурса СИЗ для сотрудника
+     * @param id
+     * @param dateExtending
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/edit-staffing/{id}/extend/{dateExtending}")
+    public String extendIssuedSizForEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "dateExtending") String dateExtending, Model model) {
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date exDate = issuedSIZ.getDateEndWear();
+        try {
+            exDate = format.parse(dateExtending);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        issuedSIZ.setDateEndWear(exDate);
+        issuedSIZRepository.save(issuedSIZ);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        model.addAttribute("employee",employeeForIssuedSIZ);
+        model.addAttribute("vidanSIZ", issuedSIZS2);
+        return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
+    }
+
+    /**
+     * Отмена выдачи СИЗ сотрудника
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/edit-staffing/{id}/cancel")
+    public String cancelIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        issuedSIZ.setDateIssued(null);
+        issuedSIZ.setDateEndWear(null);
+        issuedSIZ.setEmployee(null);
+        issuedSIZ.setStatus("На складе");
+        issuedSIZRepository.save(issuedSIZ);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        model.addAttribute("employee",employeeForIssuedSIZ);
+        model.addAttribute("vidanSIZ", issuedSIZS2);
+        return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
+    }
+
+    /**
+     * Списание выданного СИЗ сотрудника
+     * @param id
+     * @param actName
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/edit-staffing/{id}/writeoff/{actName}")
+    public String writeOfIssuedSizForEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "actName") String actName, Model model) {
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        issuedSIZ.setStatus("Списано");
+        issuedSIZ.setEmployee(null);
+        issuedSIZ.setWriteOffAct(actName);
+        issuedSIZRepository.save(issuedSIZ);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        model.addAttribute("employee",employeeForIssuedSIZ);
+        model.addAttribute("vidanSIZ", issuedSIZS2);
+        return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
+    }
+
+    /**
+     * Функция выдачи СИЗ сотруднику на странице комплектации
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/edit-staffing/employee/add/{id}")
+    public String addIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
+        String message = "";
+        List<IssuedSIZ> issuedSIZS = null;
+        Date dateIssued = new Date();
+        IPMStandard ipmStandard = ipmStandardRepository.findById(id).orElseThrow();
+        int serviceLife = ipmStandard.getServiceLife();  //срок носки
+        int number = ipmStandard.getIssuanceRate(); //норма выдачи
+        Calendar c = Calendar.getInstance();
+        c.setTime(dateIssued);
+        c.add(Calendar.MONTH, serviceLife);
+        Date dateEndWear = c.getTime();
+        String typeSIZ = ipmStandard.getTypeIPM();
+
+        Long employee_id = employeeForIssuedSIZ.getId();
+        message = "";
+        Employee employee = employeeRepository.findById(employee_id).orElseThrow();
+        List<IssuedSIZ> employeesSIZ = issuedSIZRepository.findByEmployeeIdAndIPMStandart(id, employee_id);
+        if (employeesSIZ.size() < number) {        //проверка выдано ли все СИЗ сотруднику
+            if (typeSIZ.equals("Одежда")) {
+                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForClothing(id, employee_id);
+            } else if (typeSIZ.equals("Головной убор")) {
+                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForHead(id, employee_id);
+            } else if (typeSIZ.equals("Обувь")) {
+                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForShoe(id, employee_id);
+            } else if (typeSIZ.equals("Противогаз")) {
+                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGasMask(id, employee_id);
+            } else if (typeSIZ.equals("Респиратор")) {
+                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForRespirator(id, employee_id);
+            } else if (typeSIZ.equals("Перчатки")) {
+                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGlove(id, employee_id);
+            } else if (typeSIZ.equals("Рукавицы")) {
+                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForMittens(id, employee_id);
+            } else {
+                message = "Выбран несуществующий тип СИЗ";
+            }
+            if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
+                if (issuedSIZS.size() < number) {
+                    message = "Для " + employeeForIssuedSIZ.getSurname() + " " + employeeForIssuedSIZ.getName() + " СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + number + " запрошенных";
+                    number = issuedSIZS.size();
+                }
+                for (int i = 0; i < number; i++) {
+                    IssuedSIZ siz = issuedSIZS.get(i);
+
+                    siz.setEmployee(employeeForIssuedSIZ);
+                    siz.setDateIssued(dateIssued);
+                    siz.setDateEndWear(dateEndWear);
+                    siz.setStatus("Выдано");
+                    issuedSIZRepository.save(siz);
+                }
+            } else {
+                message = "Нужные размеры для " + employeeForIssuedSIZ.getSurname() + " " + employeeForIssuedSIZ.getName() + " на складе отсутствуют";
+            }
+        } else {
+            System.out.println("Для " + employeeForIssuedSIZ.getSurname() + " " + employeeForIssuedSIZ.getName() + " СИЗ выдан");
+        }
+        System.out.println(message);
+
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        model.addAttribute("vidanSIZ", issuedSIZS2);
+        model.addAttribute("employee", employeeForIssuedSIZ);
+        model.addAttribute("issuedError", message);
+        return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
+    }
+
+    /**
+     * Обновление таблицы с нормами выдачи СИЗ для сотрудника
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/edit-staffing/employee/update-norms")
+    public String updateSizNormsForEmployee(Model model) {
+        Post post = postRepository.findByEmployeeId(employeeForIssuedSIZ.getId());
+        List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(post.getId());
+        model.addAttribute("siz", ipmStandards);
+        model.addAttribute("employee", employeeForIssuedSIZ);
+        model.addAttribute("ipmStandardRepository", ipmStandardRepository);
+        return "user/mto/siz/issued/issued-siz-edit :: table-siz";
+    }
+
 }

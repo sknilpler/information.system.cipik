@@ -137,10 +137,10 @@
                     <thead>
                     <tr>
                         <th style="display:none;"></th>
-                        <th style="width: 2%;">
-                            <input type="checkbox" name="all-checkbox" th:onchange="'javascript:selectAllRecord(this);'"
-                                   disabled>
-                        </th>
+<!--                        <th style="width: 2%;">-->
+<!--                            <input type="checkbox" name="all-checkbox" th:onchange="'javascript:selectAllRecord(this);'"-->
+<!--                                   disabled>-->
+<!--                        </th>-->
                         <th style="width: 19%;">Должность</th>
                         <th style="width: 10%;">Отдел</th>
                         <th style="width: 19%;">Фамилия</th>
@@ -149,15 +149,16 @@
                         <th style="width: 15%;">Укомплектованность</th>
                         <th style="width: 2%;"></th>
                         <th style="width: 2%;"></th>
+                        <th style="width: 2%;"></th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="e : ${employees}">
                         <td style="display:none;" name="id-empl" th:text="${e.id}"></td>
-                        <td>
-                            <input type="checkbox" name="record-checkbox"
-                                   th:onchange="'javascript:selectRecord(this,\'' + ${e.id} + '\');'" disabled>
-                        </td>
+<!--                        <td>-->
+<!--                            <input type="checkbox" name="record-checkbox"-->
+<!--                                   th:onchange="'javascript:selectRecord(this,\'' + ${e.id} + '\');'" disabled>-->
+<!--                        </td>-->
                         <td th:text="${e.post.postName}"></td>
                         <td th:text="${e.otdel.komplex.shortName}"></td>
                         <td th:text="${e.surname}"></td>
@@ -183,6 +184,14 @@
                                 <img src="/images/bootstrap-icons/journal-text.svg" alt="Bootstrap" width="20"
                                      height="20">
                             </button>
+                        </td>
+                        <td> <form th:action="'/userPage/employee-siz/edit-staffing/employee/'+${e.id}" method="get">
+                            <button type="submit" class="btn border-0 btn-sm"   title="Редактирование комплектации СИЗ сотрудника">
+                            <img src="/images/bootstrap-icons/box-arrow-up-right.svg" alt="Bootstrap" width="20"
+                                 height="20">
+                        </button>
+                        </form>
+
                         </td>
                     </tr>
                     </tbody>

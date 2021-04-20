@@ -23,7 +23,7 @@ import java.util.Date;
 @Controller
 public class FileController {
 
-    private String folderPath = Paths.get("").toAbsolutePath().toString()+"/DBBackupFiles";
+    private String folderPath = Paths.get("").toAbsolutePath().toString()+File.separator+"DBBackupFiles";
   //  private String folderPath = "/home/first/Рабочий стол/ПРОЕКТ информационной системы ЦИП ИК/DBBackupFiles";
     private String dbUserName = "craft";
     private String dbUserPassword = "111";
@@ -119,14 +119,16 @@ public class FileController {
             return "redirect:/admin";
         }
 
-        File convertFile = new File(folderPath + "/" + file.getOriginalFilename());
+        File convertFile = new File(folderPath + File.separator + file.getOriginalFilename());
         convertFile.createNewFile();
         FileOutputStream fout = new FileOutputStream(convertFile);
         fout.write(file.getBytes());
         fout.close();
 
         String[] executeCmd = new String[]{"mysql", dbNameList, "-u" + dbUserName, "-p" + dbUserPassword, "-e", " source " + folderPath + File.separator + file.getOriginalFilename()};
-
+        System.out.println(folderPath);
+        System.out.println(File.separator);
+        System.out.println(file.getOriginalFilename());
         Process runtimeProcess = Runtime.getRuntime().exec(executeCmd);
         int processComplete = 0;
         try {

@@ -1,0 +1,180 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Выдача СИЗ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+    <style>
+            #tb tr:hover {background:#E2EEFF;}
+            #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+    </style>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<!-- Modal window for extend SIZ -->
+<div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLiveLabel">Продление ресурса</h5>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label class="md-2" for="extendDate">Выберите дату продления ресурса</label>
+                <input type="date" id="extendDate" name="extendDate" class="form-control"
+                       placeholder="Выберите дату" onchange="setDateExtending(this.value)"
+                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+                <button type="button" class="btn btn-primary" onclick="extendSIZ()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
+
+<!-- Modal window for writeoff SIZ -->
+<div id="exampleModalLive2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel2"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLiveLabel2">Списание</h5>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label class="md-2" for="act">Акт списания</label>
+                <input type="text" id="act" name="act" class="form-control"
+                       placeholder="Введите наименование акта списания" onchange="setActWriteoff(this.value)"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+                <button type="button" class="btn btn-primary" onclick="writeoffSIZ()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
+<!-- Side panel -->
+<div class="d-flex">
+    <div th:insert="user/mto/sidebar :: sidebar"></div>
+    <!-- Side panel -->
+    <div class="my-container active-cont container-fluid">
+        <div class="panel-body">
+            <div class="row align-items-md-stretch mb-4">
+                <div class="col-sm-6">
+                    <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                        <p class="display-6" th:text="${employee.surname}+' '+${employee.name}+' '+${employee.patronymic}"></p>
+                        <p th:text="${'Должность: '+employee.post.postName}"></p>
+                        <p th:text="${'Отдел: '+employee.otdel.komplex.shortName}"></p>
+                        <p th:text="${'Размер одежды: '+employee.clothingSize}"></p>
+                        <p th:text="${'Рост: '+employee.height}"></p>
+                        <p th:text="${'Размер головного убора: '+employee.headgearSize}"></p>
+                        <p th:text="${'Размер обуви: '+employee.shoeSize}"></p>
+                    </div>
+                </div>
+                <br>
+                <div class="col-sm-6">
+                    <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+                        <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                             th:fragment="table-siz">
+                            <div class="col-sm-6">
+                                <span class="lead" th:text="'Список СИЗ для должности '+${employee.post.postName}"></span>
+                            </div>
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 40%">Наименование</th>
+                                    <th>Кол-во по норме</th>
+                                    <th>Остаток на складе</th>
+                                    <th style="width: 100px;"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="s : ${siz}" style="cursor: pointer">
+                                    <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
+                                    <td th:text="${s.issuanceRate}"></td>
+                                    <td th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" name="iss-btn"
+                                                th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
+                    <div class="table-issuedSiz" th:fragment="table-issuedSiz">
+                        <div class="row align-items-md-stretch mb-4">
+                            <div class="col-sm-6">
+                            <span class="lead"
+                                  th:text="'Список выданного СИЗ сотруднику '+${employee.surname}+' '+${employee.name}+' '+${employee.patronymic}"></span>
+                            </div>
+                            <div class="col-sm-6 d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary btn-sm float-right"
+                                        aria-label="Распечатать">
+                                    <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24"
+                                         height="24">
+                                </button>
+                            </div>
+                        </div>
+                        <p class="fs-6 text-danger" th:text="${issuedError}"></p>
+                        <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 40%">Наименование</th>
+                                    <th>Дата выдачи</th>
+                                    <th>Дата окончания носки</th>
+                                    <th style="width: 450px;"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
+                                    <td th:text="${s.siz.nameSIZ}"></td>
+                                    <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
+                                    <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" type="button"
+                                                th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'">Списать
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить
+                                        </button>
+                                        <button class="btn btn-warning btn-sm" type="button"
+                                                th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить
+                                            выдачу
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/pagecontrol/issued-siz-edit.js"></script>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
