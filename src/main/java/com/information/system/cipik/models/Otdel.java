@@ -29,10 +29,6 @@ public class Otdel {
     @JoinColumn(name = "otdel_id")
     private List<Stanciya> stanciyas;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "otdel_id")
-    private List<Employee> employees;
-
 
     public Otdel(String name, Komplex komplex) {
         this.name = name;

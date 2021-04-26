@@ -70,7 +70,7 @@ document.getElementById("textSearch").innerHTML="";
             },
         });
     }
-    if (value === 'o_and_p'){
+    if (value === 'k_and_p'){
         if (filterValue !== null){
             $.ajax({
             	type: 'get',

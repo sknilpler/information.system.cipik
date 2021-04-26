@@ -44,22 +44,33 @@ public class Employee {
 
     @ManyToOne
     @JsonIgnore
-    private Otdel otdel;
+    private Komplex komplex;
 
     public Employee(String surname, String name, String patronymic, String sex, String tabNomer,
-                    Post post, Otdel otdel) {
+                    Post post, Komplex komplex) {
         this.surname = surname;
         this.name = name;
         this.patronymic = patronymic;
         this.post = post;
-        this.otdel = otdel;
+        this.komplex = komplex;
         this.sex = sex;
         this.tabNomer = tabNomer;
     }
 
+    public Employee(String surname, String name, String patronymic, String sex, String height, String clothingSize, String headgearSize, Post post, Komplex komplex) {
+        this.surname = surname;
+        this.name = name;
+        this.patronymic = patronymic;
+        this.sex = sex;
+        this.height = height;
+        this.clothingSize = clothingSize;
+        this.headgearSize = headgearSize;
+        this.post = post;
+        this.komplex = komplex;
+    }
 
     public Employee(String surname, String name, String patronymic, String tabNomer, String height,
-                    String clothingSize, String headgearSize, String shoeSize, String sex, Post post, Otdel otdel) {
+                    String clothingSize, String headgearSize, String shoeSize, String sex, Post post, Komplex komplex) {
         this.surname = surname;
         this.name = name;
         this.patronymic = patronymic;
@@ -70,11 +81,11 @@ public class Employee {
         this.shoeSize = shoeSize;
         this.sex = sex;
         this.post = post;
-        this.otdel = otdel;
+        this.komplex = komplex;
     }
 
     public Employee(String surname, String name, String patronymic, String tabNomer, Date dataStartWork, String height,
-                    String clothingSize, String headgearSize, String shoeSize, String sex, Post post, Otdel otdel) {
+                    String clothingSize, String headgearSize, String shoeSize, String sex, Post post, Komplex komplex) {
         this.surname = surname;
         this.name = name;
         this.patronymic = patronymic;
@@ -86,7 +97,7 @@ public class Employee {
         this.shoeSize = shoeSize;
         this.sex = sex;
         this.post = post;
-        this.otdel = otdel;
+        this.komplex = komplex;
     }
 
 }

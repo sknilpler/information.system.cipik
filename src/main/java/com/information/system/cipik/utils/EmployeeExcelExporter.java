@@ -73,7 +73,7 @@ public class EmployeeExcelExporter {
             int columnCount = 0;
 
             createCell(row, columnCount++, rowCount, style);
-            createCell(row, columnCount++, e.getOtdel().getName(), style);
+            createCell(row, columnCount++, e.getKomplex().getShortName(), style);
             createCell(row, columnCount++, e.getPost().getPostName(), style);
             createCell(row, columnCount++, e.getSurname(), style);
             createCell(row, columnCount++, e.getName(), style);

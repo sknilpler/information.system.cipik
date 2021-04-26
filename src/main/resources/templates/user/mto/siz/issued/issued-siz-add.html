@@ -79,11 +79,11 @@
             <div class="row align-items-md-stretch mb-4">
                 <div class="col-sm-6">
                     <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
-                        <select class="form-control" id="otdel" name="otdel"
-                                th:onchange="'javascript:loadEmployeesForSelectedOtdel();'" required>
-                            <option selected disabled value="">Выберите отдел</option>
-                            <option th:each="otdel : ${otdels}" th:value="${otdel.id}"
-                                    th:text="${otdel.name}"></option>
+                        <select class="form-control" id="komplex" name="komplex"
+                                th:onchange="'javascript:loadEmployeesForSelectedKomplex();'" required>
+                            <option selected disabled value="">Выберите подразделение</option>
+                            <option th:each="k : ${komplexs}" th:value="${k.id}"
+                                    th:text="${k.shortName}"></option>
                         </select>
                         <hr>
                         <div>

@@ -133,7 +133,7 @@
                     <select class="form-select" aria-label="example" name="issued-sort" id="issued-sort" th:onchange="'javascript:sorting(this.value);'">
                         <option selected disabled value="">Выберите тип сортировки</option>
                         <option value="date">Дата окончания носки</option>
-                        <option value="o_and_p">Отдел и должность</option>
+                        <option value="k_and_p">Подразделение и должность</option>
                     </select>
                 </div>
             </div>
@@ -150,7 +150,7 @@
 <!--                                   disabled>-->
 <!--                        </th>-->
                         <th style="width: 19%;">Должность</th>
-                        <th style="width: 10%;">Отдел</th>
+                        <th style="width: 10%;">Подразделение</th>
                         <th style="width: 19%;">Фамилия</th>
                         <th style="width: 15%;">Имя</th>
                         <th style="width: 16%;">Отчество</th>
@@ -168,7 +168,7 @@
 <!--                                   th:onchange="'javascript:selectRecord(this,\'' + ${e.id} + '\');'" disabled>-->
 <!--                        </td>-->
                         <td th:text="${e.post.postName}"></td>
-                        <td th:text="${e.otdel.komplex.shortName}"></td>
+                        <td th:text="${e.komplex.shortName}"></td>
                         <td th:text="${e.surname}"></td>
                         <td th:text="${e.name}"></td>
                         <td th:text="${e.patronymic}"></td>

@@ -26,7 +26,7 @@ public class SIZController {
     @Autowired
     PostRepository postRepository;
     @Autowired
-    OtdelRepository otdelRepository;
+    KomplexRepository komplexRepository;
     @Autowired
     EmployeeRepository employeeRepository;
     @Autowired
@@ -271,7 +271,7 @@ public class SIZController {
         Employee employee = new Employee("","","","","",null,null);
         Iterable<Post> posts = postRepository.findAll();
         model.addAttribute("posts", posts);
-        model.addAttribute("otdels", otdelRepository.findAll());
+        model.addAttribute("komplexs", komplexRepository.findAll());
         model.addAttribute("employees", employeeRepository.findAll());
         model.addAttribute("selectedEmployee",employee);
         model.addAttribute("selected", post);
@@ -280,14 +280,14 @@ public class SIZController {
     }
 
     /**
-     * Обновление таблицы сотрудников по выбранному отделу
+     * Обновление таблицы сотрудников по выбранному подразделению
      * @param id
      * @param model
      * @return
      */
-    @GetMapping("/userPage/issued-siz/getEmployeeForOtdel/{id}")
-    public String getEmployeeForOtdel(@PathVariable(value = "id") long id, Model model) {
-        List<Employee> employees = employeeRepository.findAllByOtdelId(id);
+    @GetMapping("/userPage/issued-siz/getEmployeeForKomplex/{id}")
+    public String getEmployeeForKomplex(@PathVariable(value = "id") long id, Model model) {
+        List<Employee> employees = employeeRepository.findAllByKomplexId(id);
         model.addAttribute("employees", employees);
         return "user/mto/siz/issued/issued-siz-add :: table-employees";
     }
@@ -306,15 +306,15 @@ public class SIZController {
     }
 
     /**
-     * Обновление таблицы сотрудников по отделу и должности
-     * @param id_otdel
+     * Обновление таблицы сотрудников по подразделению и должности
+     * @param id_komplex
      * @param id_post
      * @param model
      * @return
      */
-    @GetMapping("/userPage/issued-siz/getEmployeeForOtdelAndPost/{id_otdel}/{id_post}")
-    public String getEmployeeForOtdelAndPost(@PathVariable(value = "id_otdel") long id_otdel, @PathVariable(value = "id_post") long id_post, Model model) {
-        List<Employee> employees = employeeRepository.findAllByOtdelIdAndPostId(id_otdel,id_post);
+    @GetMapping("/userPage/issued-siz/getEmployeeForKomplexAndPost/{id_komplex}/{id_post}")
+    public String getEmployeeForKomplexAndPost(@PathVariable(value = "id_komplex") long id_komplex, @PathVariable(value = "id_post") long id_post, Model model) {
+        List<Employee> employees = employeeRepository.findAllByKomplexIdAndPostId(id_komplex,id_post);
         model.addAttribute("employees", employees);
         return "user/mto/siz/issued/issued-siz-add :: table-employees";
     }
@@ -645,9 +645,9 @@ public class SIZController {
                     employees = employeeRepository.getFullStaffingOfEmployeeAndKeyword(keyword);
             } else {
                 if (sortedByEndIssuedDate)
-                    employees = employeeRepository.findAllByPostAndOtdelAndKeywordOrderByEndDateIssued(keyword);
+                    employees = employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(keyword);
                 else
-                    employees = employeeRepository.findAllByPostAndOtdelAndKeyword(keyword);
+                    employees = employeeRepository.findAllByPostAndKomplexAndKeyword(keyword);
             }
         }
         model.addAttribute("employees", employees);

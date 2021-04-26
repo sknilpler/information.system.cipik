@@ -17,15 +17,15 @@ function closeModalWindow() {
 var employee_id;
 var selRecs = [];
 
-function loadEmployeesForSelectedOtdel() {
+function loadEmployeesForSelectedKomplex() {
 if (document.getElementById("post").value !==''){
-    loadEmployeesForSelectedOtdelAndPost();
+    loadEmployeesForSelectedKomplexAndPost();
 } else {
-	var e = document.getElementById("otdel");
-	var otdelId = e.value;
+	var e = document.getElementById("komplex");
+	var komplexId = e.value;
 	$.ajax({
 		type: 'get',
-		url: '/userPage/issued-siz/getEmployeeForOtdel/' + otdelId,
+		url: '/userPage/issued-siz/getEmployeeForKomplex/' + komplexId,
 		success: function(data) {
 			$('.table-employees').html(data);
 		},
@@ -35,8 +35,8 @@ if (document.getElementById("post").value !==''){
 };
 ///////////////////////////////////////////////
 function loadEmployeesForSelectedPost() {
-if (document.getElementById("otdel").value !==''){
-    loadEmployeesForSelectedOtdelAndPost();
+if (document.getElementById("komplex").value !==''){
+    loadEmployeesForSelectedKomplexAndPost();
 } else {
 	var e = document.getElementById("post");
 	var postId = e.value;
@@ -53,14 +53,14 @@ if (document.getElementById("otdel").value !==''){
 selRecs = [];
 };
 ///////////////////////////////////////////////
-function loadEmployeesForSelectedOtdelAndPost() {
-	var a = document.getElementById("otdel");
+function loadEmployeesForSelectedKomplexAndPost() {
+	var a = document.getElementById("komplex");
 	var b = document.getElementById("post");
-	var otdelId = a.value;
+	var komplexId = a.value;
 	var postId = b.value;
 	$.ajax({
 		type: 'get',
-		url: '/userPage/issued-siz/getEmployeeForOtdelAndPost/' + otdelId+'/'+postId,
+		url: '/userPage/issued-siz/getEmployeeForKomplexAndPost/' + komplexId+'/'+postId,
 		success: function(data) {
 			$('.table-employees').html(data);
 			$('body input:checkbox').prop('disabled',false);

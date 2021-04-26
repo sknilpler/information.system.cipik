@@ -81,7 +81,7 @@
                     <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
                         <p class="display-6" th:text="${employee.surname}+' '+${employee.name}+' '+${employee.patronymic}"></p>
                         <p th:text="${'Должность: '+employee.post.postName}"></p>
-                        <p th:text="${'Отдел: '+employee.otdel.komplex.shortName}"></p>
+                        <p th:text="${'Подразделение: '+employee.komplex.shortName}"></p>
                         <p th:text="${'Размер одежды: '+employee.clothingSize}"></p>
                         <p th:text="${'Рост: '+employee.height}"></p>
                         <p th:text="${'Размер головного убора: '+employee.headgearSize}"></p>

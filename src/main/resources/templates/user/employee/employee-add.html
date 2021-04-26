@@ -41,21 +41,21 @@
             </select>
         </div>
         <div class="col-sm-4">
-            <label for="komplex" class="form-label">Комплекс</label>
-            <select class="form-control" id="komplex" name="komplex" onchange="selectKomplex();" required>
-                <option selected disabled value="">Комплекс</option>
+            <label for="komplex" class="form-label">Подразделение</label>
+            <select class="form-control" id="komplex" name="komplex" required>
+                <option selected disabled value="">Подразделение</option>
                 <option th:each="k : ${komplexes}" th:value="${k.id}"
                         th:text="${k.shortName}"></option>
             </select>
         </div>
-        <div class="col-sm-4">
-            <label for="otdel" class="form-label">Отдел</label>
-            <select class="form-control" id="otdel" name="otdel" disabled required>
-                <option selected disabled value="">Отдел</option>
-                <option th:each="otdel : ${filteredOtdels}" th:value="${otdel.id}"
-                        th:text="${otdel.name}"></option>
-            </select>
-        </div>
+<!--        <div class="col-sm-4">-->
+<!--            <label for="otdel" class="form-label">Отдел</label>-->
+<!--            <select class="form-control" id="otdel" name="otdel" disabled required>-->
+<!--                <option selected disabled value="">Отдел</option>-->
+<!--                <option th:each="otdel : ${filteredOtdels}" th:value="${otdel.id}"-->
+<!--                        th:text="${otdel.name}"></option>-->
+<!--            </select>-->
+<!--        </div>-->
         <div class="col-sm-4">
             <label for="post" class="form-label">Должность</label>
             <select class="form-control" id="post" name="post" required>
@@ -73,11 +73,25 @@
 
         <div class="col-sm-3">
             <label for="height" class="form-label">Рост</label>
-            <input type="text" th:field="*{height}" class="form-control" name="height" id="height">
+            <select class="form-select" aria-label="example"  th:field="*{height}" name="height" id="height">
+                <option value="1-2">1-2 (150-160)</option>
+                <option value="3-4">3-4 (160-170)</option>
+                <option value="5-6">5-6 (170-180)</option>
+                <option value="7-8">7-8 (180-190)</option>
+            </select>
         </div>
         <div class="col-sm-3">
             <label for="clothingSize" class="form-label">Одежда</label>
-            <input type="text" th:field="*{clothingSize}" class="form-control" name="clothingSize" id="clothingSize">
+            <select class="form-select" aria-label="example"  th:field="*{clothingSize}" name="clothingSize" id="clothingSize">
+                <option value="40-42">40-42</option>
+                <option value="44-46">44-46</option>
+                <option value="48-50">48-50</option>
+                <option value="52-54">52-54</option>
+                <option value="56-58">56-58</option>
+                <option value="60-62">60-62</option>
+                <option value="64-66">64-66</option>
+                <option value="68-70">68-70</option>
+            </select>
         </div>
         <div class="col-sm-3">
             <label for="headgearSize" class="form-label">Головной убор</label>

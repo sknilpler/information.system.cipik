@@ -31,8 +31,12 @@ public class Komplex {
     @JoinColumn(name = "komplex_id")
     private List<Otdel> otdels;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "otdel_id")
+    private List<Employee> employees;
 
-    public Komplex(String name, String adres, String shortName, Centr centr, List<Otdel> otdels) {
+
+    public Komplex(String name, String adres, String shortName, Centr centr) {
         this.name = name;
         this.adres = adres;
         this.centr = centr;
@@ -40,12 +44,6 @@ public class Komplex {
         this.otdels = otdels;
     }
 
-    public Komplex(String name, String adres, String shortName, Centr centr) {
-        this.name = name;
-        this.adres = adres;
-        this.centr = centr;
-        this.shortName = shortName;
-    }
 
 
 }

@@ -21,9 +21,9 @@ public class JSControler {
 
     ///////////////////SIZ////////////////////
 
-    @GetMapping("/userPage/issued-siz/getEmployeeForOtdel/js/{id}")
-    public List<Employee> getEmployeeForOtdel(@PathVariable Long id) {
-        List<Employee> list = employeeRepository.findAllByOtdelId(id);
+    @GetMapping("/userPage/issued-siz/getEmployeeForKomplex/js/{id}")
+    public List<Employee> getEmployeeForKomplex(@PathVariable Long id) {
+        List<Employee> list = employeeRepository.findAllByKomplexId(id);
         System.out.println(list.size());
         list.forEach(employee -> {
             System.out.println(employee.toString());

@@ -12,4 +12,6 @@ public interface PostRepository extends CrudRepository<Post,Long> {
 
     @Query(value = "SELECT post.* FROM post,employee WHERE employee.post_id = post.id and employee.id = :id_emp", nativeQuery = true)
     Post findByEmployeeId(@Param("id_emp") Long id);
+
+    Post findByPostName(String postName);
 }

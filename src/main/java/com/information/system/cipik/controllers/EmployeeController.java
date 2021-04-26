@@ -4,7 +4,6 @@ import com.information.system.cipik.models.Employee;
 import com.information.system.cipik.models.Post;
 import com.information.system.cipik.repo.EmployeeRepository;
 import com.information.system.cipik.repo.KomplexRepository;
-import com.information.system.cipik.repo.OtdelRepository;
 import com.information.system.cipik.repo.PostRepository;
 import com.information.system.cipik.utils.EmployeeExcelExporter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +26,8 @@ public class EmployeeController {
     EmployeeRepository employeeRepository;
     @Autowired
     PostRepository postRepository;
-    @Autowired
-    OtdelRepository otdelRepository;
+//    @Autowired
+//    OtdelRepository otdelRepository;
     @Autowired
     KomplexRepository komplexRepository;
 
@@ -51,7 +50,7 @@ public class EmployeeController {
         model.addAttribute("newEmployee", new Employee());
         model.addAttribute("komplexes", komplexRepository.findAll());
         model.addAttribute("posts", postRepository.findAll());
-        model.addAttribute("otdels", otdelRepository.findAll());
+//        model.addAttribute("otdels", otdelRepository.findAll());
         model.addAttribute("dataStart", new Date());
         return "user/employee/employee-add";
     }
@@ -72,7 +71,7 @@ public class EmployeeController {
         }
         Employee employee = employeeRepository.findById(id).orElseThrow();
         model.addAttribute("posts", postRepository.findAll());
-        model.addAttribute("otdels", otdelRepository.findAll());
+//        model.addAttribute("otdels", otdelRepository.findAll());
         model.addAttribute("komplexes", komplexRepository.findAll());
         model.addAttribute("employee", employee);
         model.addAttribute("dataStart",employee.getDataStartWork());
