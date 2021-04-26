@@ -24,7 +24,9 @@ function searching(value) {
 	});
 };
 //////////////////////////////////////////////
+var filterValue;
 function filter(value){
+filterValue = value;
     document.getElementById("textSearch").innerHTML="";
     $.ajax({
     	type: 'get',
@@ -54,7 +56,38 @@ function showModalWindow2(value) {
         	$('.table-issued-siz').html(data);
         	$("#exampleModalLive2").modal('show');
         },
-     });
+    });
 }
 /////////////////////////////////////////////
+function sorting(value){
+document.getElementById("textSearch").innerHTML="";
+    if (value === 'date'){
+        $.ajax({
+            type: 'get',
+            url: '/userPage/employee-siz/sorting-date/employee',
+            success: function(data) {
+            	$('.table-employees').html(data);
+            },
+        });
+    }
+    if (value === 'o_and_p'){
+        if (filterValue !== null){
+            $.ajax({
+            	type: 'get',
+            	url: '/userPage/employee-siz/filter/employee/' + filterValue,
+            	success: function(data) {
+            		$('.table-employees').html(data);
+            	},
+            });
+        } else {
+            $.ajax({
+            	type: 'get',
+            	url: '/userPage/employee-siz/filter/employee/all',
+            	success: function(data) {
+            		$('.table-employees').html(data);
+            	},
+            });
+        }
+    }
+}
 

@@ -39,6 +39,7 @@ public class SIZController {
     private Post postToIssued;
     private Employee employeeForIssuedSIZ;
     private String filerIssuedSizAll;
+    private boolean sortedByEndIssuedDate;
 
     @GetMapping("/userPage/siz-types")
     public String allSIZ(Model model) {
@@ -573,6 +574,7 @@ public class SIZController {
     @GetMapping("/userPage/employee-siz/filter/employee/{keyword}")
     public String filterStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, Model model) {
         filerIssuedSizAll = keyword;
+        sortedByEndIssuedDate = false;
         Iterable<Employee> employees;
         if (keyword.equals("not-issued")){
             employees = employeeRepository.getNotFullStaffingOfEmployee();
@@ -582,7 +584,28 @@ public class SIZController {
             employees = employeeRepository.findAll();
         }
         model.addAttribute("employees", employees);
-        model.addAttribute("employeeRepository",employeeRepository);
+        model.addAttribute("employeeRepository", employeeRepository);
+        return "user/mto/siz/issued/issued-siz-all :: table-employees";
+    }
+
+    /**
+     * Сортировка таблицы сотрудников по дате списания СИЗ
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/sorting-date/employee")
+    public String sortingByDateStaffingOfAllEmployeesSIZ(Model model) {
+        sortedByEndIssuedDate = true;
+        Iterable<Employee> employees;
+        if (filerIssuedSizAll.equals("not-issued")){
+            employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
+        } else if (filerIssuedSizAll.equals("issued")){
+            employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
+        } else {
+            employees = employeeRepository.findAll();
+        }
+        model.addAttribute("employees", employees);
+        model.addAttribute("employeeRepository", employeeRepository);
         return "user/mto/siz/issued/issued-siz-all :: table-employees";
     }
 
@@ -597,19 +620,34 @@ public class SIZController {
         Iterable<Employee> employees;
         if (keyword.equals("0")) {
             if (filerIssuedSizAll.equals("not-issued")) {
-                employees = employeeRepository.getNotFullStaffingOfEmployee();
+                if (sortedByEndIssuedDate)
+                    employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
+                else
+                    employees = employeeRepository.getNotFullStaffingOfEmployee();
             } else if (filerIssuedSizAll.equals("issued")) {
-                employees = employeeRepository.getFullStaffingOfEmployee();
+                if (sortedByEndIssuedDate)
+                    employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
+                else
+                    employees = employeeRepository.getFullStaffingOfEmployee();
             } else {
                 employees = employeeRepository.findAll();
             }
         } else {
             if (filerIssuedSizAll.equals("not-issued")) {
-                employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(keyword);
+                if (sortedByEndIssuedDate)
+                    employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
+                else
+                    employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(keyword);
             } else if (filerIssuedSizAll.equals("issued")) {
-                employees = employeeRepository.getFullStaffingOfEmployeeAndKeyword(keyword);
+                if (sortedByEndIssuedDate)
+                    employees = employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
+                else
+                    employees = employeeRepository.getFullStaffingOfEmployeeAndKeyword(keyword);
             } else {
-                employees = employeeRepository.findAllByPostAndOtdelAndKeyword(keyword);
+                if (sortedByEndIssuedDate)
+                    employees = employeeRepository.findAllByPostAndOtdelAndKeywordOrderByEndDateIssued(keyword);
+                else
+                    employees = employeeRepository.findAllByPostAndOtdelAndKeyword(keyword);
             }
         }
         model.addAttribute("employees", employees);
@@ -818,5 +856,7 @@ public class SIZController {
         model.addAttribute("ipmStandardRepository", ipmStandardRepository);
         return "user/mto/siz/issued/issued-siz-edit :: table-siz";
     }
+
+
 
 }

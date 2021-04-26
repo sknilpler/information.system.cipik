@@ -128,6 +128,14 @@
                     <input id="textSearch" class="form-control" type="text" name="keyword"
                            oninput="searching(this.value)">
                 </div>
+                <div class="col-sm-3">
+                    <label for="issued-sort" class="form-label">Сортировка</label>
+                    <select class="form-select" aria-label="example" name="issued-sort" id="issued-sort" th:onchange="'javascript:sorting(this.value);'">
+                        <option selected disabled value="">Выберите тип сортировки</option>
+                        <option value="date">Дата окончания носки</option>
+                        <option value="o_and_p">Отдел и должность</option>
+                    </select>
+                </div>
             </div>
             <hr>
             <span class="lead">Укомплектованность сотрудников СИЗ</span>
