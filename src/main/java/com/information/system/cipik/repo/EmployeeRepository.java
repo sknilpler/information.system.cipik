@@ -58,26 +58,26 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "    ) LIKE %:keyword% AND e.post_id = p.id AND i.employee_id = e.id AND e.komplex_id = k.id", nativeQuery = true)
     Iterable<Employee> findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT TRUNCATE(((SELECT COUNT(siz_id) AS number FROM issuedsiz WHERE employee_id = :id_empl)/\n" +
+    @Query(value = "SELECT COALESCE(TRUNCATE(((SELECT COUNT(siz_id) AS number FROM issuedsiz WHERE employee_id = :id_empl)/\n" +
             "(SELECT SUM(ipmstandard.issuance_rate) AS number FROM ipmstandard\n" +
-            " WHERE post_id = :id_post)*100),0)", nativeQuery = true)
-    int getPercentStaffingOfEmployee(@Param("id_empl") Long id_empl, @Param("id_post") Long id_post);
+            " WHERE post_id = :id_post)*100),0))", nativeQuery = true)
+    String getPercentStaffingOfEmployee(@Param("id_empl") Long id_empl, @Param("id_post") Long id_post);
 
-    @Query(value = "SELECT e.* FROM employee e, post p, komplex k\n" +
-            " WHERE e.post_id = p.id AND e.komplex_id = k.id AND (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
+    @Query(value = "SELECT e.* FROM employee e\n" +
+            " WHERE (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
             " (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard \n" +
             " WHERE ipmstandard.post_id = e.post_id)*100),0)=100) \n"+
-            "order by k.short_name, p.post_name, e.surname", nativeQuery = true)
+            "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
     Iterable<Employee> getFullStaffingOfEmployee();
 
-    @Query(value = "SELECT e.* FROM employee e, post p, komplex k WHERE e.post_id = p.id AND e.komplex_id = k.id AND (\n" +
+    @Query(value = "SELECT e.* FROM employee e WHERE (\n" +
             "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
             "        (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard \n" +
             "         WHERE ipmstandard.post_id = e.post_id)*100),0)>=0) AND (\n" +
             "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
             "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
             "         WHERE ipmstandard.post_id = e.post_id)*100),0)<100) \n"+
-            "order by k.short_name, p.post_name, e.surname", nativeQuery = true)
+            "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
     Iterable<Employee> getNotFullStaffingOfEmployee();
 
     @Query(value = "SELECT e.* FROM employee e, post p, komplex k, issuedsiz i\n" +
@@ -110,7 +110,7 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             " (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
             " (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
             " WHERE ipmstandard.post_id = e.post_id)*100),0)=100) \n" +
-            "order by k.short_name, p.post_name, e.surname", nativeQuery = true)
+            "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
     Iterable<Employee> getFullStaffingOfEmployeeAndKeyword(@Param("keyword") String keyword);
 
     @Query(value = "SELECT e.* FROM employee e,\n" +
@@ -129,7 +129,7 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
             "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
             "         WHERE ipmstandard.post_id = e.post_id)*100),0)<100) \n"+
-            "order by k.short_name, p.post_name, e.surname", nativeQuery = true)
+            "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
     Iterable<Employee> getNotFullStaffingOfEmployeeAndKeyword(@Param("keyword") String keyword);
 
     @Query(value = "SELECT e.* FROM employee e,\n" +

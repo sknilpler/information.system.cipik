@@ -9,6 +9,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -18,13 +19,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CSVHelper {
     public static String TYPE = "text/csv";
     static String[] HEADERs = { "Komplex", "Post", "S","N","P","Height","Size","HSize" };
-    @Autowired
-    PostRepository postRepository;
-    @Autowired
-    KomplexRepository komplexRepository;
+
+    private static PostRepository postRepository;
+
+    private static KomplexRepository komplexRepository;
 
     public static boolean hasCSVFormat(MultipartFile file) {
 
@@ -33,6 +35,12 @@ public class CSVHelper {
         }
 
         return true;
+    }
+
+    @Autowired
+    public CSVHelper(PostRepository postRepository,KomplexRepository komplexRepository){
+        CSVHelper.postRepository = postRepository;
+        CSVHelper.komplexRepository = komplexRepository;
     }
 
     public static Iterable<Employee> csvToEmployees(InputStream is) {
@@ -49,7 +57,7 @@ public class CSVHelper {
                 Post p = postRepository.findByPostName(csvRecord.get("Post"));
                 String surname = csvRecord.get("S");
                 String sex = "Мужской";
-                if (surname.substring(surname.length()-2).equals("а")){
+                if (surname.substring(surname.length()-1).equals("а")){
                     sex = "Женский";
                     System.out.println("Фамилия: "+surname+" женская");
                 }

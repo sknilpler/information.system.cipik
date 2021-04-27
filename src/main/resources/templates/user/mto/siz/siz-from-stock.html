@@ -38,13 +38,18 @@
                     <div class="col-sm-3">
                         <label class="md-2" for="size">Размеры СИЗ</label>
                         <input type="text" id="size" name="size" class="form-control"
-                               placeholder="Введите размеры" required/>
+                               placeholder="Введите размер"/>
                     </div>
 
                     <div class="col-sm-3">
                         <label class="md-2" for="height">Рост (для одежды)</label>
-                        <input type="text" id="height" name="height" class="form-control"
-                               placeholder="Введите рост"/>
+                        <select class="form-select" aria-label="example" name="height" id="height">
+                            <option selected value="non">Выберите рост</option>
+                            <option value="1-2">1-2 (150-160)</option>
+                            <option value="3-4">3-4 (160-170)</option>
+                            <option value="5-6">5-6 (170-180)</option>
+                            <option value="7-8">7-8 (180-190)</option>
+                        </select>
                     </div>
 
                     <div class="col-sm-3">
@@ -59,7 +64,6 @@
                             поля
                         </button>
                     </div>
-
 
                 </form>
             </div>

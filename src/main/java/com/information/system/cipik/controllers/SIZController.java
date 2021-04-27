@@ -194,7 +194,7 @@ public class SIZController {
         IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ).orElseThrow();
         IssuedSIZ issuedSIZ =null;
         for (int i = 0; i < number; i++) {
-        if (height.equals("")) {
+        if (height.equals("non")) {
             issuedSIZ = new IssuedSIZ(ipm,size);
         }else{
             issuedSIZ = new IssuedSIZ(ipm,size,height);
@@ -574,6 +574,7 @@ public class SIZController {
     @GetMapping("/userPage/employee-siz/filter/employee/{keyword}")
     public String filterStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, Model model) {
         filerIssuedSizAll = keyword;
+        System.out.println(keyword);
         sortedByEndIssuedDate = false;
         Iterable<Employee> employees;
         if (keyword.equals("not-issued")){

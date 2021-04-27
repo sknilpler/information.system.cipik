@@ -154,7 +154,7 @@
                         <th style="width: 19%;">Фамилия</th>
                         <th style="width: 15%;">Имя</th>
                         <th style="width: 16%;">Отчество</th>
-                        <th style="width: 15%;">Укомплектованность</th>
+                        <th style="width: 15%;">Укомплектованность, %</th>
                         <th style="width: 2%;"></th>
                         <th style="width: 2%;"></th>
                         <th style="width: 2%;"></th>
@@ -175,9 +175,9 @@
                         <td>
                             <div class="progress">
                                 <div class="progress-bar" role="progressbar"
-                                     th:style="'width: '+${employeeRepository.getPercentStaffingOfEmployee(e.id,e.post.id)}+'%;'"
+                                     th:style="'width: '+${employeeRepository.getPercentStaffingOfEmployee(e.id,e.post.id)}+'%'"
                                      aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"
-                                     th:text="${employeeRepository.getPercentStaffingOfEmployee(e.id,e.post.id)}+'%'">
+                                     th:text="${employeeRepository.getPercentStaffingOfEmployee(e.id,e.post.id)} ?: '0'">
                                 </div>
                             </div>
                         </td>
