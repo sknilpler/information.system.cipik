@@ -1,6 +1,5 @@
 package com.information.system.cipik.utils;
 
-import com.information.system.cipik.models.Employee;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -13,12 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-public class EmployeeExcelExporter {
+public class EmployeeStaffingExcelExporter {
+
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    List<Employee> listEmployees;
+    List<EmployeeForPrint> listEmployees;
 
-    public EmployeeExcelExporter(List<Employee> listEmployees) {
+    public EmployeeStaffingExcelExporter(List<EmployeeForPrint> listEmployees) {
         this.listEmployees = listEmployees;
         workbook = new XSSFWorkbook();
     }
@@ -40,11 +40,9 @@ public class EmployeeExcelExporter {
         createCell(row, 3, "Фамилия", style);
         createCell(row, 4, "Имя", style);
         createCell(row, 5, "Отчество", style);
-        createCell(row, 6, "Рост", style);
-        createCell(row, 7, "Размер одежды", style);
-        createCell(row, 8, "Размер головного убора", style);
-        createCell(row, 9, "Размер обуви", style);
-
+        createCell(row, 6, "Укомплектованность", style);
+        createCell(row, 7, "СИЗ", style);
+        createCell(row, 8, "Дата окончания носки", style);
     }
 
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
@@ -68,20 +66,24 @@ public class EmployeeExcelExporter {
         font.setFontHeight(14);
         style.setFont(font);
 
-        for (Employee e: listEmployees) {
+        for (EmployeeForPrint e: listEmployees) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
             createCell(row, columnCount++, rowCount-1, style);
-            createCell(row, columnCount++, e.getKomplex().getShortName(), style);
-            createCell(row, columnCount++, e.getPost().getPostName(), style);
-            createCell(row, columnCount++, e.getSurname(), style);
-            createCell(row, columnCount++, e.getName(), style);
-            createCell(row, columnCount++, e.getPatronymic(), style);
-            createCell(row, columnCount++, e.getHeight(), style);
-            createCell(row, columnCount++, e.getClothingSize(), style);
-            createCell(row, columnCount++, e.getHeadgearSize(), style);
-            createCell(row, columnCount++, e.getShoeSize(), style);
+            createCell(row, columnCount++, e.getEmployee().getKomplex().getShortName(), style);
+            createCell(row, columnCount++, e.getEmployee().getPost().getPostName(), style);
+            createCell(row, columnCount++, e.getEmployee().getSurname(), style);
+            createCell(row, columnCount++, e.getEmployee().getName(), style);
+            createCell(row, columnCount++, e.getEmployee().getPatronymic(), style);
+            createCell(row, columnCount++, e.getStaffing(), style);
+            if (e.getIssuedSIZ() != null) {
+                createCell(row, columnCount++, e.getIssuedSIZ().getSiz().getNameSIZ(), style);
+                createCell(row, columnCount++, String.valueOf(e.getIssuedSIZ().getDateEndWear()), style);
+            } else {
+                createCell(row, columnCount++, "", style);
+                createCell(row, columnCount++, "", style);
+            }
         }
 
     }

@@ -14,6 +14,11 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
     List<IssuedSIZ> findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status, String size, String height, String nameSIZ);
 
 
+    @Query(value = "SELECT i.* FROM issuedsiz i \n" +
+            "WHERE i.employee_id = :id AND \n" +
+            "i.date_end_wear > CURRENT_DATE \n" +
+            "ORDER BY i.date_end_wear LIMIT 1", nativeQuery = true)
+    IssuedSIZ getByEndWearDateForEmployee(@Param("id") Long id);
 
     @Query(value = "SELECT issuedsiz.* FROM issuedsiz,individual_protection_means,ipmstandard WHERE\n" +
             " issuedsiz.siz_id = individual_protection_means.id AND\n" +

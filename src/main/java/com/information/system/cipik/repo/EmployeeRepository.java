@@ -41,21 +41,23 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "    ) LIKE %:keyword% AND e.post_id = p.id AND e.komplex_id = k.id", nativeQuery = true)
     Iterable<Employee> findAllByPostAndKomplexAndKeyword(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT\n" +
-            "    e.*\n" +
-            " FROM\n" +
-            "    employee e,\n" +
-            "    post p,\n" +
-            "    komplex k,\n" +
-            "    issuedsiz i\n" +
-            " WHERE\n" +
-            "    CONCAT(\n" +
-            "        e.name,\n" +
-            "        e.surname,\n" +
-            "        e.patronymic,\n" +
-            "        p.post_name,\n" +
-            "        k.short_name\n" +
-            "    ) LIKE %:keyword% AND e.post_id = p.id AND i.employee_id = e.id AND e.komplex_id = k.id", nativeQuery = true)
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate \n"+
+            "     FROM employee e\n" +
+            "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     GROUP BY e.id) ee USING (id)\n" +
+            "INNER JOIN post p ON employee.post_id = p.id\n" +
+            "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
+            "WHERE CONCAT(\n" +
+            "     employee.name,\n" +
+            "     employee.surname,\n" +
+            "     employee.patronymic,\n" +
+            "     p.post_name,\n" +
+            "     k.short_name\n" +
+            "     ) LIKE %:keyword% \n" +
+            "ORDER BY ee.mindate", nativeQuery = true)
     Iterable<Employee> findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(@Param("keyword") String keyword);
 
     @Query(value = "SELECT COALESCE(TRUNCATE(((SELECT COUNT(siz_id) AS number FROM issuedsiz WHERE employee_id = :id_empl)/\n" +
@@ -80,95 +82,136 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
     Iterable<Employee> getNotFullStaffingOfEmployee();
 
-    @Query(value = "SELECT e.* FROM employee e, post p, komplex k, issuedsiz i\n" +
-            " WHERE e.post_id = p.id AND e.komplex_id = k.id AND i.employee_id = e.id AND (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
-            " (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard \n" +
-            " WHERE ipmstandard.post_id = e.post_id)*100),0)=100) \n" +
-            "            order by abs(now() - i.date_end_wear) desc limit 1", nativeQuery = true)
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate \n"+
+            "     FROM employee e\n" +
+            "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     GROUP BY e.id) ee USING (id)\n" +
+            "ORDER BY ee.mindate", nativeQuery = true)
+    Iterable<Employee> getStaffingOfEmployeeOrderByEndDateIssued();
+
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
+            "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
+            "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
+            "     FROM employee e\n" +
+            "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     GROUP BY e.id) ee USING (id)\n" +
+            "WHERE ee.rate=100\n" +
+            "ORDER BY ee.mindate", nativeQuery = true)
     Iterable<Employee> getFullStaffingOfEmployeeOrderByEndDateIssued();
 
-    @Query(value = "SELECT e.* FROM employee e, post p, komplex k, issuedsiz i WHERE e.post_id = p.id AND e.komplex_id = k.id AND i.employee_id = e.id AND (\n" +
-            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
-            "        (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard \n" +
-            "         WHERE ipmstandard.post_id = e.post_id)*100),0)>=0) AND (\n" +
-            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
-            "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
-            "         WHERE ipmstandard.post_id = e.post_id)*100),0)<100) \n" +
-            "            order by abs(now() - i.date_end_wear) desc limit 1", nativeQuery = true)
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
+            "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
+            "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
+            "     FROM employee e\n" +
+            "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     GROUP BY e.id) ee USING (id)\n" +
+            "WHERE ee.rate>=0 AND ee.rate<100\n" +
+            "ORDER BY ee.mindate", nativeQuery = true)
     Iterable<Employee> getNotFullStaffingOfEmployeeOrderByEndDateIssued();
 
-    @Query(value = "SELECT e.* FROM employee e,\n" +
-            "             post p,\n" +
-            "             komplex k\n" +
-            " WHERE CONCAT(\n" +
-            "            e.name,\n" +
-            "            e.surname,\n" +
-            "            e.patronymic,\n" +
-            "            p.post_name,\n" +
-            "            k.short_name\n" +
-            "            ) LIKE %:keyword% AND e.post_id = p.id AND e.komplex_id = k.id AND " +
-            " (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
-            " (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
-            " WHERE ipmstandard.post_id = e.post_id)*100),0)=100) \n" +
-            "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
+            "     (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
+            "                              issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "           (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
+            "           WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
+            "    FROM employee e\n" +
+            "    JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "    WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "    GROUP BY e.id) ee USING (id)\n" +
+            "INNER JOIN post p ON employee.post_id = p.id\n" +
+            "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
+            "WHERE CONCAT(\n" +
+            "     employee.name,\n" +
+            "     employee.surname,\n" +
+            "     employee.patronymic,\n" +
+            "     p.post_name,\n" +
+            "     k.short_name\n" +
+            "     ) LIKE %:keyword% AND ee.rate=100\n" +
+            "ORDER BY k.short_name, p.post_name, employee.surname", nativeQuery = true)
     Iterable<Employee> getFullStaffingOfEmployeeAndKeyword(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT e.* FROM employee e,\n" +
-            "             post p,\n" +
-            "             komplex k\n" +
-            " WHERE CONCAT(\n" +
-            "            e.name,\n" +
-            "            e.surname,\n" +
-            "            e.patronymic,\n" +
-            "            p.post_name,\n" +
-            "            k.short_name\n" +
-            "            ) LIKE %:keyword% AND e.post_id = p.id AND e.komplex_id = k.id AND " +
-            "        (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
-            "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
-            "         WHERE ipmstandard.post_id = e.post_id)*100),0)>=0) AND (\n" +
-            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
-            "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
-            "         WHERE ipmstandard.post_id = e.post_id)*100),0)<100) \n"+
-            "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
+            "     (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
+            "                              issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "           (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
+            "           WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
+            "    FROM employee e\n" +
+            "    JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "    WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "    GROUP BY e.id) ee USING (id)\n" +
+            "INNER JOIN post p ON employee.post_id = p.id\n" +
+            "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
+            "WHERE CONCAT(\n" +
+            "     employee.name,\n" +
+            "     employee.surname,\n" +
+            "     employee.patronymic,\n" +
+            "     p.post_name,\n" +
+            "     k.short_name\n" +
+            "     ) LIKE %:keyword% AND ee.rate>=0 AND ee.rate<100\n" +
+            "ORDER BY k.short_name, p.post_name, employee.surname", nativeQuery = true)
     Iterable<Employee> getNotFullStaffingOfEmployeeAndKeyword(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT e.* FROM employee e,\n" +
-            "                        post p,\n" +
-            "                        komplex k,\n" +
-            "                        issuedsiz i\n" +
-            "            WHERE CONCAT(\n" +
-            "                       e.name,\n" +
-            "                       e.surname,\n" +
-            "                       e.patronymic,\n" +
-            "                       p.post_name,\n" +
-            "                       k.short_name\n" +
-            "                       ) LIKE %:keyword% AND e.post_id = p.id AND e.komplex_id = k.id AND \n" +
-            "                        i.employee_id = e.id AND\n" +
-            "            (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
-            "            (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
-            "            WHERE ipmstandard.post_id = e.post_id)*100),0)=100)\n" +
-            "            order by abs(now() - i.date_end_wear) desc limit 1",nativeQuery = true)
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
+            "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
+            "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
+            "     FROM employee e\n" +
+            "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     GROUP BY e.id) ee USING (id)\n" +
+            "INNER JOIN post p ON employee.post_id = p.id\n" +
+            "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
+            "WHERE CONCAT(\n" +
+            "     employee.name,\n" +
+            "     employee.surname,\n" +
+            "     employee.patronymic,\n" +
+            "     p.post_name,\n" +
+            "     k.short_name\n" +
+            "     ) LIKE %:keyword% AND ee.rate=100\n" +
+            "ORDER BY ee.mindate",nativeQuery = true)
     Iterable<Employee> getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT e.* FROM employee e,\n" +
-            "             post p,\n" +
-            "             komplex k,\n" +
-            "             issuedsiz i\n" +
-            " WHERE CONCAT(\n" +
-            "            e.name,\n" +
-            "            e.surname,\n" +
-            "            e.patronymic,\n" +
-            "            p.post_name,\n" +
-            "            k.short_name\n" +
-            "            ) LIKE %:keyword% AND e.post_id = p.id AND e.komplex_id = k.id AND " +
-            "            i.employee_id = e.id AND\n" +
-            "        (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
-            "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
-            "         WHERE ipmstandard.post_id = e.post_id)*100),0)>=0) AND (\n" +
-            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
-            "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
-            "         WHERE ipmstandard.post_id = e.post_id)*100),0)<100) \n" +
-            "         order by abs(now() - i.date_end_wear) desc limit 1", nativeQuery = true)
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
+            "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
+            "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
+            "     FROM employee e\n" +
+            "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     GROUP BY e.id) ee USING (id)\n" +
+            "INNER JOIN post p ON employee.post_id = p.id\n" +
+            "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
+            "WHERE CONCAT(\n" +
+            "     employee.name,\n" +
+            "     employee.surname,\n" +
+            "     employee.patronymic,\n" +
+            "     p.post_name,\n" +
+            "     k.short_name\n" +
+            "     ) LIKE %:keyword% AND ee.rate>=0 AND ee.rate<100\n" +
+            "ORDER BY ee.mindate", nativeQuery = true)
     Iterable<Employee> getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(@Param("keyword") String keyword);
 
     List<Employee> findAllByPostId(Long id);

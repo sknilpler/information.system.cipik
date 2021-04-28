@@ -139,6 +139,12 @@
             </div>
             <hr>
             <span class="lead">Укомплектованность сотрудников СИЗ</span>
+            <form th:action="'/userPage/employee-siz/print-table'" method="get">
+                <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
+                        aria-label="Распечатать">
+                    <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                </button>
+            </form>
             <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
                  th:fragment="table-employees">
                 <table class="table table-hover" id="tb">
