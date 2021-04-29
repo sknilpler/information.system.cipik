@@ -37,6 +37,17 @@ filterValue = value;
     });
 }
 //////////////////////////////////////////////
+function showEmployeeWithEndDateWear(){
+    document.getElementById("textSearch").innerHTML="";
+    $.ajax({
+    	type: 'get',
+    	url: '/userPage/employee-siz/show-employees-with-end-wear-date',
+    	success: function(data) {
+    		$('.table-employees').html(data);
+    	},
+    });
+}
+//////////////////////////////////////////////
 function showModalWindow(value1,value2) {
    $.ajax({
        type: 'get',

@@ -12,13 +12,29 @@
 
 <!--Страница для вывода всех сотрудников-->
 <div class="container-fluid">
-    <h1>Список всех сотрудников</h1>
-    <form th:action="'/userPage/employee/export/excel'" method="get">
-    <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
-            aria-label="Распечатать">
-        <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
-    </button>
-    </form>
+    <div class="row">
+        <div class="col-sm-11">
+            <h1>Список всех сотрудников</h1>
+        </div>
+        <div class="col-sm-1">
+            <form th:action="'/userPage/employee/export/excel'" method="get">
+                <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
+                        aria-label="Распечатать">
+                    <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="pagination justify-content-start">
+        <div class="d-flex justify-content-start flex-wrap">
+            <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
+            <a th:href="'/userPage/employee/employee-add'" class="btn btn-success mx-1">Добавить</a>
+        </div>
+        <div class="d-flex justify-content-start flex-wrap">
+            <a th:href="'/userPage/posts/add'" class="btn btn-info mx-1">Должности</a>
+        </div>
+    </div>
+    <br>
     <div class="bd-example">
         <table class="table table-bordered">
             <thead>
@@ -61,16 +77,6 @@
             </tbody>
 
         </table>
-    </div>
-    <div class="pagination justify-content-start">
-        <div class="d-flex justify-content-start flex-wrap">
-            <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
-            <a th:href="'/userPage/employee/employee-add'" class="btn btn-success mx-1">Добавить</a>
-        </div>
-        <div class="d-flex justify-content-start flex-wrap">
-            <a th:href="'/userPage/posts/add'" class="btn btn-info mx-1">Должности</a>
-        </div>
-
     </div>
 </div>
 <div th:insert="blocks/footer :: footer"></div>

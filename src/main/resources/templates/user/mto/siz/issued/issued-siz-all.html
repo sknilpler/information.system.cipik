@@ -116,7 +116,8 @@
             <div class="row g-3">
                 <div class="col-sm-3">
                     <label for="issued-filter" class="form-label">Фильтр по выдачи</label>
-                    <select class="form-select" aria-label="example" name="issued-filter" id="issued-filter" th:onchange="'javascript:filter(this.value);'">
+                    <select class="form-select" aria-label="example" name="issued-filter" id="issued-filter"
+                            th:onchange="'javascript:filter(this.value);'">
                         <option selected disabled value="">Выберите фильтрацию</option>
                         <option value="all">Все</option>
                         <option value="issued">Выдан весь СИЗ</option>
@@ -124,28 +125,46 @@
                     </select>
                 </div>
                 <div class="col-sm-3">
-                    <label for="textSearch" class="form-label">Поиск по таблице</label>
-                    <input id="textSearch" class="form-control" type="text" name="keyword"
-                           oninput="searching(this.value)">
-                </div>
-                <div class="col-sm-3">
                     <label for="issued-sort" class="form-label">Сортировка</label>
-                    <select class="form-select" aria-label="example" name="issued-sort" id="issued-sort" th:onchange="'javascript:sorting(this.value);'">
+                    <select class="form-select" aria-label="example" name="issued-sort" id="issued-sort"
+                            th:onchange="'javascript:sorting(this.value);'">
                         <option selected disabled value="">Выберите тип сортировки</option>
                         <option value="date">Дата окончания носки</option>
                         <option value="k_and_p">Подразделение и должность</option>
                     </select>
                 </div>
+                <div class="col-sm-2">
+                    <label for="textSearch" class="form-label">Поиск по таблице</label>
+                    <input id="textSearch" class="form-control" type="text" name="keyword"
+                           oninput="searching(this.value)">
+                </div>
+                <div class="col-sm-4 alert alert-primary row g-1">
+                    <div class="col-6">
+                        <p th:text="${'Всего сотрудников: '+info.numberOfEmployee}" class="mb-0"></p>
+                        <p th:text="${'Полностью выдан СИЗ: '+info.numberOfFullStaffing}" class="mb-0"></p>
+                    </div>
+                    <div class="col-6">
+                        <p th:text="${'Недоукомплектованы: '+(info.numberOfEmployee-info.numberOfFullStaffing)}"
+                           class="mb-0"></p>
+                        <a th:text="${'Истекает срок носки СИЗ: '+info.numberOfEndIssuedSIZ}" th:onclick="'javascript:showEmployeeWithEndDateWear();'" class="mb-0"></a>
+                    </div>
+                </div>
             </div>
             <hr>
-            <span class="lead">Укомплектованность сотрудников СИЗ</span>
-            <form th:action="'/userPage/employee-siz/print-table'" method="get">
-                <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
-                        aria-label="Распечатать">
-                    <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
-                </button>
-            </form>
-            <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+            <div class="row">
+                <div class="col-sm-11">
+                    <span class="lead">Укомплектованность сотрудников СИЗ</span>
+                </div>
+                <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
+                    <form th:action="'/userPage/employee-siz/print-table'" method="get">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
+                                aria-label="Распечатать">
+                            <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="table-employees" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;"
                  th:fragment="table-employees">
                 <table class="table table-hover" id="tb">
                     <thead>

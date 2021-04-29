@@ -92,7 +92,7 @@
                         </div>
                         <hr>
                         <span class="lead">Список сотрудников</span>
-                        <div class="table-employees" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                        <div class="table-employees" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;"
                              th:fragment="table-employees">
                             <table class="table table-hover" id="tb">
                                 <thead>
@@ -131,7 +131,7 @@
                                     th:text="${post.postName}"></option>
                         </select>
                         <hr>
-                        <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                        <div class="table-siz" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;"
                              th:fragment="table-siz">
                             <div class="col-sm-6">
                                 <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
@@ -165,11 +165,11 @@
                 <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
                     <div class="table-issuedSiz" th:fragment="table-issuedSiz">
                         <div class="row align-items-md-stretch mb-4">
-                            <div class="col-sm-6">
+                            <div class="col-sm-11">
                             <span class="lead"
                                   th:text="'Список выданного СИЗ сотруднику '+${selectedEmployee.surname}+' '+${selectedEmployee.name}+' '+${selectedEmployee.patronymic}"></span>
                             </div>
-                            <div class="col-sm-6 d-grid gap-2 d-md-flex justify-content-md-end">
+                            <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
                                 <button type="button" class="btn btn-outline-secondary btn-sm float-right"
                                         aria-label="Распечатать">
                                     <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24"
@@ -178,7 +178,7 @@
                             </div>
                         </div>
                         <p class="fs-6 text-danger" th:text="${issuedError}"></p>
-                        <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                        <div class="table-responsive" style="max-height: 40vh; min-height: 30vh; overflow-y: auto;">
                             <table class="table table-hover">
                                 <thead>
                                 <tr>

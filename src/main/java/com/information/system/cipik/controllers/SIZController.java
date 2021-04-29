@@ -4,6 +4,7 @@ import com.information.system.cipik.models.*;
 import com.information.system.cipik.repo.*;
 import com.information.system.cipik.utils.EmployeeForPrint;
 import com.information.system.cipik.utils.EmployeeStaffingExcelExporter;
+import com.information.system.cipik.utils.StatisticForStaffing;
 import com.information.system.cipik.utils.TypeOfSortingEmployeeTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -569,6 +571,24 @@ public class SIZController {
         typeOfSortingEmployeeTable.setFilter("all");
         typeOfSortingEmployeeTable.setSearching("");
         Iterable<Employee> employees = employeeRepository.findAll();
+        Iterable<Employee> fullStaffEmpl = employeeRepository.getFullStaffingOfEmployee();
+        int countE = 0;
+        for (Employee e:employees) {
+            countE++;
+        }
+        int countFE = 0;
+        for (Employee e:fullStaffEmpl) {
+            countFE++;
+        }
+        String nextYearBegin = (Year.now().getValue()+1)+"_01_01";
+        String nextYearEnd = (Year.now().getValue()+1)+"_12_31";
+        Iterable<Employee> employeesEndingDateWear = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin,nextYearEnd);
+        int countEE = 0;
+        for (Employee e:employeesEndingDateWear) {
+            countEE++;
+        }
+        StatisticForStaffing info = new StatisticForStaffing(countE,countFE,countEE);
+        model.addAttribute("info",info);
         model.addAttribute("employees",employees);
         model.addAttribute("employeeRepository",employeeRepository);
         model.addAttribute("ipmStandardRepository", issuedSIZRepository);
@@ -598,6 +618,17 @@ public class SIZController {
             employees = employeeRepository.findAll();
             typeOfSortingEmployeeTable.setFilter("all");
         }
+        model.addAttribute("employees", employees);
+        model.addAttribute("employeeRepository", employeeRepository);
+        return "user/mto/siz/issued/issued-siz-all :: table-employees";
+    }
+
+    @GetMapping("/userPage/employee-siz/show-employees-with-end-wear-date")
+    public String showEmployeesWithEndWearDate(Model model){
+        typeOfSortingEmployeeTable.setFilter("end_date");
+        String nextYearBegin = (Year.now().getValue()+1)+"_01_01";
+        String nextYearEnd = (Year.now().getValue()+1)+"_12_31";
+        Iterable<Employee> employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin,nextYearEnd);
         model.addAttribute("employees", employees);
         model.addAttribute("employeeRepository", employeeRepository);
         return "user/mto/siz/issued/issued-siz-all :: table-employees";
@@ -638,7 +669,9 @@ public class SIZController {
         Iterable<Employee> employees;
         if (keyword.equals("0")) {
             typeOfSortingEmployeeTable.setSearching("");
-            if (filerIssuedSizAll.equals("not-issued")) {
+            if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
+                employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31");
+            }else if (filerIssuedSizAll.equals("not-issued")) {
                 if (sortedByEndIssuedDate) {
                     employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
                     typeOfSortingEmployeeTable.setFilter("not-issued-date");
@@ -665,7 +698,9 @@ public class SIZController {
             }
         } else {
             typeOfSortingEmployeeTable.setSearching(keyword);
-            if (filerIssuedSizAll.equals("not-issued")) {
+            if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
+                employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",keyword);
+            }else if (filerIssuedSizAll.equals("not-issued")) {
                 if (sortedByEndIssuedDate) {
                     employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
                     typeOfSortingEmployeeTable.setFilter("not-issued-date");
@@ -727,7 +762,7 @@ public class SIZController {
         model.addAttribute("vidanSIZ",issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all :: table-issued-siz";
     }
-
+////////////////////////////////redaktirovanie vidannogo siz sotrudniku
     /**
      * Открытие страницы редактирования укомплектованности СИЗ выбранного сотрудника
      * @param id
@@ -929,6 +964,10 @@ public class SIZController {
             listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
         } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
             listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
+        } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+            listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31");
+        } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",typeOfSortingEmployeeTable.getSearching());
         }
         for (Employee e: listEmployee) {
             listEmployeeForPrint.add(new EmployeeForPrint(e,issuedSIZRepository.getByEndWearDateForEmployee(e.getId()),employeeRepository.getPercentStaffingOfEmployee(e.getId(),e.getPost().getId())));

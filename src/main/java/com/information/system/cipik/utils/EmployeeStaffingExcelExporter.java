@@ -10,6 +10,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class EmployeeStaffingExcelExporter {
@@ -32,6 +34,7 @@ public class EmployeeStaffingExcelExporter {
         XSSFFont font = workbook.createFont();
         font.setBold(true);
         font.setFontHeight(14);
+        font.setFontName("Times New Roman");
         style.setFont(font);
 
         createCell(row, 0, "№ п/п", style);
@@ -41,7 +44,7 @@ public class EmployeeStaffingExcelExporter {
         createCell(row, 4, "Имя", style);
         createCell(row, 5, "Отчество", style);
         createCell(row, 6, "Укомплектованность", style);
-        createCell(row, 7, "СИЗ", style);
+        createCell(row, 7, "СИЗ с ближайшей датой окончания носки", style);
         createCell(row, 8, "Дата окончания носки", style);
     }
 
@@ -64,8 +67,9 @@ public class EmployeeStaffingExcelExporter {
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setFontHeight(14);
+        font.setFontName("Times New Roman");
         style.setFont(font);
-
+        DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
         for (EmployeeForPrint e: listEmployees) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
@@ -76,10 +80,10 @@ public class EmployeeStaffingExcelExporter {
             createCell(row, columnCount++, e.getEmployee().getSurname(), style);
             createCell(row, columnCount++, e.getEmployee().getName(), style);
             createCell(row, columnCount++, e.getEmployee().getPatronymic(), style);
-            createCell(row, columnCount++, e.getStaffing(), style);
+            createCell(row, columnCount++, (e.getStaffing()==null ? "0%":e.getStaffing()+"%"), style);
             if (e.getIssuedSIZ() != null) {
                 createCell(row, columnCount++, e.getIssuedSIZ().getSiz().getNameSIZ(), style);
-                createCell(row, columnCount++, String.valueOf(e.getIssuedSIZ().getDateEndWear()), style);
+                createCell(row, columnCount++, dateFormatter.format(e.getIssuedSIZ().getDateEndWear()), style);
             } else {
                 createCell(row, columnCount++, "", style);
                 createCell(row, columnCount++, "", style);

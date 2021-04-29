@@ -93,6 +93,35 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
     Iterable<Employee> getStaffingOfEmployeeOrderByEndDateIssued();
 
     @Query(value = "SELECT employee.*\n" +
+            "            FROM employee\n" +
+            "            JOIN (SELECT e.id, MIN(i.date_end_wear) mindate\n" +
+            "                 FROM employee e\n" +
+            "                 JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "                 WHERE i.date_end_wear BETWEEN :date1 AND :date2\n" +
+            "                 GROUP BY e.id) ee USING (id)\n" +
+            "            ORDER BY ee.mindate",nativeQuery = true)
+    Iterable<Employee> getEmployeesWithEndingDateWearForNextYear(@Param("date1") String date1,@Param("date2") String date2);
+
+    @Query(value = "SELECT employee.*\n" +
+            "            FROM employee\n" +
+            "            JOIN (SELECT e.id, MIN(i.date_end_wear) mindate\n" +
+            "                 FROM employee e\n" +
+            "                 JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "                 WHERE i.date_end_wear BETWEEN :date1 AND :date2\n" +
+            "                 GROUP BY e.id) ee USING (id)\n" +
+            "INNER JOIN post p ON employee.post_id = p.id\n" +
+            "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
+            "WHERE CONCAT(\n" +
+            "     employee.name,\n" +
+            "     employee.surname,\n" +
+            "     employee.patronymic,\n" +
+            "     p.post_name,\n" +
+            "     k.short_name\n" +
+            "     ) LIKE %:keyword% " +
+            "            ORDER BY ee.mindate",nativeQuery = true)
+    Iterable<Employee> getEmployeesWithEndingDateWearForNextYearByKeyword(@Param("date1") String date1,@Param("date2") String date2,@Param("keyword") String keyword);
+
+    @Query(value = "SELECT employee.*\n" +
             "FROM employee\n" +
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
             "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
