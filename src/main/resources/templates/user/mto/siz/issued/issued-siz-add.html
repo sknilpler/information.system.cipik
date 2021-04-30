@@ -170,11 +170,14 @@
                                   th:text="'Список выданного СИЗ сотруднику '+${selectedEmployee.surname}+' '+${selectedEmployee.name}+' '+${selectedEmployee.patronymic}"></span>
                             </div>
                             <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="button" class="btn btn-outline-secondary btn-sm float-right"
-                                        aria-label="Распечатать">
-                                    <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24"
-                                         height="24">
-                                </button>
+                                <form th:action="'/userPage/employee-siz/print-personal-card/'+${selectedEmployee.id}"
+                                      method="get">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
+                                            aria-label="Распечатать">
+                                        <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24"
+                                             height="24">
+                                    </button>
+                                </form>
                             </div>
                         </div>
                         <p class="fs-6 text-danger" th:text="${issuedError}"></p>
