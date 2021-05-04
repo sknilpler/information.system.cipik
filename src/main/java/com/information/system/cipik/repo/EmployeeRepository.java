@@ -46,7 +46,7 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate \n"+
             "     FROM employee e\n" +
             "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
-            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\" \n" +
             "     GROUP BY e.id) ee USING (id)\n" +
             "INNER JOIN post p ON employee.post_id = p.id\n" +
             "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
@@ -60,23 +60,23 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "ORDER BY ee.mindate", nativeQuery = true)
     Iterable<Employee> findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT COALESCE(TRUNCATE(((SELECT COUNT(siz_id) AS number FROM issuedsiz WHERE employee_id = :id_empl)/\n" +
+    @Query(value = "SELECT COALESCE(TRUNCATE(((SELECT COUNT(siz_id) AS number FROM issuedsiz WHERE employee_id = :id_empl AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "(SELECT SUM(ipmstandard.issuance_rate) AS number FROM ipmstandard\n" +
             " WHERE post_id = :id_post)*100),0))", nativeQuery = true)
     String getPercentStaffingOfEmployee(@Param("id_empl") Long id_empl, @Param("id_post") Long id_post);
 
     @Query(value = "SELECT e.* FROM employee e\n" +
-            " WHERE (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
+            " WHERE (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id AND issuedsiz.status LIKE \"Выдано\")/\n" +
             " (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard \n" +
             " WHERE ipmstandard.post_id = e.post_id)*100),0)=100) \n"+
             "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
     Iterable<Employee> getFullStaffingOfEmployee();
 
     @Query(value = "SELECT e.* FROM employee e WHERE (\n" +
-            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
+            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "        (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard \n" +
             "         WHERE ipmstandard.post_id = e.post_id)*100),0)>=0) AND (\n" +
-            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id)/\n" +
+            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
             "         WHERE ipmstandard.post_id = e.post_id)*100),0)<100) \n"+
             "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
@@ -87,7 +87,7 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate \n"+
             "     FROM employee e\n" +
             "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
-            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\" \n" +
             "     GROUP BY e.id) ee USING (id)\n" +
             "ORDER BY ee.mindate", nativeQuery = true)
     Iterable<Employee> getStaffingOfEmployeeOrderByEndDateIssued();
@@ -125,12 +125,12 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "FROM employee\n" +
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
             "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
-            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
             "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
             "     FROM employee e\n" +
             "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
-            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE and i.status LIKE \"Выдано\"\n" +
             "     GROUP BY e.id) ee USING (id)\n" +
             "WHERE ee.rate=100\n" +
             "ORDER BY ee.mindate", nativeQuery = true)
@@ -140,12 +140,12 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "FROM employee\n" +
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
             "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
-            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
             "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
             "     FROM employee e\n" +
             "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
-            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\"\n" +
             "     GROUP BY e.id) ee USING (id)\n" +
             "WHERE ee.rate>=0 AND ee.rate<100\n" +
             "ORDER BY ee.mindate", nativeQuery = true)
@@ -155,12 +155,12 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "FROM employee\n" +
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
             "     (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
-            "                              issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "                              issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "           (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
             "           WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
             "    FROM employee e\n" +
             "    JOIN issuedsiz i ON i.employee_id = e.id\n" +
-            "    WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "    WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\"\n" +
             "    GROUP BY e.id) ee USING (id)\n" +
             "INNER JOIN post p ON employee.post_id = p.id\n" +
             "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
@@ -178,12 +178,12 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "FROM employee\n" +
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
             "     (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
-            "                              issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "                              issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "           (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
             "           WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
             "    FROM employee e\n" +
             "    JOIN issuedsiz i ON i.employee_id = e.id\n" +
-            "    WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "    WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\"\n" +
             "    GROUP BY e.id) ee USING (id)\n" +
             "INNER JOIN post p ON employee.post_id = p.id\n" +
             "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
@@ -201,12 +201,12 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "FROM employee\n" +
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
             "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
-            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
             "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
             "     FROM employee e\n" +
             "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
-            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\" \n" +
             "     GROUP BY e.id) ee USING (id)\n" +
             "INNER JOIN post p ON employee.post_id = p.id\n" +
             "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +
@@ -224,12 +224,12 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "FROM employee\n" +
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
             "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
-            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE)/\n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
             "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
             "     FROM employee e\n" +
             "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
-            "     WHERE i.date_end_wear > CURRENT_DATE \n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\" \n" +
             "     GROUP BY e.id) ee USING (id)\n" +
             "INNER JOIN post p ON employee.post_id = p.id\n" +
             "INNER JOIN komplex k ON employee.komplex_id = k.id\n" +

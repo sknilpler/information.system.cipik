@@ -369,7 +369,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/issued-siz/getIssuedSizForEmployee/{id}")
     public String getIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
-        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeId(id);
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id,"Выдано");
         Employee employee = employeeRepository.findById(id).orElseThrow();
         employeeForIssuedSIZ = employee;
         model.addAttribute("selectedEmployee",employee);
@@ -442,7 +442,7 @@ public class SIZController {
             System.out.println(message);
         }
 
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -469,7 +469,7 @@ public class SIZController {
         }
         issuedSIZ.setDateEndWear(exDate);
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -491,7 +491,7 @@ public class SIZController {
         issuedSIZ.setEmployee(null);
         issuedSIZ.setStatus("На складе");
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -512,7 +512,7 @@ public class SIZController {
         issuedSIZ.setEmployee(null);
         issuedSIZ.setWriteOffAct(actName);
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -623,6 +623,11 @@ public class SIZController {
         return "user/mto/siz/issued/issued-siz-all :: table-employees";
     }
 
+    /**
+     * Отображение сотрудников у которых срок носки СИЗ заканчивается в следующем году
+     * @param model
+     * @return
+     */
     @GetMapping("/userPage/employee-siz/show-employees-with-end-wear-date")
     public String showEmployeesWithEndWearDate(Model model){
         typeOfSortingEmployeeTable.setFilter("end_date");
@@ -756,7 +761,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/employee-siz/info-issued-siz/employee/{id}")
     public String getInfoIssuedSizOfEmployee(@PathVariable(value = "id") long id, Model model) {
-        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeId(id);
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id,"Выдано");
         Employee employee = employeeRepository.findById(id).orElseThrow();
         model.addAttribute("employee",employee);
         model.addAttribute("vidanSIZ",issuedSIZS);
@@ -773,7 +778,7 @@ public class SIZController {
     public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id, Model model) {
         Employee employee = employeeRepository.findById(id).orElseThrow();
         employeeForIssuedSIZ = employee;
-        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeId(id);
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id,"Выдано");
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(employee.getPost().getId());
         model.addAttribute("siz", ipmStandards);
         model.addAttribute("employee",employee);
@@ -801,7 +806,7 @@ public class SIZController {
         }
         issuedSIZ.setDateEndWear(exDate);
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
         model.addAttribute("employee",employeeForIssuedSIZ);
         model.addAttribute("vidanSIZ", issuedSIZS2);
         return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
@@ -821,7 +826,7 @@ public class SIZController {
         issuedSIZ.setEmployee(null);
         issuedSIZ.setStatus("На складе");
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
         model.addAttribute("employee",employeeForIssuedSIZ);
         model.addAttribute("vidanSIZ", issuedSIZS2);
         return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
@@ -838,10 +843,9 @@ public class SIZController {
     public String writeOfIssuedSizForEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "actName") String actName, Model model) {
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
         issuedSIZ.setStatus("Списано");
-        issuedSIZ.setEmployee(null);
         issuedSIZ.setWriteOffAct(actName);
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
         model.addAttribute("employee",employeeForIssuedSIZ);
         model.addAttribute("vidanSIZ", issuedSIZS2);
         return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
@@ -910,7 +914,7 @@ public class SIZController {
         }
         System.out.println(message);
 
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeId(employeeForIssuedSIZ.getId());
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("employee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -974,6 +978,21 @@ public class SIZController {
         }
         EmployeeStaffingExcelExporter excelExporter = new EmployeeStaffingExcelExporter(listEmployeeForPrint);
         excelExporter.export(response);
+    }
+
+    /**
+     * Отображение таблицы с историей выдачи СИЗ выбранного сотрудника
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/employee-siz/edit-staffing/employee/history-issued-siz/{id}")
+    public String getHistoryInfoIssuedSizOfEmployee(@PathVariable(value = "id") long id, Model model) {
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id,"Списано");
+        Employee employee = employeeRepository.findById(id).orElseThrow();
+        model.addAttribute("employee",employee);
+        model.addAttribute("vidanSIZ",issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-edit :: table-history-issued-siz";
     }
 
 

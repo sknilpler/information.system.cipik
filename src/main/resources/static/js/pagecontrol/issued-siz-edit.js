@@ -9,9 +9,20 @@ function showModalWindow2(value) {
 	writeoffSIZId = value;
 	$("#exampleModalLive2").modal('show');
 }
+function showModalWindow3(value) {
+	$.ajax({
+            type: 'get',
+            url: '/userPage/employee-siz/edit-staffing/employee/history-issued-siz/' + value,
+            success: function(data) {
+            	$('.table-history-issued-siz').html(data);
+            	$("#exampleModalLive3").modal('show');
+            },
+        });
+}
 function closeModalWindow() {
 	$("#exampleModalLive").modal('hide');
 	$("#exampleModalLive2").modal('hide');
+    $("#exampleModalLive3").modal('hide');
 };
 ///////////////open sidebar///////////////////
       var menu_btn = document.querySelector("#menu-btn");

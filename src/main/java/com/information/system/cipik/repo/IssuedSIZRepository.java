@@ -13,6 +13,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
     List<IssuedSIZ> findByStatus(String status);
     List<IssuedSIZ> findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status, String size, String height, String nameSIZ);
 
+    List<IssuedSIZ> findAllByEmployeeIdAndStatusOrderByDateIssued(Long id, String status);
 
     @Query(value = "SELECT i.* FROM issuedsiz i \n" +
             "WHERE i.employee_id = :id AND \n" +
@@ -102,6 +103,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
     @Query(value = "SELECT issuedsiz.* FROM issuedsiz,individual_protection_means,ipmstandard,employee WHERE\n" +
             " issuedsiz.siz_id = individual_protection_means.id AND\n" +
             " issuedsiz.employee_id = employee.id AND\n" +
+            " issuedsiz.status LIKE \"Выдано\" AND\n" +
             " ipmstandard.individual_protection_means_id = individual_protection_means.id AND\n" +
             " employee.id = :emp_id AND\n" +
             " ipmstandard.id = :id_ipm_st", nativeQuery = true)
@@ -110,6 +112,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
     @Query(value = "SELECT COUNT(issuedsiz.id) FROM issuedsiz,individual_protection_means,ipmstandard,employee WHERE\n" +
             " issuedsiz.siz_id = individual_protection_means.id AND\n" +
             " issuedsiz.employee_id = employee.id AND\n" +
+            " issuedsiz.status LIKE \"Выдано\" AND\n" +
             " ipmstandard.individual_protection_means_id = individual_protection_means.id AND\n" +
             " employee.id = :emp_id AND\n" +
             " ipmstandard.id = :id_ipm_st", nativeQuery = true)

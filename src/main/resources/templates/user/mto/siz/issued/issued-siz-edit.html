@@ -70,6 +70,54 @@
     </div>
 </div>
 <!-- Modal window -->
+
+<!-- Modal window for issued SIZ -->
+<div id="exampleModalLive3" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLiveLabel3">Выданный СИЗ сотруднику</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-history-issued-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                     th:fragment="table-history-issued-siz">
+                    <h6 th:text="${employee.surname}+' '+${#strings.substring(employee.name,0,1)}+' '+${#strings.substring(employee.patronymic,0,1)}"></h6>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Наименование</th>
+                            <th>Выдано</th>
+                            <th>Списано</th>
+                            <th>Акт</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
+                            <td th:text="${s.siz.nameSIZ}"></td>
+                            <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
+                            <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
+                            <td th:text="${s.writeOffAct}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
+
 <!-- Side panel -->
 <div class="d-flex">
     <div th:insert="user/mto/sidebar :: sidebar"></div>
@@ -125,14 +173,22 @@
                 <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
                     <div class="table-issuedSiz" th:fragment="table-issuedSiz">
                         <div class="row align-items-md-stretch mb-4">
-                            <div class="col-sm-6">
+                            <div class="col-sm-11">
                             <span class="lead"
                                   th:text="'Список выданного СИЗ сотруднику '+${employee.surname}+' '+${employee.name}+' '+${employee.patronymic}"></span>
                             </div>
-                            <div class="col-sm-6 d-grid gap-2 d-md-flex justify-content-md-end">
+<!--                            <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">-->
+<!--                                   -->
+<!--                            </div>-->
+                            <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary btn-sm float-right" th:onclick="'javascript:showModalWindow3(\'' + ${employee.id} + '\');'" title="Информация о ранее выданном СИЗ"
+                                        aria-label="История выданного СИЗ">
+                                    <img src="/images/bootstrap-icons/clock-history.svg" alt="Bootstrap" width="24"
+                                         height="24">
+                                </button>
                                 <form th:action="'/userPage/employee-siz/print-personal-card/'+${employee.id}" method="get">
                                     <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
-                                            aria-label="Распечатать">
+                                            aria-label="Распечатать" title="Личная карточка">
                                         <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24"
                                              height="24">
                                     </button>
