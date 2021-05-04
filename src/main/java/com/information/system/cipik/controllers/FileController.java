@@ -1,5 +1,6 @@
 package com.information.system.cipik.controllers;
 
+import com.ibm.icu.text.Transliterator;
 import com.information.system.cipik.models.Employee;
 import com.information.system.cipik.models.IPMStandard;
 import com.information.system.cipik.repo.EmployeeRepository;
@@ -40,6 +41,8 @@ public class FileController {
     private String dbUserName = "craft";
     private String dbUserPassword = "111";
     private String dbNameList = "cipik";
+
+    public String CYRILLIC_TO_LATIN = "Russian-Latin/BGN";
 
     @Autowired
     EmployeeRepository employeeRepository;
@@ -176,9 +179,10 @@ public class FileController {
     @GetMapping("/userPage/employee-siz/print-personal-card/{id}")
     public void printEmployeePersonalCard (@PathVariable(value = "id") long id, HttpServletResponse response) throws IOException {
         Employee employee = employeeRepository.findById(id).orElseThrow();
+        Transliterator toLatinTrans = Transliterator.getInstance(CYRILLIC_TO_LATIN);
         response.setContentType("application/octet-stream");
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=lichnaya_kartochka_"+employee.getSurname()+"_"+employee.getName()+"_"+employee.getPatronymic()+".xlsx";
+        String headerValue = "attachment; filename=lichnaya_kartochka_"+toLatinTrans.transliterate(employee.getSurname()+"_"+employee.getName()+"_"+employee.getPatronymic())+".xlsx";
         response.setHeader(headerKey, headerValue);
 
         String excelFilePath = Paths.get("").toAbsolutePath().toString()+File.separator+"template"+File.separator+"Личная карточка.xlsx";
@@ -256,14 +260,12 @@ public class FileController {
                         9  //last column  (0-based)
                 ));
 
+                for (int i = 0; i < 10; i++) {
+                    sheet.getRow(row).getCell(i).setCellStyle(exampleRow.getCell(i).getCellStyle());
+                }
                 sheet.getRow(row).getCell(0).setCellValue(s.getIndividualProtectionMeans().getNameSIZ());
-                sheet.getRow(row).getCell(0).setCellStyle(exampleRow.getCell(0).getCellStyle());
-                sheet.getRow(row).getCell(4).setCellStyle(exampleRow.getCell(4).getCellStyle());
                 sheet.getRow(row).getCell(6).setCellValue(s.getIndividualProtectionMeans().getEd_izm());
-                sheet.getRow(row).getCell(6).setCellStyle(exampleRow.getCell(6).getCellStyle());
                 sheet.getRow(row).getCell(8).setCellValue(s.getIssuanceRate() + " на "+s.getServiceLife() + " мес");
-                sheet.getRow(row).getCell(8).setCellStyle(exampleRow.getCell(8).getCellStyle());
-                sheet.getRow(row).getCell(9).setCellStyle(exampleRow.getCell(9).getCellStyle());
                 row++;
             }
 

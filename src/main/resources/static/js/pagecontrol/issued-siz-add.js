@@ -110,6 +110,9 @@ function loadIssuedSiz(value) {
 };
 //////////////////////////////////////////
 function updateIssuedSiz(value) {
+			document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
+			selRecs = [];
+			$('body input:checkbox').prop('checked',false);
 	$.ajax({
 		type: 'get',
 		url: '/userPage/issued-siz/' + selRecs + '/add/'+value,

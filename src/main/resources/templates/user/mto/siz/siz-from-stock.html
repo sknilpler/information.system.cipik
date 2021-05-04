@@ -90,7 +90,7 @@
                                 <th style="10%">Размер</th>
                                 <th style="10%">Рост</th>
                                 <th style="width: 250px;">
-                                        <button class="btn btn-danger btn-sm" id="del_btn" th:onclick="'javascript:deleteRecord();'" disabled>Удалить</button>
+                                        <button class="btn btn-danger btn-sm" name="del_btn" id="del_btn" th:onclick="'javascript:deleteRecord();'" disabled>Удалить</button>
                                 </th>
                             </tr>
                             </thead>
@@ -150,10 +150,11 @@ function selectRecord(value, id) {
 	} else {
 		selRecs = arrayRemove(selRecs, Number(id));
 	}
+	var btns =  document.getElementsByName('del_btn');
 	if(selRecs.length === 0){
-	    document.getElementById('del_btn').disabled = true;
+	   btns.forEach(el => el.disabled = true);
 	} else {
-	    document.getElementById('del_btn').disabled = false;
+	   btns.forEach(el => el.disabled = false);
 	}
 };
 
@@ -176,7 +177,8 @@ function selectAllRecord(value){
 		selRecs = [];
 	}
 	$('body input:checkbox').prop('checked',value.checked);
-    document.getElementById('del_btn').disabled = !value.checked;
+	var btns =  document.getElementsByName('del_btn');
+	btns.forEach(el => el.disabled = !value.checked);
 }
 ///////////////////////////////////////
 function deleteRecord(){
