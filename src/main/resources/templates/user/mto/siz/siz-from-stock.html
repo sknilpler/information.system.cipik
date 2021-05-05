@@ -28,7 +28,7 @@
                 <form method="post" class="row g-3">
                     <div class="col-sm-6">
                         <label for="typeSIZ" class="md-2">Типы СИЗ для работников</label>
-                        <select class="form-control" id="typeSIZ" name="typeSIZ" required>
+                        <select class="form-control" id="typeSIZ" name="typeSIZ" th:onchange="'javascript:selectTypeSiz(this);'" required>
                             <option value="">Выберите СИЗ</option>
                             <option th:each="t : ${typeSIZS}" th:value="${t.id}"
                                     th:text="${t.nameSIZ}"></option>
@@ -43,7 +43,7 @@
 
                     <div class="col-sm-3">
                         <label class="md-2" for="height">Рост (для одежды)</label>
-                        <select class="form-select" aria-label="example" name="height" id="height">
+                        <select class="form-select" aria-label="example" name="height" id="height" disabled>
                             <option selected value="non">Выберите рост</option>
                             <option value="1-2">1-2 (150-160)</option>
                             <option value="3-4">3-4 (160-170)</option>
@@ -118,6 +118,45 @@
 </div>
 <script th:inline="javascript">
 
+/////////////////////disabled - enabled Height selecting/////////////////////////
+function selectTypeSiz(elem){
+    var id = parseInt(elem.value);
+    /*<![CDATA[*/
+        var list1 =[];
+        var list2 =[];
+ 	/*[# th:each="elVar : ${typeSIZS}"]*/
+ 	    list1.push(/*[[${elVar.id}]]*/);
+ 	    list2.push(/*[[${elVar.typeIPM}]]*/);
+    /*[/]*/
+    /*]]>*/
+    var type = "";
+    for (var i = 0; i < list1.length; i++) {
+        if (id === list1[i]){
+            type = list2[i];
+            break;
+        }
+    }
+    if ("Одежда" === type) {
+ 	    document.getElementsByName('height').forEach(el => el.disabled = false);
+ 	} else{
+ 	    document.getElementsByName('height').forEach(el => el.disabled = true);
+ 	}
+}
+
+function U2A(str) {
+    var reserved = '';
+    var code = str.match(/&#(d+);/g);
+
+    if (code === null) {
+        return str;
+    }
+
+    for (var i = 0; i < code.length; i++) {
+        reserved += String.fromCharCode(code[i].replace(/[&#;]/g, ''));
+    }
+
+    return reserved;
+}
 ///////////////open sidebar///////////////////
 
       var menu_btn = document.querySelector("#menu-btn");

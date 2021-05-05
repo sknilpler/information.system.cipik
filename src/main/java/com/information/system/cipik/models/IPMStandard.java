@@ -31,15 +31,13 @@ public class IPMStandard {
     private int serviceLife;
     //регламентирующие документы
     private String regulatoryDocuments;
-    private String typeIPM;
 
-    public IPMStandard(Post post, IndividualProtectionMeans individualProtectionMeans, int issuanceRate, int serviceLife, String regulatoryDocuments,String typeIPM) {
+    public IPMStandard(Post post, IndividualProtectionMeans individualProtectionMeans, int issuanceRate, int serviceLife, String regulatoryDocuments) {
         this.post = post;
         this.individualProtectionMeans = individualProtectionMeans;
         this.issuanceRate = issuanceRate;
         this.serviceLife = serviceLife;
         this.regulatoryDocuments = regulatoryDocuments;
-        this.typeIPM = typeIPM;
     }
 
     @Override
@@ -51,7 +49,6 @@ public class IPMStandard {
                 ", issuanceRate=" + issuanceRate +
                 ", serviceLife=" + serviceLife +
                 ", regulatoryDocuments='" + regulatoryDocuments + '\'' +
-                ", typeIPM='" + typeIPM + '\'' +
                 '}';
     }
 }

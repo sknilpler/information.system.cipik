@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Закупочная таблица</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+    <style>
+            #tb tr:hover {background:#E2EEFF;}
+            #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+    </style>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+
+<!-- Side panel -->
+<div class="d-flex">
+    <div th:insert="user/mto/sidebar :: sidebar"></div>
+    <!-- Side panel -->
+    <div class="my-container active-cont container-fluid">
+        <div class="panel-body">
+
+            <div class="row g-3">
+                <div class="col-sm-3">
+                    <label for="purchasing-filter" class="form-label">Варианты отображения</label>
+                    <select class="form-select" aria-label="example" name="purchasing-filter" id="purchasing-filter"
+                            th:onchange="'javascript:filter(this.value);'">
+                        <option selected disabled value="">Выберите</option>
+                        <option value="all">По всем сотрудникам центра</option>
+                        <option value="by-komplex">По подразделениям</option>
+                        <option value="by-next-year">На следующий год</option>
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control" id="komplex" name="komplex"
+                            th:onchange="'javascript:filterByKomplex(this.value);'" disabled>
+                        <option selected disabled value="">Выберите подразделение</option>
+                        <option th:each="k : ${komplexs}" th:value="${k.id}"
+                                th:text="${k.shortName}"></option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-11">
+                    <span class="lead">Таблица СИЗ для закупки</span>
+                </div>
+                <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
+                    <form th:action="'/userPage/purchasing-table/print-table'" method="get">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
+                                aria-label="Распечатать">
+                            <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="table-purchasing" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;"
+                 th:fragment="table-purchasing">
+                <table class="table table-hover" id="tb">
+                    <thead>
+                    <tr>
+                        <th style="width: 19%;">Наименование СИЗ</th>
+                        <th style="width: 10%;">Размер</th>
+                        <th style="width: 19%;">Рост</th>
+                        <th style="width: 15%;">Кол-во</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="s : ${siz}">
+                        <td th:text="${s.name}"></td>
+                        <td th:text="${s.size}"></td>
+                        <td th:text="${s.height}"></td>
+                        <td th:text="${s.number}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>

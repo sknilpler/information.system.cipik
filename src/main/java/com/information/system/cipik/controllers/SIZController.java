@@ -60,8 +60,8 @@ public class SIZController {
 
 
     @PostMapping("/userPage/siz-types")
-    public String addSIZ(@RequestParam String nameSIZ, @RequestParam String ed_izm, Model model) {
-        IndividualProtectionMeans individualProtectionMeans = new IndividualProtectionMeans(nameSIZ, ed_izm);
+    public String addSIZ(@RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, Model model) {
+        IndividualProtectionMeans individualProtectionMeans = new IndividualProtectionMeans(nameSIZ, ed_izm,typeIPM);
         sizRepository.save(individualProtectionMeans);
         return "redirect:/userPage/siz-types";
     }
@@ -77,10 +77,11 @@ public class SIZController {
     }
 
     @PostMapping("/userPage/siz-types/{id}/edit")
-    public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, Model model) {
+    public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, Model model) {
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
         individualProtectionMeans.setNameSIZ(nameSIZ);
         individualProtectionMeans.setEd_izm(ed_izm);
+        individualProtectionMeans.setTypeIPM(typeIPM);
         sizRepository.save(individualProtectionMeans);
         return "redirect:/userPage/siz-types";
     }
@@ -134,10 +135,10 @@ public class SIZController {
 
     @PostMapping("/userPage/siz/norms/add")
     public String normsAdding(@RequestParam Long dropSIZ, @RequestParam int issuanceRate,
-                              @RequestParam int serviceLife, @RequestParam String regulatoryDocuments,@RequestParam String typeIPM, Model model) {
+                              @RequestParam int serviceLife, @RequestParam String regulatoryDocuments, Model model) {
         if (!postAddToNorm.getPostName().equals("")) {
             IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElseThrow();
-            IPMStandard norma = new IPMStandard(postAddToNorm, siz, issuanceRate,serviceLife,regulatoryDocuments,typeIPM);
+            IPMStandard norma = new IPMStandard(postAddToNorm, siz, issuanceRate,serviceLife,regulatoryDocuments);
             ipmStandardRepository.save(norma);
         }
         return "redirect:/userPage/siz/norms";
@@ -395,7 +396,7 @@ public class SIZController {
         c.setTime(dateIssued);
         c.add(Calendar.MONTH, serviceLife);
         Date dateEndWear = c.getTime();
-        String typeSIZ = ipmStandard.getTypeIPM();
+        String typeSIZ = ipmStandard.getIndividualProtectionMeans().getTypeIPM();
 
         for (Long employee_id: list) {
             message = "";
@@ -419,12 +420,12 @@ public class SIZController {
                 } else {
                     message = "Выбран несуществующий тип СИЗ";
                 }
+                int issued_number = number-employeesSIZ.size();
                 if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
-                    if (issuedSIZS.size() < number) {
-                        message = "Для " + employee.getSurname() + " " + employee.getName() + " СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + number + " запрошенных";
-                        number = issuedSIZS.size();
+                    if (issuedSIZS.size() < issued_number) {
+                        message = "Для " + employee.getSurname() + " " + employee.getName() + " СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + issued_number + " запрошенных";
                     }
-                    for (int i = 0; i < number; i++) {
+                    for (int i = 0; i < issued_number; i++) {
                         IssuedSIZ siz = issuedSIZS.get(i);
 
                         siz.setEmployee(employee);
@@ -869,7 +870,7 @@ public class SIZController {
         c.setTime(dateIssued);
         c.add(Calendar.MONTH, serviceLife);
         Date dateEndWear = c.getTime();
-        String typeSIZ = ipmStandard.getTypeIPM();
+        String typeSIZ = ipmStandard.getIndividualProtectionMeans().getTypeIPM();
 
         Long employee_id = employeeForIssuedSIZ.getId();
         message = "";
@@ -894,11 +895,11 @@ public class SIZController {
                 message = "Выбран несуществующий тип СИЗ";
             }
             if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
-                if (issuedSIZS.size() < number) {
-                    message = "Для " + employeeForIssuedSIZ.getSurname() + " " + employeeForIssuedSIZ.getName() + " СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + number + " запрошенных";
-                    number = issuedSIZS.size();
+                int issued_number = number-employeesSIZ.size();
+                if (issuedSIZS.size() < issued_number) {
+                    message = "Для " + employeeForIssuedSIZ.getSurname() + " " + employeeForIssuedSIZ.getName() + " СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + issued_number + " запрошенных";
                 }
-                for (int i = 0; i < number; i++) {
+                for (int i = 0; i < issued_number; i++) {
                     IssuedSIZ siz = issuedSIZS.get(i);
                     siz.setEmployee(employeeForIssuedSIZ);
                     siz.setDateIssued(dateIssued);

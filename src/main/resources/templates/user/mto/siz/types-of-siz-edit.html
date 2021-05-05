@@ -36,6 +36,19 @@
                     </div>
                 </div>
 
+                <div class="container mt-1 col-md-12">
+                    <label class="md-2" for="typeIPM">Тип СИЗ</label>
+                    <select class="form-select" aria-label="example" th:value="*{typeIPM}" name="typeIPM" id="typeIPM" required>
+                        <option value="Одежда">Одежда</option>
+                        <option value="Головной убор">Головной убор</option>
+                        <option value="Обувь">Обувь</option>
+                        <option value="Противогаз">Противогаз</option>
+                        <option value="Респиратор">Респиратор</option>
+                        <option value="Перчатки">Перчатки</option>
+                        <option value="Рукавицы">Рукавицы</option>
+                    </select>
+                </div>
+
                 <div class="container mt-1 form-actions floatRight">
                     <a th:href="'/userPage/siz-types'" class="btn btn-primary mx-auto">Назад</a>
                     <button type="submit" class="btn btn-success">Сохранить</button>
