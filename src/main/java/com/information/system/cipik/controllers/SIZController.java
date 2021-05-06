@@ -42,6 +42,8 @@ public class SIZController {
     IssuedSIZRepository issuedSIZRepository;
     @Autowired
     ItemsRepository itemsRepository;
+    @Autowired
+    SizeSizRepository sizeSizRepository;
 
     private Iterable<Post> listPosts;
     private Post postAddToNorm;
@@ -131,9 +133,66 @@ public class SIZController {
                 list.add(new SizeSiz(ipm,"52-54","5-6"));
                 list.add(new SizeSiz(ipm,"52-54","7-8"));
                 list.add(new SizeSiz(ipm,"56-58","1-2"));
+                list.add(new SizeSiz(ipm,"56-58","3-4"));
+                list.add(new SizeSiz(ipm,"56-58","5-6"));
+                list.add(new SizeSiz(ipm,"56-58","7-8"));
+                list.add(new SizeSiz(ipm,"60-62","1-2"));
+                list.add(new SizeSiz(ipm,"60-62","3-4"));
+                list.add(new SizeSiz(ipm,"60-62","5-6"));
+                list.add(new SizeSiz(ipm,"60-62","7-8"));
+            }
+            if (ipm.getTypeIPM().equals("Обувь")){
+                for (int i = 0; i < 15; i++) {
+                    list.add(new SizeSiz(ipm,(35+i)+"",""));
+                }
+            }
+            if (ipm.getTypeIPM().equals("Головной убор")){
+                for (int i = 0; i < 17; i++) {
+                    list.add(new SizeSiz(ipm,(50+i)+"",""));
+                }
+            }
+            if (ipm.getTypeIPM().equals("Перчатки")){
+                list.add(new SizeSiz(ipm,"7.0",""));
+                list.add(new SizeSiz(ipm,"7.5",""));
+                list.add(new SizeSiz(ipm,"8.0",""));
+                list.add(new SizeSiz(ipm,"8.5",""));
+                list.add(new SizeSiz(ipm,"9.0",""));
+                list.add(new SizeSiz(ipm,"9.5",""));
+                list.add(new SizeSiz(ipm,"10.0",""));
+                list.add(new SizeSiz(ipm,"10.5",""));
+                list.add(new SizeSiz(ipm,"11.0",""));
+                list.add(new SizeSiz(ipm,"11.5",""));
+                list.add(new SizeSiz(ipm,"12.0",""));
+            }
+            if (ipm.getTypeIPM().equals("Рукавицы")){
+                list.add(new SizeSiz(ipm,"6.0",""));
+                list.add(new SizeSiz(ipm,"6.5",""));
+                list.add(new SizeSiz(ipm,"7.0",""));
+                list.add(new SizeSiz(ipm,"7.5",""));
+                list.add(new SizeSiz(ipm,"8.0",""));
+                list.add(new SizeSiz(ipm,"8.5",""));
+                list.add(new SizeSiz(ipm,"9.0",""));
+                list.add(new SizeSiz(ipm,"9.5",""));
+            }
+            if (ipm.getTypeIPM().equals("Респиратор")){
+                list.add(new SizeSiz(ipm,"1",""));
+                list.add(new SizeSiz(ipm,"2",""));
+                list.add(new SizeSiz(ipm,"3",""));
+            }
+            if (ipm.getTypeIPM().equals("Противогаз")){
+                list.add(new SizeSiz(ipm,"0",""));
+                list.add(new SizeSiz(ipm,"1",""));
+                list.add(new SizeSiz(ipm,"2",""));
+                list.add(new SizeSiz(ipm,"3",""));
+                list.add(new SizeSiz(ipm,"4",""));
             }
         }
-        list.add(new SizeSiz());
+        System.out.println(list.size());
+        for (SizeSiz s: list) {
+            sizeSizRepository.save(s);
+        }
+
+
 
         return "user/mto/siz/norms/siz-norms";
     }
