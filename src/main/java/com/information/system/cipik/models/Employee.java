@@ -28,7 +28,7 @@ public class Employee {
     private Date dataStartWork;
     private String height, clothingSize, headgearSize, shoeSize, sex;
 
-    private String gasMaskSize, respiratorSize,mittensSize,gloveSize;  // not used
+    private String gasMaskSize, respiratorSize, mittensSize, gloveSize;  // not used
 
     private String addres, telephone;  //not used
     private Date endWork, birthdayDate;  //not used

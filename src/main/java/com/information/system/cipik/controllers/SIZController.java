@@ -109,6 +109,32 @@ public class SIZController {
         }
         model.addAttribute("selected", postAddToNorm);
         model.addAttribute("norms", normas);
+
+        List<SizeSiz> list = new ArrayList<>();
+        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
+        for (IndividualProtectionMeans ipm: individualProtectionMeans) {
+            if (ipm.getTypeIPM().equals("Одежда")){
+                list.add(new SizeSiz(ipm,"40-42","1-2"));
+                list.add(new SizeSiz(ipm,"40-42","3-4"));
+                list.add(new SizeSiz(ipm,"40-42","5-6"));
+                list.add(new SizeSiz(ipm,"40-42","7-8"));
+                list.add(new SizeSiz(ipm,"44-46","1-2"));
+                list.add(new SizeSiz(ipm,"44-46","3-4"));
+                list.add(new SizeSiz(ipm,"44-46","5-6"));
+                list.add(new SizeSiz(ipm,"44-46","7-8"));
+                list.add(new SizeSiz(ipm,"48-50","1-2"));
+                list.add(new SizeSiz(ipm,"48-50","3-4"));
+                list.add(new SizeSiz(ipm,"48-50","5-6"));
+                list.add(new SizeSiz(ipm,"48-50","7-8"));
+                list.add(new SizeSiz(ipm,"52-54","1-2"));
+                list.add(new SizeSiz(ipm,"52-54","3-4"));
+                list.add(new SizeSiz(ipm,"52-54","5-6"));
+                list.add(new SizeSiz(ipm,"52-54","7-8"));
+                list.add(new SizeSiz(ipm,"56-58","1-2"));
+            }
+        }
+        list.add(new SizeSiz());
+
         return "user/mto/siz/norms/siz-norms";
     }
 

@@ -1,5 +1,6 @@
 package com.information.system.cipik.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +31,11 @@ public class IndividualProtectionMeans {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "siz_id")
     private List<IssuedSIZ> issuedSIZS;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "individual_protection_means_id")
+    @JsonIgnore
+    private List<SizeSiz> sizeSizs;
 
     public IndividualProtectionMeans(String nameSIZ, String ed_izm, String typeIPM) {
         this.nameSIZ = nameSIZ;
