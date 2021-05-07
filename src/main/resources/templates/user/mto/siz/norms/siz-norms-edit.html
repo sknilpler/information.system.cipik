@@ -24,7 +24,7 @@
                 <div class="col-sm-6">
                     <label class="md-2" for="dropSIZ">СИЗ</label>
                     <select class="form-control" id="dropSIZ" name="dropSIZ" required>
-                        <option value="">Выберите СИЗ</option>
+                        <option selected disabled value="">Выберите СИЗ</option>
                         <option th:each="siz : ${sizs}" th:value="${siz.id}"
                                 th:text="${siz.nameSIZ}+', '+${siz.ed_izm}"></option>
                     </select>

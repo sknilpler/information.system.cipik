@@ -112,85 +112,85 @@ public class SIZController {
         model.addAttribute("selected", postAddToNorm);
         model.addAttribute("norms", normas);
 
-        List<SizeSiz> list = new ArrayList<>();
-        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
-        for (IndividualProtectionMeans ipm: individualProtectionMeans) {
-            if (ipm.getTypeIPM().equals("Одежда")){
-                list.add(new SizeSiz(ipm,"40-42","1-2"));
-                list.add(new SizeSiz(ipm,"40-42","3-4"));
-                list.add(new SizeSiz(ipm,"40-42","5-6"));
-                list.add(new SizeSiz(ipm,"40-42","7-8"));
-                list.add(new SizeSiz(ipm,"44-46","1-2"));
-                list.add(new SizeSiz(ipm,"44-46","3-4"));
-                list.add(new SizeSiz(ipm,"44-46","5-6"));
-                list.add(new SizeSiz(ipm,"44-46","7-8"));
-                list.add(new SizeSiz(ipm,"48-50","1-2"));
-                list.add(new SizeSiz(ipm,"48-50","3-4"));
-                list.add(new SizeSiz(ipm,"48-50","5-6"));
-                list.add(new SizeSiz(ipm,"48-50","7-8"));
-                list.add(new SizeSiz(ipm,"52-54","1-2"));
-                list.add(new SizeSiz(ipm,"52-54","3-4"));
-                list.add(new SizeSiz(ipm,"52-54","5-6"));
-                list.add(new SizeSiz(ipm,"52-54","7-8"));
-                list.add(new SizeSiz(ipm,"56-58","1-2"));
-                list.add(new SizeSiz(ipm,"56-58","3-4"));
-                list.add(new SizeSiz(ipm,"56-58","5-6"));
-                list.add(new SizeSiz(ipm,"56-58","7-8"));
-                list.add(new SizeSiz(ipm,"60-62","1-2"));
-                list.add(new SizeSiz(ipm,"60-62","3-4"));
-                list.add(new SizeSiz(ipm,"60-62","5-6"));
-                list.add(new SizeSiz(ipm,"60-62","7-8"));
-            }
-            if (ipm.getTypeIPM().equals("Обувь")){
-                for (int i = 0; i < 15; i++) {
-                    list.add(new SizeSiz(ipm,(35+i)+"",""));
-                }
-            }
-            if (ipm.getTypeIPM().equals("Головной убор")){
-                for (int i = 0; i < 17; i++) {
-                    list.add(new SizeSiz(ipm,(50+i)+"",""));
-                }
-            }
-            if (ipm.getTypeIPM().equals("Перчатки")){
-                list.add(new SizeSiz(ipm,"7.0",""));
-                list.add(new SizeSiz(ipm,"7.5",""));
-                list.add(new SizeSiz(ipm,"8.0",""));
-                list.add(new SizeSiz(ipm,"8.5",""));
-                list.add(new SizeSiz(ipm,"9.0",""));
-                list.add(new SizeSiz(ipm,"9.5",""));
-                list.add(new SizeSiz(ipm,"10.0",""));
-                list.add(new SizeSiz(ipm,"10.5",""));
-                list.add(new SizeSiz(ipm,"11.0",""));
-                list.add(new SizeSiz(ipm,"11.5",""));
-                list.add(new SizeSiz(ipm,"12.0",""));
-            }
-            if (ipm.getTypeIPM().equals("Рукавицы")){
-                list.add(new SizeSiz(ipm,"6.0",""));
-                list.add(new SizeSiz(ipm,"6.5",""));
-                list.add(new SizeSiz(ipm,"7.0",""));
-                list.add(new SizeSiz(ipm,"7.5",""));
-                list.add(new SizeSiz(ipm,"8.0",""));
-                list.add(new SizeSiz(ipm,"8.5",""));
-                list.add(new SizeSiz(ipm,"9.0",""));
-                list.add(new SizeSiz(ipm,"9.5",""));
-            }
-            if (ipm.getTypeIPM().equals("Респиратор")){
-                list.add(new SizeSiz(ipm,"1",""));
-                list.add(new SizeSiz(ipm,"2",""));
-                list.add(new SizeSiz(ipm,"3",""));
-            }
-            if (ipm.getTypeIPM().equals("Противогаз")){
-                list.add(new SizeSiz(ipm,"0",""));
-                list.add(new SizeSiz(ipm,"1",""));
-                list.add(new SizeSiz(ipm,"2",""));
-                list.add(new SizeSiz(ipm,"3",""));
-                list.add(new SizeSiz(ipm,"4",""));
-            }
-        }
-        System.out.println(list.size());
-        for (SizeSiz s: list) {
-            sizeSizRepository.save(s);
-        }
+//        List<SizeSiz> list = new ArrayList<>();
+//        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
+//        for (IndividualProtectionMeans ipm: individualProtectionMeans) {
+//            if (ipm.getTypeIPM().equals("Одежда")){
+//                list.add(new SizeSiz(ipm,"40-42","1-2"));
+//                list.add(new SizeSiz(ipm,"40-42","3-4"));
+//                list.add(new SizeSiz(ipm,"40-42","5-6"));
+//                list.add(new SizeSiz(ipm,"40-42","7-8"));
+//                list.add(new SizeSiz(ipm,"44-46","1-2"));
+//                list.add(new SizeSiz(ipm,"44-46","3-4"));
+//                list.add(new SizeSiz(ipm,"44-46","5-6"));
+//                list.add(new SizeSiz(ipm,"44-46","7-8"));
+//                list.add(new SizeSiz(ipm,"48-50","1-2"));
+//                list.add(new SizeSiz(ipm,"48-50","3-4"));
+//                list.add(new SizeSiz(ipm,"48-50","5-6"));
+//                list.add(new SizeSiz(ipm,"48-50","7-8"));
+//                list.add(new SizeSiz(ipm,"52-54","1-2"));
+//                list.add(new SizeSiz(ipm,"52-54","3-4"));
+//                list.add(new SizeSiz(ipm,"52-54","5-6"));
+//                list.add(new SizeSiz(ipm,"52-54","7-8"));
+//                list.add(new SizeSiz(ipm,"56-58","1-2"));
+//                list.add(new SizeSiz(ipm,"56-58","3-4"));
+//                list.add(new SizeSiz(ipm,"56-58","5-6"));
+//                list.add(new SizeSiz(ipm,"56-58","7-8"));
+//                list.add(new SizeSiz(ipm,"60-62","1-2"));
+//                list.add(new SizeSiz(ipm,"60-62","3-4"));
+//                list.add(new SizeSiz(ipm,"60-62","5-6"));
+//                list.add(new SizeSiz(ipm,"60-62","7-8"));
+//            }
+//            if (ipm.getTypeIPM().equals("Обувь")){
+//                for (int i = 0; i < 15; i++) {
+//                    list.add(new SizeSiz(ipm,(35+i)+"",""));
+//                }
+//            }
+//            if (ipm.getTypeIPM().equals("Головной убор")){
+//                for (int i = 0; i < 17; i++) {
+//                    list.add(new SizeSiz(ipm,(50+i)+"",""));
+//                }
+//            }
+//            if (ipm.getTypeIPM().equals("Перчатки")){
+//                list.add(new SizeSiz(ipm,"7.0",""));
+//                list.add(new SizeSiz(ipm,"7.5",""));
+//                list.add(new SizeSiz(ipm,"8.0",""));
+//                list.add(new SizeSiz(ipm,"8.5",""));
+//                list.add(new SizeSiz(ipm,"9.0",""));
+//                list.add(new SizeSiz(ipm,"9.5",""));
+//                list.add(new SizeSiz(ipm,"10.0",""));
+//                list.add(new SizeSiz(ipm,"10.5",""));
+//                list.add(new SizeSiz(ipm,"11.0",""));
+//                list.add(new SizeSiz(ipm,"11.5",""));
+//                list.add(new SizeSiz(ipm,"12.0",""));
+//            }
+//            if (ipm.getTypeIPM().equals("Рукавицы")){
+//                list.add(new SizeSiz(ipm,"6.0",""));
+//                list.add(new SizeSiz(ipm,"6.5",""));
+//                list.add(new SizeSiz(ipm,"7.0",""));
+//                list.add(new SizeSiz(ipm,"7.5",""));
+//                list.add(new SizeSiz(ipm,"8.0",""));
+//                list.add(new SizeSiz(ipm,"8.5",""));
+//                list.add(new SizeSiz(ipm,"9.0",""));
+//                list.add(new SizeSiz(ipm,"9.5",""));
+//            }
+//            if (ipm.getTypeIPM().equals("Респиратор")){
+//                list.add(new SizeSiz(ipm,"1",""));
+//                list.add(new SizeSiz(ipm,"2",""));
+//                list.add(new SizeSiz(ipm,"3",""));
+//            }
+//            if (ipm.getTypeIPM().equals("Противогаз")){
+//                list.add(new SizeSiz(ipm,"0",""));
+//                list.add(new SizeSiz(ipm,"1",""));
+//                list.add(new SizeSiz(ipm,"2",""));
+//                list.add(new SizeSiz(ipm,"3",""));
+//                list.add(new SizeSiz(ipm,"4",""));
+//            }
+//        }
+//        System.out.println(list.size());
+//        for (SizeSiz s: list) {
+//            sizeSizRepository.save(s);
+//        }
 
 
 
@@ -242,10 +242,11 @@ public class SIZController {
     }
 
     @PostMapping("/userPage/siz/norms/{id}/edit")
-    public String normsUpdate(@PathVariable(value = "id") long id, @RequestParam Rashodniki dropSIZ, @RequestParam int issuanceRate,
+    public String normsUpdate(@PathVariable(value = "id") long id, @RequestParam Long dropSIZ, @RequestParam int issuanceRate,
                               @RequestParam int serviceLife, @RequestParam String regulatoryDocuments, Model model) {
-        System.out.println(dropSIZ.getName());
+        IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElseThrow();
         IPMStandard norma = ipmStandardRepository.findById(id).orElseThrow();
+        norma.setIndividualProtectionMeans(siz);
         norma.setIssuanceRate(issuanceRate);
         norma.setServiceLife(serviceLife);
         norma.setRegulatoryDocuments(regulatoryDocuments);
