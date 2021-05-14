@@ -62,18 +62,18 @@
                 <table class="table table-hover" id="tb">
                     <thead>
                     <tr>
-                        <th style="width: 19%;">Наименование СИЗ</th>
-                        <th style="width: 10%;">Размер</th>
-                        <th style="width: 19%;">Рост</th>
-                        <th style="width: 15%;">Кол-во</th>
+                        <th>Наименование СИЗ</th>
+                        <th>Рост</th>
+                        <th>Размер</th>
+                        <th>Кол-во</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="s : ${siz}">
-                        <td th:text="${s.name}"></td>
-                        <td th:text="${s.size}"></td>
+                    <tr th:each="s : ${ipms}">
+                        <td th:text="${s.namesiz}"></td>
                         <td th:text="${s.height}"></td>
-                        <td th:text="${s.number}"></td>
+                        <td th:text="${s.size}"></td>
+                        <td th:text="${s.numPurchase}"></td>
                     </tr>
                     </tbody>
                 </table>

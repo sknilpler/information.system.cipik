@@ -118,4 +118,35 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
             " ipmstandard.id = :id_ipm_st", nativeQuery = true)
     int getCountByEmployeeIdAndIPMStandart(@Param("id_ipm_st") Long id_ipm,@Param("emp_id") Long id_emp);
 
+    @Query(value = "SELECT s.id, s.namesiz, t.height, t.size, SUM(i.issuance_rate) as numAll, \n" +
+            "(SELECT COUNT(issuedsiz.id) FROM issuedsiz\n" +
+            "WHERE issuedsiz.size = t.size AND\n" +
+            "      issuedsiz.height=t.height AND\n" +
+            "      issuedsiz.siz_id=s.id AND\n" +
+            "      issuedsiz.employee_id IS NOT null AND\n" +
+            "      issuedsiz.status = \"Выдано\") as numIssued\n" +
+            "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t\n" +
+            "WHERE e.post_id = p.id AND\n" +
+            "i.post_id = p.id AND\n" +
+            "i.individual_protection_means_id = s.id AND\n" +
+            "s.id = t.individual_protection_means_id AND\n" +
+            "IF(s.typeipm = \"Одежда\",\n" +
+            "t.height = e.height AND\n" +
+            "t.size = e.clothing_size,\n" +
+            "IF(s.typeipm = \"Обувь\",\n" +
+            "t.size = e.shoe_size,\n" +
+            "       IF(s.typeipm = \"Головной убор\",\n" +
+            "       t.size = e.headgear_size,\n" +
+            "          IF(s.typeipm = \"Перчатки\",\n" +
+            "          t.size = e.glove_size,\n" +
+            "            IF(s.typeipm = \"Рукавицы\",\n" +
+            "            t.size = e.mittens_size,\n" +
+            "              IF(s.typeipm = \"Противогаз\",\n" +
+            "              t.size = e.gas_mask_size,\n" +
+            "                IF(s.typeipm = \"Респиратор\",\n" +
+            "                t.size = e.respirator_size,NULL)))))))  \n" +
+            "GROUP BY 1,3,4,6 \n"+
+            "ORDER BY 2,3,4",nativeQuery = true)
+    List<Object[]> getAllSIZForPurchase();
+
 }
