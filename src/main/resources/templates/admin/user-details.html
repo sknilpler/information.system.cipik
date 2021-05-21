@@ -4,6 +4,7 @@
     <title>Панель администратора</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
 </head>
 <body>
@@ -27,11 +28,12 @@
 
                     <table class="table table-hover">
                         <thead>
-                        <th style="5%">
-                            <input type="checkbox" name="all-checkbox"  th:onchange="'javascript:selectAllRecord(this);'" >
-                        </th>
                         <tr>
-                            <th >Наименование</th>
+                            <th>
+                                <input type="checkbox" name="all-checkbox"
+                                       th:onchange="'javascript:selectAllRecord(this);'">
+                            </th>
+                            <th>Наименование</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -46,7 +48,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" name="saveBtn" class="btn btn-primary btn-sm" data-dismiss="modal" onclick="saveNewRoles()">
+                <button type="button" name="saveBtn" class="btn btn-primary btn-sm" data-dismiss="modal" onclick="saveNewRoles()" disabled>
                     Подтвердить
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
@@ -56,36 +58,40 @@
         </div>
     </div>
 </div>
-
-<div th:fragment="user-info" class="container mt-5" th:each="el : ${user}">
-    <div class="alert alert-info mt-2">
-        <h1 th:text="${el.username}"/>
-        <h5>Роли:</h5>
-        <div th:each="r : ${el.roles}">
-            <div class="d-flex justify-content-start flex-wrap">
-                <li th:text="${r.name}+' '"></li>
-                <span th:unless="${el.roles.contains(var_AdminRole)}">
-                    <form th:action="'/admin/all-users/user-details/' + ${el.id} +'/remove-role/'+${r.id}" method="post">
-                        <button class="btn btn-danger btn-sm rounded-2" type="submit" data-toggle="tooltip" data-placement="top"
-                             title="" data-original-title="Delete">
-                            <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"
-                                 height="16">
+<div class="user-info" th:fragment="user-info">
+    <div class="container mt-5" th:each="el : ${user}">
+        <div class="alert alert-info mt-2">
+            <h1 th:text="${el.username}"/>
+            <h5>Роли:</h5>
+            <div th:each="r : ${el.roles}">
+                <div class="d-flex justify-content-start flex-wrap">
+                    <li th:text="${r.name}+' '"></li>
+                    <span th:unless="${el.roles.contains(var_AdminRole)}">
+                        <span>
+                            <i>  </i>
+                        </span>
+                        <button class="btn btn-danger btn-sm rounded-2" type="button" data-toggle="tooltip"
+                                data-placement="top"
+                                title="" data-original-title="Delete" th:onclick="'javascript:deleteRole(\'' + ${el.id} + '\',\'' + ${r.id} + '\');'">
+<!--                            <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"-->
+<!--                                 height="16">-->
+                            <span aria-hidden="true">×</span>
                         </button>
-                    </form>
             </span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="d-flex justify-content-start flex-wrap">
-        <form class="form-row">
-            <a th:href="'/admin/all-users'" class="btn btn-secondary mx-auto">Назад</a>
-        </form>
-        <span th:unless="${el.roles.contains(var_AdminRole)}">
+        <div class="d-flex justify-content-start flex-wrap">
+            <form class="form-row">
+                <a th:href="'/admin/all-users'" class="btn btn-secondary mx-auto">Назад</a>
+            </form>
+            <span th:unless="${el.roles.contains(var_AdminRole)}">
                 <button class="btn btn-warning mx-1" th:onclick="'javascript:showModalWindow(\'' + ${el.id} + '\');'">Добавить роль</button>
         </span>
-        <form th:action="'/admin/all-users/user-details/' + ${el.id} +'/remove'" method="post">
-            <button class="btn btn-danger mx-1" type="submit">Удалить</button>
-        </form>
+            <form th:action="'/admin/all-users/user-details/' + ${el.id} +'/remove'" method="post">
+                <button class="btn btn-danger mx-1" type="submit">Удалить</button>
+            </form>
+        </div>
     </div>
 </div>
 <script th:inline="javascript">
@@ -150,7 +156,16 @@ function saveNewRoles(){
 		},
 	})
 }
-
+///////////////////////////////
+function deleteRole(u_id,r_id){
+    $.ajax({
+		type: 'post',
+		url: '/admin/all-users/user-details/' + u_id +'/remove-role/'+r_id,
+		success: function(data) {
+			$('.user-info').html(data);
+		},
+	})
+}
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

@@ -1,14 +1,24 @@
 package com.information.system.cipik.controllers;
 
+import com.information.system.cipik.models.Komplex;
+import com.information.system.cipik.repo.KomplexRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class MainController {
+    @Autowired
+    KomplexRepository komplexRepository;
 
     @GetMapping("/")
     public String home(Model model) {
+        Iterable<Komplex> komplexes = komplexRepository.findAll();
+        for (Komplex k: komplexes) {
+            System.out.println(k.getShortName()+", "+k.getRole().getName());
+        }
+        model.addAttribute("komplexes",komplexes);
         model.addAttribute("title", "Главная страница");
         return "home";
     }

@@ -15,10 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 public class AdminController {
@@ -61,6 +58,20 @@ public class AdminController {
         ArrayList<User> res = new ArrayList<>();
         user.ifPresent(res::add);
         model.addAttribute("user", res);
+        Iterable<Role> roles = roleRepository.findAll();
+        //удаление из списка ролей тех что уже назначены пользователю
+        Iterator<Role> itr = roles.iterator();
+        List<Role> userRoles = new ArrayList<>(res.get(0).getRoles());
+        //цикл удаления
+        while (itr.hasNext()) {
+            Role role = itr.next();
+            for (Role r:userRoles) {
+                if (r.equals(role)) {
+                    itr.remove();
+                }
+            }
+        }
+        model.addAttribute("roles", roles);
         //Создаем объект var_AdminRole и добавляем его в атрибуты страницы.
         //чтобы потом определять пользователей у которого есть такая роль и не выводить кнопку "Сделать администратором" на странице user-details
         Role var_AdminRole = new Role(2L, "ROLE_ADMIN");
@@ -97,6 +108,34 @@ public class AdminController {
         user.setRoles(Collections.singleton(role));
         userService.saveUser(user);
         return "redirect:/admin/all-users";
+    }
+
+    @PostMapping("/admin/all-users/user-details/{user_id}/add_roles/{selRecs}")
+    public String addRolesToUser(@PathVariable(value = "user_id") long id, @PathVariable(value = "selRecs") List<Long> ids, Model model) {
+        User user = userRepository.findById(id).orElseThrow();
+        Set<Role> roles = new HashSet<>();
+        for (Long i: ids) {
+            roles.add(roleRepository.findById(i).orElseThrow());
+        }
+        roles.addAll(user.getRoles());
+        user.setRoles(roles);
+        userRepository.save(user);
+        ArrayList<User> res = new ArrayList<>();
+        res.add(user);
+        model.addAttribute("user",res);
+        return "admin/user-details :: user-info";
+    }
+
+    @PostMapping("/admin/all-users/user-details/{user_id}/remove-role/{role_id}")
+    public String deleteRoleFromUser(@PathVariable(value = "user_id") long u_id, @PathVariable(value = "role_id") long r_id, Model model) {
+        User user = userRepository.findById(u_id).orElseThrow();
+        Role role = roleRepository.findById(r_id).orElseThrow();
+        user.getRoles().remove(role);
+        userRepository.save(user);
+        ArrayList<User> res = new ArrayList<>();
+        res.add(user);
+        model.addAttribute("user",res);
+        return "admin/user-details :: user-info";
     }
 
 ////////////////центра///////////////
