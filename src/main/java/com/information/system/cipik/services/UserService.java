@@ -56,8 +56,6 @@ public class UserService implements UserDetailsService {
         }
         if (userRepository.count() == 0) {
             user.setRoles(Collections.singleton(new Role(1L, "ROLE_ADMIN")));
-        } else {
-            user.setRoles(Collections.singleton(new Role(2L, "ROLE_USER")));
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);

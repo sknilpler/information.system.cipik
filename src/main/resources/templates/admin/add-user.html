@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Администрирование</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h1>Добавление пользователя</h1>
+    <form th:action="'/admin/all-users/add-user/'" method="post">
+        <div class="container mt-1 md-12">
+            <label class="md-2" for="username">Имя пользователя</label>
+            <div class="md-7">
+                <input type="text" id="username" name="username" class="form-control"
+                       placeholder="Введите имя пользователя" required/>
+            </div>
+        </div>
+        <div class="container mt-1 md-12">
+            <label class="md-2" for="password">Пароль</label>
+            <div class="md-7">
+                <input type="password" id="password" name="password" class="form-control"
+                       placeholder="Введите пароль" required/>
+            </div>
+        </div>
+        <div class="container mt-1 md-12">
+            <label class="md-2 control-lable" for="dropRole">Роль</label>
+            <div class="md-7">
+                <select class="form-control" id="dropRole" name="dropRole" required>
+                    <option value="">Назначте роль</option>
+                    <option th:each="r : ${roles}" th:value="${r.id}"
+                            th:text="${r.name}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-1 form-actions floatRight">
+            <button type="submit" class="btn btn-success">Добавить</button>
+            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
+        </div>
+
+    </form>
+</div>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

@@ -27,15 +27,16 @@
                     <label for="purchasing-filter" class="form-label">Варианты отображения</label>
                     <select class="form-select" aria-label="example" name="purchasing-filter" id="purchasing-filter"
                             th:onchange="'javascript:filter(this.value);'">
-                        <option selected disabled value="">Выберите</option>
-                        <option value="all">По всем сотрудникам центра</option>
-                        <option value="by-komplex">По подразделениям</option>
-                        <option value="by-next-year">На следующий год</option>
+<!--                        <option selected disabled value="">Выберите</option>-->
+                        <option value="overall">Общая</option>
+                        <option selected value="now">На данный момент</option>
+                        <option value="next-year">На следующий год</option>
                     </select>
                 </div>
                 <div class="col-sm-3">
+                    <label for="komplex" class="form-label">Фильтр</label>
                     <select class="form-control" id="komplex" name="komplex"
-                            th:onchange="'javascript:filterByKomplex(this.value);'" disabled>
+                            th:onchange="'javascript:filterByKomplex(this.value);'">
                         <option selected disabled value="">Выберите подразделение</option>
                         <option th:each="k : ${komplexs}" th:value="${k.id}"
                                 th:text="${k.shortName}"></option>
@@ -83,6 +84,6 @@
         </div>
     </div>
 </div>
-
+<script type="text/javascript" src="/js/pagecontrol/purchasing-table.js"></script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

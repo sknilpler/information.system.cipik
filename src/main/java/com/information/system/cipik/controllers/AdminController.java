@@ -1,8 +1,10 @@
 package com.information.system.cipik.controllers;
 
+import com.ibm.icu.text.Transliterator;
 import com.information.system.cipik.models.*;
 import com.information.system.cipik.repo.*;
 import com.information.system.cipik.services.UserService;
+import org.apache.poi.poifs.macros.Module;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +33,8 @@ public class AdminController {
     UserRepository userRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RoleRepository roleRepository;
 
 //////////////пользователи created by Tashmetov Tahir////////////////////////
 
@@ -75,6 +80,22 @@ public class AdminController {
     public String delete_user(@PathVariable(value = "id") long id,Model model) {
         User user = userRepository.findById(id).orElseThrow();
         userRepository.delete(user);
+        return "redirect:/admin/all-users";
+    }
+
+    @GetMapping("/admin/all-users/add-user")
+    public String add_user(Model model) {
+        Iterable<Role> roles = roleRepository.findAll();
+        model.addAttribute("roles",roles);
+        return "admin/add-user";
+    }
+
+    @PostMapping("/admin/all-users/add-user")
+    public String save_user(@RequestParam String username, @RequestParam String password, @RequestParam Long dropRole, Model model) {
+        Role role = roleRepository.findById(dropRole).orElseThrow();
+        User user = new User(username, password, password);
+        user.setRoles(Collections.singleton(role));
+        userService.saveUser(user);
         return "redirect:/admin/all-users";
     }
 
@@ -132,7 +153,10 @@ public class AdminController {
     @PostMapping("/admin/komplexs/add")
     public String komplexAdd(@RequestParam String name, @RequestParam String shortName, @RequestParam String adres, @RequestParam Long dropCentr, Model model) {
         Centr centr = centrRepository.findById(dropCentr).orElseThrow();
-        Komplex komplex = new Komplex(name, adres, shortName, centr);
+        Transliterator toLatinTrans = Transliterator.getInstance("Russian-Latin/BGN");
+        Role role = new Role(toLatinTrans.transliterate("ROLE_"+shortName));
+        roleRepository.save(role);
+        Komplex komplex = new Komplex(name, adres, shortName, centr,role);
         komplexRepository.save(komplex);
         return "redirect:/admin/komplexs/add";
     }
@@ -152,6 +176,14 @@ public class AdminController {
     @PostMapping("/admin/komplexs/{id}/edit")
     public String komplexUpdate(@PathVariable(value = "id") long id, @RequestParam String name, @RequestParam String shortName, @RequestParam String adres, @RequestParam Centr centr, Model model) {
         Komplex komplex = komplexRepository.findById(id).orElseThrow();
+
+        if (komplex.getRole() == null){
+            Transliterator toLatinTrans = Transliterator.getInstance("Russian-Latin/BGN");
+            Role role = new Role(toLatinTrans.transliterate("ROLE_"+shortName));
+            roleRepository.save(role);
+            komplex.setRole(role);
+        }
+
         komplex.setName(name);
         komplex.setShortName(shortName);
         komplex.setAdres(adres);

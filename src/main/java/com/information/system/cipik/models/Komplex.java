@@ -27,6 +27,10 @@ public class Komplex {
     @ManyToOne
     private Centr centr;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "role_id")
+    private Role role;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "komplex_id")
     private List<Otdel> otdels;
@@ -36,12 +40,14 @@ public class Komplex {
     private List<Employee> employees;
 
 
-    public Komplex(String name, String adres, String shortName, Centr centr) {
+    public Komplex(String name, String adres, String shortName, Centr centr, Role role) {
         this.name = name;
         this.adres = adres;
         this.centr = centr;
         this.shortName = shortName;
         this.otdels = otdels;
+
+        this.role = role;
     }
 
 

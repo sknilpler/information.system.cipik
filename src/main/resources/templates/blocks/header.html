@@ -8,11 +8,11 @@
         <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
             <a class="nav-link p-2 text-dark" href="/">Главная</a>
             <a class="nav-link p-2 text-dark" href="/about">О нас</a>
-            <a sec:authorize="!isAuthenticated()" class="nav-link p-2 text-dark" href="/login">Вход</a>
+<!--            <a sec:authorize="!isAuthenticated()" class="nav-link p-2 text-dark" href="/login">Вход</a>-->
             <a sec:authorize="hasRole('ROLE_ADMIN')" class="nav-link p-2 text-dark" href="/admin">Администрирование</a>
         </ul>
 
-        <a sec:authorize="!isAuthenticated()" class="btn btn-outline-primary" href="/registration">Зарегистрироваться</a>
+        <a sec:authorize="!isAuthenticated()" class="btn btn-outline-primary" href="/login">Вход</a>
         <form th:action="@{/logout}" method="post">
             <input sec:authorize="isAuthenticated()" type="submit" class="btn btn-outline-primary" value="Выход"/>
         </form>

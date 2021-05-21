@@ -62,8 +62,8 @@ public class SIZController {
 
 
     @PostMapping("/userPage/siz-types")
-    public String addSIZ(@RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, Model model) {
-        IndividualProtectionMeans individualProtectionMeans = new IndividualProtectionMeans(nameSIZ, ed_izm,typeIPM);
+    public String addSIZ(@RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, @RequestParam String nomenclatureNumber, Model model) {
+        IndividualProtectionMeans individualProtectionMeans = new IndividualProtectionMeans(nameSIZ, ed_izm, typeIPM, nomenclatureNumber);
         sizRepository.save(individualProtectionMeans);
         return "redirect:/userPage/siz-types";
     }
@@ -79,9 +79,10 @@ public class SIZController {
     }
 
     @PostMapping("/userPage/siz-types/{id}/edit")
-    public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, Model model) {
+    public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, @RequestParam String nomenclatureNumber, Model model) {
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
         individualProtectionMeans.setNameSIZ(nameSIZ);
+        individualProtectionMeans.setNomenclatureNumber(nomenclatureNumber);
         individualProtectionMeans.setEd_izm(ed_izm);
         individualProtectionMeans.setTypeIPM(typeIPM);
         sizRepository.save(individualProtectionMeans);

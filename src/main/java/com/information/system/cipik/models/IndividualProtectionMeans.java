@@ -23,6 +23,7 @@ public class IndividualProtectionMeans {
     private String nameSIZ;
     private String ed_izm;
     private String typeIPM;
+    private String nomenclatureNumber;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "individual_protection_means_id")
@@ -37,9 +38,10 @@ public class IndividualProtectionMeans {
     @JsonIgnore
     private List<SizeSiz> sizeSizs;
 
-    public IndividualProtectionMeans(String nameSIZ, String ed_izm, String typeIPM) {
+    public IndividualProtectionMeans(String nameSIZ, String ed_izm, String typeIPM, String nomenclatureNumber) {
         this.nameSIZ = nameSIZ;
         this.ed_izm = ed_izm;
         this.typeIPM = typeIPM;
+        this.nomenclatureNumber = nomenclatureNumber;
     }
 }
