@@ -18,12 +18,12 @@
                 </button>
                 <div class="collapse" id="home-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                        <li><a sec:authorize="hasAnyRole('ROLE_USER','ROLE_IP-1')" href="/userPage/issued-siz" class="link-dark rounded">Выдача</a></li><br>
-                        <li><a sec:authorize="hasRole('ROLE_USER')" href="/userPage/not-issued-siz" class="link-dark rounded">Склад</a></li><br>
-                        <li><a sec:authorize="hasRole('ROLE_USER')" href="/userPage/siz/norms" class="link-dark rounded">Нормы</a></li><br>
-                        <li><a sec:authorize="hasRole('ROLE_USER')" href="/userPage/siz-types" class="link-dark rounded">Типы</a></li><br>
-                        <li><a sec:authorize="hasRole('ROLE_USER')" href="/userPage/employee-siz" class="link-dark rounded">Укомплектованность<br>сотрудников</a></li><br>
-                        <li><a sec:authorize="hasRole('ROLE_USER')" href="/userPage/purchasing-table" class="link-dark rounded">Закупочная<br>таблица</a></li>
+                        <li><a sec:authorize="isAuthenticated()" href="/userPage/issued-siz" class="link-dark rounded">Выдача</a></li><br>
+                        <li><a sec:authorize="isAuthenticated()" href="/userPage/not-issued-siz" class="link-dark rounded">Склад</a></li><br>
+                        <li><a sec:authorize="isAuthenticated()" href="/userPage/employee-siz" class="link-dark rounded">Укомплектованность<br>сотрудников</a></li><br>
+                        <li><a sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')" href="/userPage/siz/norms" class="link-dark rounded">Нормы</a></li><br>
+                        <li><a sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')" href="/userPage/siz-types" class="link-dark rounded">Типы</a></li><br>
+                        <li><a sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')" href="/userPage/purchasing-table" class="link-dark rounded">Закупочная<br>таблица</a></li>
                     </ul>
                 </div>
             </li>
@@ -35,7 +35,7 @@
                 </button>
                 <div class="collapse" id="dashboard-collapse" style="">
                     <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                        <li><a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/employee/employees-all'" class="link-dark rounded">Список</a></li>
+                        <li><a sec:authorize="isAuthenticated()" th:href="'/userPage/employee/employees-all'" class="link-dark rounded">Список</a></li>
                     </ul>
                 </div>
             </li>

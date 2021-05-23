@@ -41,6 +41,20 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "    ) LIKE %:keyword% AND e.post_id = p.id AND e.komplex_id = k.id", nativeQuery = true)
     Iterable<Employee> findAllByPostAndKomplexAndKeyword(@Param("keyword") String keyword);
 
+    @Query(value = "SELECT\n" +
+            "    e.*\n" +
+            " FROM\n" +
+            "    employee e,\n" +
+            "    post p,\n" +
+            " WHERE\n" +
+            "    CONCAT(\n" +
+            "        e.name,\n" +
+            "        e.surname,\n" +
+            "        e.patronymic,\n" +
+            "        p.post_name,\n" +
+            "    ) LIKE %:keyword% AND e.post_id = p.id AND e.komplex_id =:id", nativeQuery = true)
+    Iterable<Employee> findAllByPostAndKomplexIdAndKeyword(@Param("keyword") String keyword, @Param("id") Long id);
+
     @Query(value = "SELECT employee.*\n" +
             "FROM employee\n" +
             "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate \n"+
@@ -72,6 +86,13 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
     Iterable<Employee> getFullStaffingOfEmployee();
 
+    @Query(value = "SELECT e.* FROM employee e\n" +
+            " WHERE (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id AND issuedsiz.status LIKE \"Выдано\")/\n" +
+            " (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard \n" +
+            " WHERE ipmstandard.post_id = e.post_id)*100),0)=100) AND e.komplex_id = :id\n"+
+            "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
+    Iterable<Employee> getFullStaffingOfEmployeeByKomplex(@Param("id") Long id);
+
     @Query(value = "SELECT e.* FROM employee e WHERE (\n" +
             "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "        (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard \n" +
@@ -81,6 +102,17 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "         WHERE ipmstandard.post_id = e.post_id)*100),0)<100) \n"+
             "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
     Iterable<Employee> getNotFullStaffingOfEmployee();
+
+    @Query(value = "SELECT e.* FROM employee e WHERE (\n" +
+            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id AND issuedsiz.status LIKE \"Выдано\")/\n" +
+            "        (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard \n" +
+            "         WHERE ipmstandard.post_id = e.post_id)*100),0)>=0) AND (\n" +
+            "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id AND issuedsiz.status LIKE \"Выдано\")/\n" +
+            "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
+            "         WHERE ipmstandard.post_id = e.post_id)*100),0)<100) \n"+
+            "WHERE e.komplex_id = :id\n"+
+            "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
+    Iterable<Employee> getNotFullStaffingOfEmployeeByKomlex(@Param("id") Long id);
 
     @Query(value = "SELECT employee.*\n" +
             "FROM employee\n" +
@@ -93,6 +125,17 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
     Iterable<Employee> getStaffingOfEmployeeOrderByEndDateIssued();
 
     @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate \n"+
+            "     FROM employee e\n" +
+            "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\" \n" +
+            "     GROUP BY e.id) ee USING (id)\n" +
+            "ORDER BY ee.mindate\n"+
+            "WHERE employee.komplex_id=:id", nativeQuery = true)
+    Iterable<Employee> getStaffingOfEmployeeOrderByEndDateIssuedByKomplex(@Param("id") Long id);
+
+    @Query(value = "SELECT employee.*\n" +
             "            FROM employee\n" +
             "            JOIN (SELECT e.id, MIN(i.date_end_wear) mindate\n" +
             "                 FROM employee e\n" +
@@ -101,6 +144,17 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "                 GROUP BY e.id) ee USING (id)\n" +
             "            ORDER BY ee.mindate",nativeQuery = true)
     Iterable<Employee> getEmployeesWithEndingDateWearForNextYear(@Param("date1") String date1,@Param("date2") String date2);
+
+    @Query(value = "SELECT employee.*\n" +
+            "            FROM employee\n" +
+            "            JOIN (SELECT e.id, MIN(i.date_end_wear) mindate\n" +
+            "                 FROM employee e\n" +
+            "                 JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "                 WHERE i.date_end_wear BETWEEN :date1 AND :date2\n" +
+            "                 GROUP BY e.id) ee USING (id)\n" +
+            "            ORDER BY ee.mindate\n"+
+            "       WHERE employee.komplex_id =:id",nativeQuery = true)
+    Iterable<Employee> getEmployeesWithEndingDateWearForNextYearByKomplex(@Param("date1") String date1,@Param("date2") String date2,@Param("date2") Long id);
 
     @Query(value = "SELECT employee.*\n" +
             "            FROM employee\n" +
@@ -145,11 +199,43 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
             "     FROM employee e\n" +
             "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE and i.status LIKE \"Выдано\"\n" +
+            "     GROUP BY e.id) ee USING (id)\n" +
+            "WHERE ee.rate=100\n" +
+            "ORDER BY ee.mindate\n"+
+            "WHERE employee.komplex_id=:id", nativeQuery = true)
+    Iterable<Employee> getFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(@Param("id") Long id);
+
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
+            "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE AND issuedsiz.status LIKE \"Выдано\")/\n" +
+            "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
+            "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
+            "     FROM employee e\n" +
+            "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
             "     WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\"\n" +
             "     GROUP BY e.id) ee USING (id)\n" +
             "WHERE ee.rate>=0 AND ee.rate<100\n" +
             "ORDER BY ee.mindate", nativeQuery = true)
     Iterable<Employee> getNotFullStaffingOfEmployeeOrderByEndDateIssued();
+
+    @Query(value = "SELECT employee.*\n" +
+            "FROM employee\n" +
+            "JOIN (SELECT e.id, MIN(i.date_end_wear) mindate, \n" +
+            "      (SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE \n" +
+            "                               issuedsiz.employee_id = e.id AND issuedsiz.date_end_wear > CURRENT_DATE AND issuedsiz.status LIKE \"Выдано\")/\n" +
+            "            (SELECT SUM(ipmstandard.issuance_rate) FROM ipmstandard\n" +
+            "            WHERE ipmstandard.post_id = e.post_id)*100),0)) AS rate\n" +
+            "     FROM employee e\n" +
+            "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
+            "     WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\"\n" +
+            "     GROUP BY e.id) ee USING (id)\n" +
+            "WHERE ee.rate>=0 AND ee.rate<100\n" +
+            "ORDER BY ee.mindate\n"+
+            "WHERE employee.komplex_id=:id", nativeQuery = true)
+    Iterable<Employee> getNotFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(@Param("id") Long id);
 
     @Query(value = "SELECT employee.*\n" +
             "FROM employee\n" +

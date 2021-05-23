@@ -33,6 +33,9 @@ public class IssuedSIZ {
     private String height;
     private String writeOffAct;
 
+    @ManyToOne
+    private Komplex komplex;
+
     public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size) {
         this.siz = individualProtectionMeans;
         this.status = "На складе";

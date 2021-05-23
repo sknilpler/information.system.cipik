@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Выдача СИЗ</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -79,7 +79,7 @@
             <div class="row align-items-md-stretch mb-4">
                 <div class="col-sm-6">
                     <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
-                        <select class="form-control" id="komplex" name="komplex"
+                        <select  sec:authorize="hasAnyRole('ROLE_USER')" class="form-control" id="komplex" name="komplex"
                                 th:onchange="'javascript:loadEmployeesForSelectedKomplex();'" required>
                             <option selected disabled value="">Выберите подразделение</option>
                             <option th:each="k : ${komplexs}" th:value="${k.id}"

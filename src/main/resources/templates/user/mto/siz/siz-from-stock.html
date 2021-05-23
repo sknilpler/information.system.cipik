@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>СИЗ на складе</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -23,7 +23,7 @@
     <!-- Side panel -->
     <div class="my-container active-cont container-fluid">
 
-        <div class="container-fluid">
+        <div class="container-fluid" sec:authorize="hasAnyRole('ROLE_USER')">
             <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
                 <form method="post" class="row g-3">
                     <div class="col-sm-6">
@@ -86,6 +86,7 @@
                                     <input type="checkbox" name="all-checkbox"  th:onchange="'javascript:selectAllRecord(this);'" >
                                 </th>
                                 <th style="5%">№ п/п</th>
+                                <th>Табельный №</th>
                                 <th>Наименование</th>
                                 <th style="10%">Размер</th>
                                 <th style="10%">Рост</th>
@@ -100,6 +101,7 @@
                                         <input type="checkbox" name="record-checkbox" th:onchange="'javascript:selectRecord(this,\'' + ${n.id} + '\');'">
                                 </td>
                                 <td th:text="${iter.index+1}"></td>
+                                <td th:text="${n.siz.nomenclatureNumber}"></td>
                                 <td th:text="${n.siz.nameSIZ}"></td>
                                 <td th:text="${n.size}"></td>
                                 <td th:text="${n.height}"></td>

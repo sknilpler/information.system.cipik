@@ -15,9 +15,6 @@ public class MainController {
     @GetMapping("/")
     public String home(Model model) {
         Iterable<Komplex> komplexes = komplexRepository.findAll();
-        for (Komplex k: komplexes) {
-            System.out.println(k.getShortName()+", "+k.getRole().getName());
-        }
         model.addAttribute("komplexes",komplexes);
         model.addAttribute("title", "Главная страница");
         return "home";

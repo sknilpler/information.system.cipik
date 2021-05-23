@@ -1,13 +1,17 @@
 package com.information.system.cipik.controllers;
 
 import com.information.system.cipik.models.Employee;
+import com.information.system.cipik.models.Komplex;
 import com.information.system.cipik.models.Post;
+import com.information.system.cipik.models.Role;
 import com.information.system.cipik.repo.EmployeeRepository;
 import com.information.system.cipik.repo.KomplexRepository;
 import com.information.system.cipik.repo.PostRepository;
+import com.information.system.cipik.repo.RoleRepository;
 import com.information.system.cipik.utils.EmployeeExcelExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +20,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static java.util.stream.Collectors.toCollection;
 
 @Controller
 public class EmployeeController {
@@ -30,10 +37,23 @@ public class EmployeeController {
 //    OtdelRepository otdelRepository;
     @Autowired
     KomplexRepository komplexRepository;
+    @Autowired
+    RoleRepository roleRepository;
+
+   // private Komplex userKomplex;
 
     @GetMapping("/userPage/employee/employees-all")
-    public String allEmployee(Model model) {
-        Iterable<Employee> employees = employeeRepository.findAll();
+    public String allEmployee(Model model, Authentication authentication) {
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            employees = employeeRepository.findAll();
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            employees = employeeRepository.findAllByKomplexId(komplex.getId());
+        }
         model.addAttribute("employees", employees);
         return "user/employee/employes-managment-page";
     }
@@ -132,14 +152,25 @@ public class EmployeeController {
      * @throws IOException
      */
     @GetMapping("/userPage/employee/export/excel")
-    public void exportEmployeeToExcel(HttpServletResponse response) throws IOException {
+    public void exportEmployeeToExcel(HttpServletResponse response, Authentication authentication) throws IOException {
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=spisok_sotrudnikov_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        List<Employee> listEmployee = (List<Employee>) employeeRepository.findAll();
+
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        List<Employee> listEmployee;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            listEmployee = (List<Employee>) employeeRepository.findAll();
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            listEmployee = (List<Employee>) employeeRepository.findAllByKomplexId(komplex.getId());
+        }
+
         EmployeeExcelExporter excelExporter = new EmployeeExcelExporter(listEmployee);
         excelExporter.export(response);
     }

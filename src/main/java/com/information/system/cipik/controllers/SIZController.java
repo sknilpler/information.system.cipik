@@ -7,6 +7,7 @@ import com.information.system.cipik.utils.EmployeeStaffingExcelExporter;
 import com.information.system.cipik.utils.StatisticForStaffing;
 import com.information.system.cipik.utils.TypeOfSortingEmployeeTable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +26,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static java.util.stream.Collectors.toCollection;
+
 @Controller
 public class SIZController {
 
+    @Autowired
+    RoleRepository roleRepository;
     @Autowired
     SIZRepository sizRepository;
     @Autowired
@@ -271,11 +276,21 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/not-issued-siz")
-    public String notIssuedSIZAll(Model model) {
-        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+    public String notIssuedSIZAll(Model model, Authentication authentication) {
+
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        List<IssuedSIZ> issuedSIZS;
+        if (role.getName().equals("ROLE_USER")) {
+            issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            // userKomplex = komplexRepository.findByRoleId(role.getId());
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexId("На складе", komplex.getId());
+        }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
-        model.addAttribute("typeSIZS",individualProtectionMeans);
-        model.addAttribute("notIssuedSIZ",issuedSIZS);
+        model.addAttribute("typeSIZS", individualProtectionMeans);
+        model.addAttribute("notIssuedSIZ", issuedSIZS);
         return "user/mto/siz/siz-from-stock";
     }
 
@@ -346,11 +361,55 @@ public class SIZController {
      * @return
      */
     @PostMapping("/userPage/not-issued-siz/{list}/remove")
-    public String notIssuedSIZDelete(@PathVariable(value = "list") List<Long> list, Model model){
-        for (Long id : list) {
-            issuedSIZRepository.deleteById(id);
+    public String notIssuedSIZDelete(@PathVariable(value = "list") List<Long> list,Authentication authentication, Model model){
+//определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        List<IssuedSIZ> issuedSIZS;
+        if (role.getName().equals("ROLE_USER")){    //если пользователь СуперЮзер то просто удаляем записи из базы
+            for (Long id : list) {
+                issuedSIZRepository.deleteById(id);
+            }
+            issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+        }else{      //иначе возвращаем СИЗ на главный склад центра
+            for (Long id : list) {
+               IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow();
+               siz.setKomplex(null);
+               issuedSIZRepository.save(siz);
+            }
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexId("На складе", komplex.getId());
         }
-        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+        model.addAttribute("notIssuedSIZ", issuedSIZS);
+        return "user/mto/siz/siz-from-stock :: table-sock-siz";
+    }
+
+    /**
+     * Поиск СИЗ на складе
+     * @param keyword
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/not-issued-siz/search/stock-siz/{keyword}")
+    public String searchStockSiz(@PathVariable(value = "keyword") String keyword,Authentication authentication, Model model) {
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        List<IssuedSIZ> issuedSIZS;
+        if (role.getName().equals("ROLE_USER")){    //если пользователь СуперЮзер то выводим общую информацию
+            if (keyword.equals("0")) {
+                issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike("На складе","%"+keyword+"%","%"+keyword+"%", "%"+keyword+"%");
+            }
+        }else{      //иначе отображаем информацию по текущему подразделению
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            if (keyword.equals("0")) {
+                issuedSIZS = issuedSIZRepository.findByStatusAndKomplexId("На складе", komplex.getId());
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike("На складе", komplex.getId(), "%"+keyword+"%","%"+keyword+"%", "%"+keyword+"%");
+            }
+        }
+        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
+        model.addAttribute("typeSIZS", individualProtectionMeans);
         model.addAttribute("notIssuedSIZ", issuedSIZS);
         return "user/mto/siz/siz-from-stock :: table-sock-siz";
     }
@@ -364,13 +423,22 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/issued-siz")
-    public String issuedSIZAll(Model model, String keyword) {
+    public String issuedSIZAll(Model model, String keyword,Authentication authentication) {
         Post post = new Post("");
         Employee employee = new Employee("","","","","",null,null);
         Iterable<Post> posts = postRepository.findAll();
         model.addAttribute("posts", posts);
         model.addAttribute("komplexs", komplexRepository.findAll());
-        model.addAttribute("employees", employeeRepository.findAll());
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        if (role.getName().equals("ROLE_USER")){
+            employees = employeeRepository.findAll();
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            employees = employeeRepository.findAllByKomplexId(komplex.getId());
+        }
+        model.addAttribute("employees", employees);
         model.addAttribute("selectedEmployee",employee);
         model.addAttribute("selected", post);
         model.addAttribute("ipmStandardRepository", ipmStandardRepository);
@@ -397,8 +465,18 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/issued-siz/getEmployeeForPost/{id}")
-    public String getEmployeeForPost(@PathVariable(value = "id") long id, Model model) {
-        List<Employee> employees = employeeRepository.findAllByPostId(id);
+    public String getEmployeeForPost(@PathVariable(value = "id") long id,Authentication authentication, Model model) {
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            employees = employeeRepository.findAllByPostId(id);
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            // userKomplex = komplexRepository.findByRoleId(role.getId());
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            employees = employeeRepository.findAllByKomplexIdAndPostId(komplex.getId(),id);
+        }
         model.addAttribute("employees", employees);
         return "user/mto/siz/issued/issued-siz-add :: table-employees";
     }
@@ -519,6 +597,7 @@ public class SIZController {
                         siz.setDateIssued(dateIssued);
                         siz.setDateEndWear(dateEndWear);
                         siz.setStatus("Выдано");
+                        siz.setKomplex(null);
                         issuedSIZRepository.save(siz);
                     }
                 } else {
@@ -574,6 +653,7 @@ public class SIZController {
     public String cancelIssuedSiz(@PathVariable(value = "id") long id, Model model) {
         String message = "";
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        issuedSIZ.setKomplex(issuedSIZ.getEmployee().getKomplex());
         issuedSIZ.setDateIssued(null);
         issuedSIZ.setDateEndWear(null);
         issuedSIZ.setEmployee(null);
@@ -614,36 +694,30 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/issued-siz/search/employee/{keyword}")
-    public String searchEmployee(@PathVariable(value = "keyword") String keyword, Model model) {
+    public String searchEmployee(@PathVariable(value = "keyword") String keyword,Authentication authentication, Model model) {
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
-        if (keyword.equals("0")){
-            employees = employeeRepository.findAll();
-        }else{
-            employees = employeeRepository.findAllByPostAndKeyword(keyword);
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            if (keyword.equals("0")){
+                employees = employeeRepository.findAll();
+            }else{
+                employees = employeeRepository.findAllByPostAndKeyword(keyword);
+            }
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            if (keyword.equals("0")){
+                employees = employeeRepository.findAllByKomplexId(komplex.getId());
+            }else{
+                employees = employeeRepository.findAllByPostAndKomplexIdAndKeyword(keyword, komplex.getId());
+            }
         }
         model.addAttribute("employees", employees);
         return "user/mto/siz/issued/issued-siz-add :: table-employees";
     }
 
-    /**
-     * Поиск СИЗ на складе
-     * @param keyword
-     * @param model
-     * @return
-     */
-    @GetMapping("/userPage/not-issued-siz/search/stock-siz/{keyword}")
-    public String searchStockSiz(@PathVariable(value = "keyword") String keyword, Model model) {
-        List<IssuedSIZ> issuedSIZS;
-        if (keyword.equals("0")) {
-            issuedSIZS = issuedSIZRepository.findByStatus("На складе");
-        } else {
-            issuedSIZS = issuedSIZRepository.findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike("На складе","%"+keyword+"%","%"+keyword+"%", "%"+keyword+"%");
-        }
-        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
-        model.addAttribute("typeSIZS", individualProtectionMeans);
-        model.addAttribute("notIssuedSIZ", issuedSIZS);
-        return "user/mto/siz/siz-from-stock :: table-sock-siz";
-    }
+
 
     //////////////////////Укомплектованность сотрудников СИЗ//////////////////////
 
@@ -653,13 +727,29 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/employee-siz")
-    public String staffingOfAllEmployeesSIZ(Model model) {
+    public String staffingOfAllEmployeesSIZ(Model model,Authentication authentication) {
         filerIssuedSizAll = "all";
         typeOfSortingEmployeeTable = new TypeOfSortingEmployeeTable();
         typeOfSortingEmployeeTable.setFilter("all");
         typeOfSortingEmployeeTable.setSearching("");
-        Iterable<Employee> employees = employeeRepository.findAll();
-        Iterable<Employee> fullStaffEmpl = employeeRepository.getFullStaffingOfEmployee();
+        String nextYearBegin = (Year.now().getValue()+1)+"_01_01";
+        String nextYearEnd = (Year.now().getValue()+1)+"_12_31";
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        Iterable<Employee> fullStaffEmpl;
+        Iterable<Employee> employeesEndingDateWear;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            employees = employeeRepository.findAll();
+            fullStaffEmpl = employeeRepository.getFullStaffingOfEmployee();
+            employeesEndingDateWear = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin,nextYearEnd);
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            employees = employeeRepository.findAllByKomplexId(komplex.getId());
+            fullStaffEmpl = employeeRepository.getFullStaffingOfEmployeeByKomplex(komplex.getId());
+            employeesEndingDateWear = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex(nextYearBegin,nextYearEnd, komplex.getId());
+        }
         int countE = 0;
         for (Employee e:employees) {
             countE++;
@@ -668,9 +758,6 @@ public class SIZController {
         for (Employee e:fullStaffEmpl) {
             countFE++;
         }
-        String nextYearBegin = (Year.now().getValue()+1)+"_01_01";
-        String nextYearEnd = (Year.now().getValue()+1)+"_12_31";
-        Iterable<Employee> employeesEndingDateWear = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin,nextYearEnd);
         int countEE = 0;
         for (Employee e:employeesEndingDateWear) {
             countEE++;
@@ -691,20 +778,36 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/employee-siz/filter/employee/{keyword}")
-    public String filterStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, Model model) {
+    public String filterStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword,Authentication authentication, Model model) {
         filerIssuedSizAll = keyword;
-        System.out.println(keyword);
         sortedByEndIssuedDate = false;
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
-        if (keyword.equals("not-issued")){
-            employees = employeeRepository.getNotFullStaffingOfEmployee();
-            typeOfSortingEmployeeTable.setFilter("not-issued");
-        } else if (keyword.equals("issued")){
-            employees = employeeRepository.getFullStaffingOfEmployee();
-            typeOfSortingEmployeeTable.setFilter("issued");
-        } else {
-            employees = employeeRepository.findAll();
-            typeOfSortingEmployeeTable.setFilter("all");
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            if (keyword.equals("not-issued")){
+                employees = employeeRepository.getNotFullStaffingOfEmployee();
+                typeOfSortingEmployeeTable.setFilter("not-issued");
+            } else if (keyword.equals("issued")){
+                employees = employeeRepository.getFullStaffingOfEmployee();
+                typeOfSortingEmployeeTable.setFilter("issued");
+            } else {
+                employees = employeeRepository.findAll();
+                typeOfSortingEmployeeTable.setFilter("all");
+            }
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            if (keyword.equals("not-issued")){
+                employees = employeeRepository.getNotFullStaffingOfEmployeeByKomlex(komplex.getId());
+                typeOfSortingEmployeeTable.setFilter("not-issued");
+            } else if (keyword.equals("issued")){
+                employees = employeeRepository.getFullStaffingOfEmployeeByKomplex(komplex.getId());
+                typeOfSortingEmployeeTable.setFilter("issued");
+            } else {
+                employees = employeeRepository.findAllByKomplexId(komplex.getId());
+                typeOfSortingEmployeeTable.setFilter("all");
+            }
         }
         model.addAttribute("employees", employees);
         model.addAttribute("employeeRepository", employeeRepository);
@@ -717,11 +820,20 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/employee-siz/show-employees-with-end-wear-date")
-    public String showEmployeesWithEndWearDate(Model model){
+    public String showEmployeesWithEndWearDate(Model model, Authentication authentication){
         typeOfSortingEmployeeTable.setFilter("end_date");
         String nextYearBegin = (Year.now().getValue()+1)+"_01_01";
         String nextYearEnd = (Year.now().getValue()+1)+"_12_31";
-        Iterable<Employee> employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin,nextYearEnd);
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin,nextYearEnd);
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex(nextYearBegin,nextYearEnd, komplex.getId());
+        }
         model.addAttribute("employees", employees);
         model.addAttribute("employeeRepository", employeeRepository);
         return "user/mto/siz/issued/issued-siz-all :: table-employees";
@@ -733,18 +845,35 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/employee-siz/sorting-date/employee")
-    public String sortingByDateStaffingOfAllEmployeesSIZ(Model model) {
+    public String sortingByDateStaffingOfAllEmployeesSIZ(Model model,Authentication authentication) {
         sortedByEndIssuedDate = true;
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
-        if (filerIssuedSizAll.equals("not-issued")){
-            employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
-            typeOfSortingEmployeeTable.setFilter("not-issued-date");
-        } else if (filerIssuedSizAll.equals("issued")){
-            employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
-            typeOfSortingEmployeeTable.setFilter("issued-date");
-        } else {
-            employees = employeeRepository.getStaffingOfEmployeeOrderByEndDateIssued();
-            typeOfSortingEmployeeTable.setFilter("date");
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            if (filerIssuedSizAll.equals("not-issued")){
+                employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
+                typeOfSortingEmployeeTable.setFilter("not-issued-date");
+            } else if (filerIssuedSizAll.equals("issued")){
+                employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
+                typeOfSortingEmployeeTable.setFilter("issued-date");
+            } else {
+                employees = employeeRepository.getStaffingOfEmployeeOrderByEndDateIssued();
+                typeOfSortingEmployeeTable.setFilter("date");
+            }
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            if (filerIssuedSizAll.equals("not-issued")){
+                employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
+                typeOfSortingEmployeeTable.setFilter("not-issued-date");
+            } else if (filerIssuedSizAll.equals("issued")){
+                employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
+                typeOfSortingEmployeeTable.setFilter("issued-date");
+            } else {
+                employees = employeeRepository.getStaffingOfEmployeeOrderByEndDateIssuedByKomplex(komplex.getId());
+                typeOfSortingEmployeeTable.setFilter("date");
+            }
         }
         model.addAttribute("employees", employees);
         model.addAttribute("employeeRepository", employeeRepository);
@@ -758,67 +887,134 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/employee-siz/search/employee/{keyword}")
-    public String searchStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, Model model) {
+    public String searchStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword,Authentication authentication, Model model) {
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
-        if (keyword.equals("0")) {
-            typeOfSortingEmployeeTable.setSearching("");
-            if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
-                employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31");
-            }else if (filerIssuedSizAll.equals("not-issued")) {
-                if (sortedByEndIssuedDate) {
-                    employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
-                    typeOfSortingEmployeeTable.setFilter("not-issued-date");
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            if (keyword.equals("0")) {
+                typeOfSortingEmployeeTable.setSearching("");
+                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
+                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31");
+                }else if (filerIssuedSizAll.equals("not-issued")) {
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
+                        typeOfSortingEmployeeTable.setFilter("not-issued-date");
+                    } else {
+                        employees = employeeRepository.getNotFullStaffingOfEmployee();
+                        typeOfSortingEmployeeTable.setFilter("not-issued");
+                    }
+                } else if (filerIssuedSizAll.equals("issued")) {
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
+                        typeOfSortingEmployeeTable.setFilter("issued-date");
+                    } else {
+                        employees = employeeRepository.getFullStaffingOfEmployee();
+                        typeOfSortingEmployeeTable.setFilter("issued");
+                    }
                 } else {
-                    employees = employeeRepository.getNotFullStaffingOfEmployee();
-                    typeOfSortingEmployeeTable.setFilter("not-issued");
-                }
-            } else if (filerIssuedSizAll.equals("issued")) {
-                if (sortedByEndIssuedDate) {
-                    employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
-                    typeOfSortingEmployeeTable.setFilter("issued-date");
-                } else {
-                    employees = employeeRepository.getFullStaffingOfEmployee();
-                    typeOfSortingEmployeeTable.setFilter("issued");
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getStaffingOfEmployeeOrderByEndDateIssued();
+                        typeOfSortingEmployeeTable.setFilter("date");
+                    } else {
+                        employees = employeeRepository.findAll();
+                        typeOfSortingEmployeeTable.setFilter("all");
+                    }
                 }
             } else {
-                if (sortedByEndIssuedDate) {
-                    employees = employeeRepository.getStaffingOfEmployeeOrderByEndDateIssued();
-                    typeOfSortingEmployeeTable.setFilter("date");
+                typeOfSortingEmployeeTable.setSearching(keyword);
+                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
+                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",keyword);
+                }else if (filerIssuedSizAll.equals("not-issued")) {
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
+                        typeOfSortingEmployeeTable.setFilter("not-issued-date");
+                    } else {
+                        employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(keyword);
+                        typeOfSortingEmployeeTable.setFilter("not-issued");
+                    }
+                } else if (filerIssuedSizAll.equals("issued")) {
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
+                        typeOfSortingEmployeeTable.setFilter("issued-date");
+                    } else {
+                        employees = employeeRepository.getFullStaffingOfEmployeeAndKeyword(keyword);
+                        typeOfSortingEmployeeTable.setFilter("issued");
+                    }
                 } else {
-                    employees = employeeRepository.findAll();
-                    typeOfSortingEmployeeTable.setFilter("all");
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(keyword);
+                        typeOfSortingEmployeeTable.setFilter("date");
+                    } else {
+                        employees = employeeRepository.findAllByPostAndKomplexAndKeyword(keyword);
+                        typeOfSortingEmployeeTable.setFilter("all");
+                    }
                 }
             }
-        } else {
-            typeOfSortingEmployeeTable.setSearching(keyword);
-            if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
-                employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",keyword);
-            }else if (filerIssuedSizAll.equals("not-issued")) {
-                if (sortedByEndIssuedDate) {
-                    employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
-                    typeOfSortingEmployeeTable.setFilter("not-issued-date");
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            if (keyword.equals("0")) {
+                typeOfSortingEmployeeTable.setSearching("");
+                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
+                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31", komplex.getId());
+                }else if (filerIssuedSizAll.equals("not-issued")) {
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
+                        typeOfSortingEmployeeTable.setFilter("not-issued-date");
+                    } else {
+                        employees = employeeRepository.getNotFullStaffingOfEmployeeByKomlex(komplex.getId());
+                        typeOfSortingEmployeeTable.setFilter("not-issued");
+                    }
+                } else if (filerIssuedSizAll.equals("issued")) {
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
+                        typeOfSortingEmployeeTable.setFilter("issued-date");
+                    } else {
+                        employees = employeeRepository.getFullStaffingOfEmployeeByKomplex(komplex.getId());
+                        typeOfSortingEmployeeTable.setFilter("issued");
+                    }
                 } else {
-                    employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(keyword);
-                    typeOfSortingEmployeeTable.setFilter("not-issued");
-                }
-            } else if (filerIssuedSizAll.equals("issued")) {
-                if (sortedByEndIssuedDate) {
-                    employees = employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
-                    typeOfSortingEmployeeTable.setFilter("issued-date");
-                } else {
-                    employees = employeeRepository.getFullStaffingOfEmployeeAndKeyword(keyword);
-                    typeOfSortingEmployeeTable.setFilter("issued");
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getStaffingOfEmployeeOrderByEndDateIssuedByKomplex(komplex.getId());
+                        typeOfSortingEmployeeTable.setFilter("date");
+                    } else {
+                        employees = employeeRepository.findAllByKomplexId(komplex.getId());
+                        typeOfSortingEmployeeTable.setFilter("all");
+                    }
                 }
             } else {
-                if (sortedByEndIssuedDate) {
-                    employees = employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(keyword);
-                    typeOfSortingEmployeeTable.setFilter("date");
+                typeOfSortingEmployeeTable.setSearching(keyword);
+                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
+                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",keyword);
+                }else if (filerIssuedSizAll.equals("not-issued")) {
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
+                        typeOfSortingEmployeeTable.setFilter("not-issued-date");
+                    } else {
+                        employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(keyword);
+                        typeOfSortingEmployeeTable.setFilter("not-issued");
+                    }
+                } else if (filerIssuedSizAll.equals("issued")) {
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
+                        typeOfSortingEmployeeTable.setFilter("issued-date");
+                    } else {
+                        employees = employeeRepository.getFullStaffingOfEmployeeAndKeyword(keyword);
+                        typeOfSortingEmployeeTable.setFilter("issued");
+                    }
                 } else {
-                    employees = employeeRepository.findAllByPostAndKomplexAndKeyword(keyword);
-                    typeOfSortingEmployeeTable.setFilter("all");
+                    if (sortedByEndIssuedDate) {
+                        employees = employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(keyword);
+                        typeOfSortingEmployeeTable.setFilter("date");
+                    } else {
+                        employees = employeeRepository.findAllByPostAndKomplexAndKeyword(keyword);
+                        typeOfSortingEmployeeTable.setFilter("all");
+                    }
                 }
             }
         }
+
         model.addAttribute("employees", employees);
         model.addAttribute("employeeRepository", employeeRepository);
         return "user/mto/siz/issued/issued-siz-all :: table-employees";

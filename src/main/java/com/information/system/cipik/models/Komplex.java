@@ -1,5 +1,6 @@
 package com.information.system.cipik.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,6 +39,11 @@ public class Komplex {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "otdel_id")
     private List<Employee> employees;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "komplex_id")
+    @JsonIgnore
+    private List<IssuedSIZ> issuedSIZS;
 
 
     public Komplex(String name, String adres, String shortName, Centr centr, Role role) {
