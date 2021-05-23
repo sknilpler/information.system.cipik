@@ -892,12 +892,12 @@ public class SIZController {
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
+        if (role.getName().equals("ROLE_USER")) {
             if (keyword.equals("0")) {
                 typeOfSortingEmployeeTable.setSearching("");
-                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
-                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31");
-                }else if (filerIssuedSizAll.equals("not-issued")) {
+                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")) {
+                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31");
+                } else if (filerIssuedSizAll.equals("not-issued")) {
                     if (sortedByEndIssuedDate) {
                         employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
                         typeOfSortingEmployeeTable.setFilter("not-issued-date");
@@ -924,9 +924,9 @@ public class SIZController {
                 }
             } else {
                 typeOfSortingEmployeeTable.setSearching(keyword);
-                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
-                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",keyword);
-                }else if (filerIssuedSizAll.equals("not-issued")) {
+                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")) {
+                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31", keyword);
+                } else if (filerIssuedSizAll.equals("not-issued")) {
                     if (sortedByEndIssuedDate) {
                         employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
                         typeOfSortingEmployeeTable.setFilter("not-issued-date");
@@ -952,13 +952,13 @@ public class SIZController {
                     }
                 }
             }
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             if (keyword.equals("0")) {
                 typeOfSortingEmployeeTable.setSearching("");
-                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
-                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31", komplex.getId());
-                }else if (filerIssuedSizAll.equals("not-issued")) {
+                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")) {
+                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31", komplex.getId());
+                } else if (filerIssuedSizAll.equals("not-issued")) {
                     if (sortedByEndIssuedDate) {
                         employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
                         typeOfSortingEmployeeTable.setFilter("not-issued-date");
@@ -985,36 +985,35 @@ public class SIZController {
                 }
             } else {
                 typeOfSortingEmployeeTable.setSearching(keyword);
-                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")){
-                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",keyword);
-                }else if (filerIssuedSizAll.equals("not-issued")) {
+                if (typeOfSortingEmployeeTable.getFilter().equals("end_date")) {
+                    employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeywordAndKomplex((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31", keyword, komplex.getId());
+                } else if (filerIssuedSizAll.equals("not-issued")) {
                     if (sortedByEndIssuedDate) {
-                        employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
+                        employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssuedAndKomplex(keyword, komplex.getId());
                         typeOfSortingEmployeeTable.setFilter("not-issued-date");
                     } else {
-                        employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(keyword);
+                        employees = employeeRepository.getNotFullStaffingOfEmployeeAndKeywordAndKomplex(keyword, komplex.getId());
                         typeOfSortingEmployeeTable.setFilter("not-issued");
                     }
                 } else if (filerIssuedSizAll.equals("issued")) {
                     if (sortedByEndIssuedDate) {
-                        employees = employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(keyword);
+                        employees = employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssuedAndKomplex(keyword, komplex.getId());
                         typeOfSortingEmployeeTable.setFilter("issued-date");
                     } else {
-                        employees = employeeRepository.getFullStaffingOfEmployeeAndKeyword(keyword);
+                        employees = employeeRepository.getFullStaffingOfEmployeeAndKeywordAndKomplex(keyword, komplex.getId());
                         typeOfSortingEmployeeTable.setFilter("issued");
                     }
                 } else {
                     if (sortedByEndIssuedDate) {
-                        employees = employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(keyword);
+                        employees = employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssuedAndKomplex(keyword, komplex.getId());
                         typeOfSortingEmployeeTable.setFilter("date");
                     } else {
-                        employees = employeeRepository.findAllByPostAndKomplexAndKeyword(keyword);
+                        employees = employeeRepository.findAllByPostAndKomplexIdAndKeyword(keyword, komplex.getId());
                         typeOfSortingEmployeeTable.setFilter("all");
                     }
                 }
             }
         }
-
         model.addAttribute("employees", employees);
         model.addAttribute("employeeRepository", employeeRepository);
         return "user/mto/siz/issued/issued-siz-all :: table-employees";
@@ -1105,6 +1104,7 @@ public class SIZController {
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/cancel")
     public String cancelIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        issuedSIZ.setKomplex(issuedSIZ.getEmployee().getKomplex());
         issuedSIZ.setDateIssued(null);
         issuedSIZ.setDateEndWear(null);
         issuedSIZ.setEmployee(null);
@@ -1187,6 +1187,7 @@ public class SIZController {
                     siz.setEmployee(employeeForIssuedSIZ);
                     siz.setDateIssued(dateIssued);
                     siz.setDateEndWear(dateEndWear);
+                    siz.setKomplex(null);
                     siz.setStatus("Выдано");
                     issuedSIZRepository.save(siz);
                 }
@@ -1221,7 +1222,7 @@ public class SIZController {
     }
 
     @GetMapping("/userPage/employee-siz/print-table")
-    public void printTableEmployee (HttpServletResponse response) throws IOException {
+    public void printTableEmployee (HttpServletResponse response,Authentication authentication) throws IOException {
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -1229,34 +1230,71 @@ public class SIZController {
         String headerValue = "attachment; filename=spisok_ukomplektovannosti_sotrudnikov_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
         List<EmployeeForPrint> listEmployeeForPrint = new ArrayList<>();
-        List<Employee> listEmployee = (List<Employee>) employeeRepository.findAll();
-        if (typeOfSortingEmployeeTable.getFilter().equals("all") && !typeOfSortingEmployeeTable.getSearching().equals("")){
-            listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexAndKeyword(typeOfSortingEmployeeTable.getSearching());
-        }else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
-            listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployee();
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
-             listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(typeOfSortingEmployeeTable.getSearching());
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
-            listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployee();
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
-             listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeyword(typeOfSortingEmployeeTable.getSearching());
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && typeOfSortingEmployeeTable.getSearching().equals("")){
-             listEmployee = (List<Employee>) employeeRepository.getStaffingOfEmployeeOrderByEndDateIssued();
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
-            listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")){
-             listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
-            listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
-            listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
-        } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
-            listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && typeOfSortingEmployeeTable.getSearching().equals("")){
-            listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31");
-        } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
-            listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",typeOfSortingEmployeeTable.getSearching());
+        List<Employee> listEmployee;
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")){
+            listEmployee= (List<Employee>) employeeRepository.findAll();
+            if (typeOfSortingEmployeeTable.getFilter().equals("all") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexAndKeyword(typeOfSortingEmployeeTable.getSearching());
+            }else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployee();
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(typeOfSortingEmployeeTable.getSearching());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployee();
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeyword(typeOfSortingEmployeeTable.getSearching());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getStaffingOfEmployeeOrderByEndDateIssued();
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
+                listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31");
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",typeOfSortingEmployeeTable.getSearching());
+            }
+        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            listEmployee= (List<Employee>) employeeRepository.findAllByKomplexId(komplex.getId());
+            if (typeOfSortingEmployeeTable.getFilter().equals("all") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexIdAndKeyword(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
+            }else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeByKomlex(komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeywordAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeByKomplex(komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeywordAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getStaffingOfEmployeeOrderByEndDateIssuedByKomplex(komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssuedAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssuedAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
+                listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssuedAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31", komplex.getId());
+            } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeywordAndKomplex((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",typeOfSortingEmployeeTable.getSearching(), komplex.getId());
+            }
         }
+
         for (Employee e: listEmployee) {
             listEmployeeForPrint.add(new EmployeeForPrint(e,issuedSIZRepository.getByEndWearDateForEmployee(e.getId()),employeeRepository.getPercentStaffingOfEmployee(e.getId(),e.getPost().getId())));
         }

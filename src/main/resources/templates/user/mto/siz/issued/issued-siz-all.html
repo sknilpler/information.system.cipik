@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Укомплектованность сотрудников СИЗ</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -130,7 +130,7 @@
                             th:onchange="'javascript:sorting(this.value);'">
                         <option selected disabled value="">Выберите тип сортировки</option>
                         <option value="date">Дата окончания носки</option>
-                        <option value="k_and_p">Подразделение и должность</option>
+                        <option sec:authorize="hasAnyRole('ROLE_USER')" value="k_and_p">Подразделение и должность</option>
                     </select>
                 </div>
                 <div class="col-sm-2">

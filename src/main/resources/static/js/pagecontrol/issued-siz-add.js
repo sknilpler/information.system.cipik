@@ -35,22 +35,37 @@ if (document.getElementById("post").value !==''){
 };
 ///////////////////////////////////////////////
 function loadEmployeesForSelectedPost() {
-if (document.getElementById("komplex").value !==''){
-    loadEmployeesForSelectedKomplexAndPost();
-} else {
-	var e = document.getElementById("post");
-	var postId = e.value;
-	$.ajax({
-		type: 'get',
-		url: '/userPage/issued-siz/getEmployeeForPost/' + postId,
-		success: function(data) {
-			$('.table-employees').html(data);
-			$('body input:checkbox').prop('disabled',false);
-		},
-	})
-	updateSizForPost();
-}
-selRecs = [];
+	var element = document.getElementById("komplex");
+	if (element !== null) {
+		if (document.getElementById("komplex").value !== '') {
+			loadEmployeesForSelectedKomplexAndPost();
+		} else {
+			var e = document.getElementById("post");
+			var postId = e.value;
+			$.ajax({
+				type: 'get',
+				url: '/userPage/issued-siz/getEmployeeForPost/' + postId,
+				success: function (data) {
+					$('.table-employees').html(data);
+					$('body input:checkbox').prop('disabled', false);
+				},
+			})
+			updateSizForPost();
+		}
+	} else {
+		var e = document.getElementById("post");
+		var postId = e.value;
+		$.ajax({
+			type: 'get',
+			url: '/userPage/issued-siz/getEmployeeForPost/' + postId,
+			success: function (data) {
+				$('.table-employees').html(data);
+				$('body input:checkbox').prop('disabled', false);
+			},
+		})
+		updateSizForPost();
+	}
+	selRecs = [];
 };
 ///////////////////////////////////////////////
 function loadEmployeesForSelectedKomplexAndPost() {
