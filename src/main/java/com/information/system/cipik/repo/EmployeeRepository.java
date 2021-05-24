@@ -127,8 +127,8 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "        SELECT TRUNCATE(((SELECT COUNT(issuedsiz.siz_id) FROM issuedsiz WHERE issuedsiz.employee_id = e.id AND issuedsiz.status LIKE \"Выдано\")/\n" +
             "        (SELECT COUNT(ipmstandard.individual_protection_means_id) FROM ipmstandard \n" +
             "         WHERE ipmstandard.post_id = e.post_id)*100),0)<100) \n"+
-            "WHERE e.komplex_id = :id\n"+
-            "order by e.komplex_id, e.post_id, e.surname", nativeQuery = true)
+            "AND e.komplex_id = :id\n"+
+            "order by e.post_id, e.surname", nativeQuery = true)
     Iterable<Employee> getNotFullStaffingOfEmployeeByKomlex(@Param("id") Long id);
 
     @Query(value = "SELECT employee.*\n" +
@@ -148,8 +148,8 @@ public interface EmployeeRepository extends CrudRepository<Employee,Long> {
             "     JOIN issuedsiz i ON i.employee_id = e.id\n" +
             "     WHERE i.date_end_wear > CURRENT_DATE AND i.status LIKE \"Выдано\" \n" +
             "     GROUP BY e.id) ee USING (id)\n" +
-            "ORDER BY ee.mindate\n"+
-            "WHERE employee.komplex_id=:id", nativeQuery = true)
+            "WHERE employee.komplex_id=:id\n"+
+            "ORDER BY ee.mindate", nativeQuery = true)
     Iterable<Employee> getStaffingOfEmployeeOrderByEndDateIssuedByKomplex(@Param("id") Long id);
 
     @Query(value = "SELECT employee.*\n" +

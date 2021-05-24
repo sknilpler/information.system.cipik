@@ -11,9 +11,15 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
 
     List<IssuedSIZ> findAllByEmployeeId(Long id);
     List<IssuedSIZ> findByStatus(String status);
-    List<IssuedSIZ> findByStatusAndKomplexId(String status,Long id);
+    List<IssuedSIZ> findByStatusAndKomplexId(String status,Long komplex_id);
     List<IssuedSIZ> findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status, String size, String height, String nameSIZ);
-    List<IssuedSIZ> findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status,Long id, String size, String height, String nameSIZ);
+    //List<IssuedSIZ> findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status,Long komplex_id, String size, String height, String nameSIZ);
+
+    @Query(value = "SELECT i.* FROM issuedsiz i,individual_protection_means s\n" +
+            "WHERE i.status = \"На складе\" AND\n" +
+            "i.siz_id = s.id AND\n"+
+            "i.komplex_id =:id AND CONCAT(i.size,i.height,s.namesiz,s.nomenclature_number) LIKE %:keyword%", nativeQuery = true)
+    List<IssuedSIZ> findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike(@Param("id") Long id, @Param("keyword") String keyword);
 
     List<IssuedSIZ> findAllByEmployeeIdAndStatusOrderByDateIssued(Long id, String status);
 

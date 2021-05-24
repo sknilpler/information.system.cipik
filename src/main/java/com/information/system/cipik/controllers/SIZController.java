@@ -405,7 +405,7 @@ public class SIZController {
             if (keyword.equals("0")) {
                 issuedSIZS = issuedSIZRepository.findByStatusAndKomplexId("На складе", komplex.getId());
             } else {
-                issuedSIZS = issuedSIZRepository.findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike("На складе", komplex.getId(), "%"+keyword+"%","%"+keyword+"%", "%"+keyword+"%");
+                issuedSIZS = issuedSIZRepository.findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike(komplex.getId(), keyword);
             }
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
