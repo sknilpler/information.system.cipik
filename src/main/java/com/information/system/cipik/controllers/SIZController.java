@@ -2,10 +2,7 @@ package com.information.system.cipik.controllers;
 
 import com.information.system.cipik.models.*;
 import com.information.system.cipik.repo.*;
-import com.information.system.cipik.utils.EmployeeForPrint;
-import com.information.system.cipik.utils.EmployeeStaffingExcelExporter;
-import com.information.system.cipik.utils.StatisticForStaffing;
-import com.information.system.cipik.utils.TypeOfSortingEmployeeTable;
+import com.information.system.cipik.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -1317,6 +1314,38 @@ public class SIZController {
         return "user/mto/siz/issued/issued-siz-edit :: table-history-issued-siz";
     }
 
+    /**
+     * Первоначальное открытие страницы по выдаче СИЗ подразделениям
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/issued-for-komplex")
+    public String getIssuedForKomplexSIZ(Model model) {
+        model.addAttribute("komplexes",komplexRepository.findAll());
+        return "user/mto/siz/issued/issued-siz-komplex";
+    }
 
+    @GetMapping("/userPage/issued-for-komplex/get/{id}")
+    public String getIssuedForKomplexSIZ(@PathVariable(value = "id") long id,Model model) {
+        List<SIZForPurchase> sizesForKomplex = new ArrayList<>();
+        List<Object[]> objectList = issuedSIZRepository.getIssuedSIZForKomplex(id);
+        for (Object[] obj : objectList) {
+            sizesForKomplex.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
+        }
+        model.addAttribute("siz",sizesForKomplex);
+        return "user/mto/siz/issued/issued-siz-komplex :: table-siz";
+    }
+
+    @PostMapping("/userPage/issued-for-komplex/send/{list}")
+    public String sendSIZToKomplex(@PathVariable(value = "list") List<Object[]> objectList,Model model) {
+
+        List<IssuedSIZ> sizToKomplex = new ArrayList<>();
+        for (Object[] obj : objectList) {
+            int numberOftypesOfSiz = Integer.parseInt(obj[4].toString());
+            System.out.println(Long.parseLong(obj[0].toString())+" "+(String) obj[1]+" "+ (String) obj[2]+" "+(String) obj[3] +" "+ Integer.parseInt(obj[5].toString()));
+        }
+        model.addAttribute("info","Успешно");
+        return "user/mto/siz/issued/issued-siz-komplex :: info";
+    }
 
 }

@@ -15,6 +15,12 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
     List<IssuedSIZ> findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status, String size, String height, String nameSIZ);
     //List<IssuedSIZ> findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status,Long komplex_id, String size, String height, String nameSIZ);
 
+//    @Query(value = "SELECT s.id,s.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num\n" +
+//            "FROM issuedsiz i, individual_protection_means s\n" +
+//            "WHERE s.id=i.siz_id\n" +
+//            "GROUP BY 1,2,3,4,5",nativeQuery = true)
+//    List<> findGroupbySizeAndHeight();
+
     @Query(value = "SELECT i.* FROM issuedsiz i,individual_protection_means s\n" +
             "WHERE i.status = \"На складе\" AND\n" +
             "i.siz_id = s.id AND\n"+
@@ -284,7 +290,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
             "ORDER BY 3,4,5",nativeQuery = true)
     List<Object[]> getAllSIZForPurchase();
 
-    @Query(value = "SELECT s.id,s.nomenclature_number, s.namesiz, t.height, t.size, SUM(i.issuance_rate) as numAll, \n" +
+    @Query(value = "SELECT s.id, s.nomenclature_number, s.namesiz, t.height, t.size, SUM(i.issuance_rate) as numAll, \n" +
             "(SELECT COUNT(issuedsiz.id) FROM issuedsiz\n" +
             "WHERE issuedsiz.id = 0) as numIssued\n" +
             "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t\n" +
@@ -311,4 +317,32 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
             "GROUP BY 1,4,5,7 \n"+
             "ORDER BY 3,4,5",nativeQuery = true)
     List<Object[]> getAllSIZForPurchaseByKomplex(@Param("id") Long id);
+
+    @Query(value="SELECT s.id, s.nomenclature_number, s.namesiz, t.height, t.size, SUM(i.issuance_rate) as num\n" +
+            "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t\n" +
+            "WHERE e.post_id = p.id AND\n" +
+            "i.post_id = p.id AND\n" +
+            "i.individual_protection_means_id = s.id AND\n" +
+            "s.id = t.individual_protection_means_id AND\n" +
+            "e.komplex_id = :id AND\n" +
+            "IF(s.typeipm = \"Одежда\",\n" +
+            "t.height = e.height AND\n" +
+            "t.size = e.clothing_size,\n" +
+            "IF(s.typeipm = \"Обувь\",\n" +
+            "   t.size = e.shoe_size,\n" +
+            "       IF(s.typeipm = \"Головной убор\",\n" +
+            "       t.size = e.headgear_size,\n" +
+            "          IF(s.typeipm = \"Перчатки\",\n" +
+            "          t.size = e.glove_size,\n" +
+            "            IF(s.typeipm = \"Рукавицы\",\n" +
+            "            t.size = e.mittens_size,\n" +
+            "              IF(s.typeipm = \"Противогаз\",\n" +
+            "              t.size = e.gas_mask_size,\n" +
+            "                IF(s.typeipm = \"Респиратор\",\n" +
+            "                t.size = e.respirator_size,NULL)))))))  \n" +
+            "GROUP BY 1,2,3,4,5\n" +
+            "ORDER BY 3,4,5",nativeQuery = true)
+    List<Object[]> getIssuedSIZForKomplex(@Param("id") Long id);
+
+    List<IssuedSIZ> findBySizeAndHeightAndSizIdAndStatusAndKomplexIdAndEmployeeId(String size,String height,Long siz_id,String status,Long komplex_id,Long employee_id);
 }

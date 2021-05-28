@@ -24,6 +24,15 @@ public class SIZForPurchase {
         this.numPurchase = numAll-numIssued;
     }
 
+    public SIZForPurchase(Long id, String nomenclatureNumber, String namesiz, String height, String size, int num) {
+        this.id = id;
+        this.namesiz = namesiz;
+        this.nomenclatureNumber = nomenclatureNumber;
+        this.height = height;
+        this.size = size;
+        this.numAll = num;
+    }
+
     public Long getId() {
         return id;
     }
