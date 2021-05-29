@@ -1,19 +1,24 @@
 package com.information.system.cipik.controllers;
 
+import com.ibm.icu.text.Transliterator;
 import com.information.system.cipik.models.*;
 import com.information.system.cipik.repo.*;
 import com.information.system.cipik.utils.*;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -1325,6 +1330,12 @@ public class SIZController {
         return "user/mto/siz/issued/issued-siz-komplex";
     }
 
+    /**
+     * Отображение на странице СИЗ для передачи со склада на выбранное подразделение
+     * @param id
+     * @param model
+     * @return
+     */
     @GetMapping("/userPage/issued-for-komplex/get/{id}")
     public String getIssuedForKomplexSIZ(@PathVariable(value = "id") long id,Model model) {
         List<SIZForPurchase> sizesForKomplex = new ArrayList<>();
@@ -1333,19 +1344,93 @@ public class SIZController {
             sizesForKomplex.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
         }
         model.addAttribute("siz",sizesForKomplex);
+        model.addAttribute("issuedSIZRepository",issuedSIZRepository);
         return "user/mto/siz/issued/issued-siz-komplex :: table-siz";
     }
 
-    @PostMapping("/userPage/issued-for-komplex/send/{list}")
-    public String sendSIZToKomplex(@PathVariable(value = "list") List<Object[]> objectList,Model model) {
-
-        List<IssuedSIZ> sizToKomplex = new ArrayList<>();
-        for (Object[] obj : objectList) {
-            int numberOftypesOfSiz = Integer.parseInt(obj[4].toString());
-            System.out.println(Long.parseLong(obj[0].toString())+" "+(String) obj[1]+" "+ (String) obj[2]+" "+(String) obj[3] +" "+ Integer.parseInt(obj[5].toString()));
+    /**
+     * Получение списка СИЗ и печать акта приема-передачи в выбранное подразделение
+     * @param objectList
+     * @param response
+     * @param id
+     * @return
+     */
+    @PostMapping("/userPage/issued-for-komplex/send/{id}")
+    public void sendSIZToKomplex(@RequestBody List<SIZForKomplex> objectList, HttpServletResponse response, @PathVariable(value = "id") long id) throws IOException {
+        Komplex komplex = komplexRepository.findById(id).orElseThrow();
+        String message = "";
+        for (SIZForKomplex obj : objectList) {
+            List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findBySizeAndHeightAndSizIdAndStatusAndKomplexIdAndEmployeeId(obj.getSize(),obj.getHeight(),obj.getId(),"На складе",null,null);
+            if(issuedSIZS.size()>=obj.getNumber()) {
+                for (int i = 0; i < obj.getNumber(); i++) {
+                    IssuedSIZ siz = issuedSIZS.get(0);
+                    siz.setKomplex(komplex);
+                    issuedSIZRepository.save(siz);
+                    issuedSIZS.remove(0);
+                }
+            }else {
+                int size = issuedSIZS.size();
+                message = message+"На складе "+obj.getNomenclatureNumber()+" "+obj.getNamesiz()+" рост: "+obj.getHeight()+" размер: "+obj.getSize()+" не достаточно\n" +
+                        "в подазделение отправлено "+size + " из запрошеных "+obj.getNumber()+"\n";
+                for (int i = 0; i < size; i++) {
+                    IssuedSIZ siz = issuedSIZS.get(0);
+                    siz.setKomplex(komplex);
+                    issuedSIZRepository.save(siz);
+                    issuedSIZS.remove(0);
+                }
+            }
         }
-        model.addAttribute("info","Успешно");
-        return "user/mto/siz/issued/issued-siz-komplex :: info";
+
+        DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        Transliterator toLatinTrans = Transliterator.getInstance("Russian-Latin/BGN");
+        String headerValue = "attachment; filename=act_priema_peredachi_podrazdeleniyu_"+toLatinTrans.transliterate(komplex.getShortName())+"_ot_"+dateFormatter.format(new Date())+".xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        String excelFilePath = Paths.get("").toAbsolutePath().toString()+ File.separator+"template"+File.separator+"akt-priema-peredachi-siz.xlsx";
+
+        try {
+            FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+            Workbook workbook = WorkbookFactory.create(inputStream);
+
+            Sheet sheet = workbook.getSheetAt(0);
+
+            int row = 12;
+            Row exampleRow = sheet.getRow(12);
+            int count = 1;
+            for (SIZForKomplex s: objectList) {
+                if (s.getNumber() != 0) {
+                    sheet.getRow(row).setRowStyle(exampleRow.getRowStyle());
+                    sheet.getRow(row).setHeight(exampleRow.getHeight());
+
+                    for (int i = 0; i < 8; i++) {
+                        sheet.getRow(row).getCell(i).setCellStyle(exampleRow.getCell(i).getCellStyle());
+                    }
+                    sheet.getRow(row).getCell(0).setCellValue(count);
+                    sheet.getRow(row).getCell(1).setCellValue(s.getNomenclatureNumber());
+                    sheet.getRow(row).getCell(2).setCellValue(s.getNamesiz());
+                    sheet.getRow(row).getCell(3).setCellValue(s.getSize());
+                    sheet.getRow(row).getCell(4).setCellValue(s.getHeight());
+                    sheet.getRow(row).getCell(5).setCellValue(s.getNumber());
+                    sheet.getRow(row).getCell(6).setCellValue(sizRepository.findById(s.getId()).orElseThrow().getEd_izm());
+                    sheet.getRow(row).getCell(7).setCellValue(" ");
+                    row++;
+                    count++;
+                }
+            }
+
+            inputStream.close();
+
+            ServletOutputStream outputStream = response.getOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+            outputStream.close();
+
+        } catch (IOException | EncryptedDocumentException
+                ex) {
+            ex.printStackTrace();
+        }
     }
 
 }

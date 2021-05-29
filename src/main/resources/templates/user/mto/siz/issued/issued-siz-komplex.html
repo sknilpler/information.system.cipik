@@ -24,7 +24,6 @@
 
             <div class="row g-3">
                 <div class="col-sm-3">
-                    <label for="komplex" class="form-label">Фильтр</label>
                     <select class="form-control custom-select d-block w-100" id="komplex" name="komplex"
                             th:onchange="'javascript:filterByKomplex(this.value);'">
                         <option selected disabled value="">Выберите подразделение</option>
@@ -33,13 +32,9 @@
                     </select>
                 </div>
                 <div class="col-sm-3">
-                    <label for="send_btn" class="form-label"> </label>
-                    <button class="btn btn-primary" name="send_btn" id="send_btn" th:onclick="'javascript:sendToKomplex();'">Передать на склад подразделения</button>
-                </div>
-                <div class="info" th:fragment="info">
-                    <div>
-                        <p th:text="${info}"></p>
-                    </div>
+                        <button class="btn btn-primary" name="send_btn" id="send_btn"
+                                th:onclick="'javascript:sendToKomplex();'" disabled>Передать на склад подразделения
+                        </button>
                 </div>
             </div>
             <hr>
@@ -55,24 +50,29 @@
                     <thead>
                     <tr>
                         <th style="display:none;">ID</th>
+                        <th>Номенклатурный №</th>
                         <th>Наименование СИЗ</th>
                         <th>Рост</th>
                         <th>Размер</th>
-                        <th>Кол-во</th>
+                        <th style="width: 10%">Кол-во</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="s : ${siz}">
                         <td data-type="id" th:text="${s.id}" style="display:none;"></td>
+                        <td data-type="nomen-nom" th:text="${s.nomenclatureNumber}"></td>
                         <td data-type="namesiz" th:text="${s.namesiz}"></td>
                         <td data-type="height" th:text="${s.height}"></td>
                         <td data-type="size" th:text="${s.size}"></td>
                         <td>
-                            <div class="input-group">
+                            <div class="input-group" th:with="quantityInStock=${issuedSIZRepository.findBySizeAndHeightAndSizIdAndStatusAndKomplexIdAndEmployeeId(s.size,s.height,s.id,'На складе',null,null).size()}">
                                 <span class="input-group-btn">
                                     <button type="button" class="btn btn-default btn-number" name="btn-number" data-type="minus" data-field="quant[1]">-</button>
                                 </span>
-                                <input type="text" name="quant[1]" data-type="quantity" class="form-control input-number" th:value="${s.numAll}" min="0" th:max="${s.numAll}">
+                                <input type="text" name="quant[1]" data-type="quantity" class="form-control input-number"
+                                       th:value="${s.numAll<=quantityInStock} ? ${s.numAll} : ${quantityInStock}"
+                                       min="0" th:max="${quantityInStock}"
+                                        th:title="'На складе: '+${quantityInStock}">
                                 <span class="input-group-btn">
                                     <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="quant[1]">+</button>
                                 </span>
