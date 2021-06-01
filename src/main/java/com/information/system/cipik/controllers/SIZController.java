@@ -5,8 +5,10 @@ import com.information.system.cipik.models.*;
 import com.information.system.cipik.repo.*;
 import com.information.system.cipik.utils.*;
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -289,6 +291,7 @@ public class SIZController {
             // userKomplex = komplexRepository.findByRoleId(role.getId());
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             issuedSIZS = issuedSIZRepository.findByStatusAndKomplexId("На складе", komplex.getId());
+            model.addAttribute("komplex",komplex);
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("typeSIZS", individualProtectionMeans);
@@ -439,6 +442,7 @@ public class SIZController {
         }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             employees = employeeRepository.findAllByKomplexId(komplex.getId());
+            model.addAttribute("komplex",komplex);
         }
         model.addAttribute("employees", employees);
         model.addAttribute("selectedEmployee",employee);
@@ -475,7 +479,6 @@ public class SIZController {
         if (role.getName().equals("ROLE_USER")){
             employees = employeeRepository.findAllByPostId(id);
         }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
-            // userKomplex = komplexRepository.findByRoleId(role.getId());
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             employees = employeeRepository.findAllByKomplexIdAndPostId(komplex.getId(),id);
         }
@@ -504,7 +507,12 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/issued-siz/getSizForEmployee/{id}")
-    public String getSizForEmployee(@PathVariable(value = "id") long id, Model model) {
+    public String getSizForEmployee(@PathVariable(value = "id") long id,Authentication authentication, Model model) {
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        if (!role.getName().equals("ROLE_USER")){
+            model.addAttribute("komplex",komplexRepository.findByRoleId(role.getId()));
+        }
         Post post = postRepository.findByEmployeeId(id);
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(post.getId());
         model.addAttribute("siz", ipmStandards);
@@ -520,7 +528,12 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/issued-siz/getSizForPost/{id}")
-    public String getSizForPost(@PathVariable(value = "id") long id, Model model) {
+    public String getSizForPost(@PathVariable(value = "id") long id,Authentication authentication, Model model) {
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        if (!role.getName().equals("ROLE_USER")){
+            model.addAttribute("komplex",komplexRepository.findByRoleId(role.getId()));
+        }
         Post post = postRepository.findById(id).orElseThrow();
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(id);
         model.addAttribute("siz", ipmStandards);
@@ -751,6 +764,7 @@ public class SIZController {
             employees = employeeRepository.findAllByKomplexId(komplex.getId());
             fullStaffEmpl = employeeRepository.getFullStaffingOfEmployeeByKomplex(komplex.getId());
             employeesEndingDateWear = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex(nextYearBegin,nextYearEnd, komplex.getId());
+            model.addAttribute("komplex",komplex);
         }
         int countE = 0;
         for (Employee e:employees) {
@@ -1060,11 +1074,18 @@ public class SIZController {
      * @return
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/{id}")
-    public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id, Model model) {
+    public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id,Authentication authentication, Model model) {
         Employee employee = employeeRepository.findById(id).orElseThrow();
         employeeForIssuedSIZ = employee;
         List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id,"Выдано");
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(employee.getPost().getId());
+
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        if (!role.getName().equals("ROLE_USER")){
+            model.addAttribute("komplex",komplexRepository.findByRoleId(role.getId()));
+        }
+
         model.addAttribute("siz", ipmStandards);
         model.addAttribute("employee",employee);
         model.addAttribute("vidanSIZ",issuedSIZS);

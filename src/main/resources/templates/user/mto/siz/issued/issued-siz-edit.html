@@ -157,7 +157,8 @@
                                 <tr th:each="s : ${siz}" style="cursor: pointer">
                                     <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
                                     <td th:text="${s.issuanceRate}"></td>
-                                    <td th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
+                                    <td sec:authorize="isAuthenticated() && !hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRateForKomplex(s.id,employee.komplex.id)}"></td>
+                                    <td sec:authorize="hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" name="iss-btn"
                                                 th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</button>

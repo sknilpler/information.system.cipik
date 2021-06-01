@@ -53,6 +53,7 @@ public class EmployeeController {
         }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             employees = employeeRepository.findAllByKomplexId(komplex.getId());
+            model.addAttribute("komplex",komplex);
         }
         model.addAttribute("employees", employees);
         return "user/employee/employes-managment-page";

@@ -18,13 +18,13 @@
                 </button>
                 <div class="collapse" id="home-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                        <li><a sec:authorize="isAuthenticated()" href="/userPage/issued-siz" class="link-dark rounded">Выдача</a></li><hr>
-                        <li><a sec:authorize="isAuthenticated()" href="/userPage/not-issued-siz" class="link-dark rounded">Склад</a></li><hr>
-                        <li><a sec:authorize="isAuthenticated()" href="/userPage/employee-siz" class="link-dark rounded">Укомплектованность<br>сотрудников</a></li><hr>
-                        <li><a sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')" href="/userPage/siz/norms" class="link-dark rounded">Нормы</a></li><hr>
-                        <li><a sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')" href="/userPage/siz-types" class="link-dark rounded">Типы</a></li><hr>
-                        <li><a sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')" href="/userPage/purchasing-table" class="link-dark rounded">Закупочная<br>таблица</a></li><hr>
-                        <li><a sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')" href="/userPage/issued-for-komplex" class="link-dark rounded">Выдача<br>подразделению</a></li>
+                        <li sec:authorize="isAuthenticated()"><a href="/userPage/employee-siz" class="link-dark rounded">Укомплектованность<br>сотрудников</a><hr></li>
+                        <li sec:authorize="isAuthenticated()"><a href="/userPage/issued-siz" class="link-dark rounded">Выдача</a><hr></li>
+                        <li sec:authorize="isAuthenticated()"><a href="/userPage/not-issued-siz" class="link-dark rounded">Склад</a><hr></li>
+                        <li sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')"><a href="/userPage/purchasing-table" class="link-dark rounded">Закупочная<br>таблица</a><hr></li>
+                        <li sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')"><a href="/userPage/issued-for-komplex" class="link-dark rounded">Выдача<br>подразделению</a><hr></li>
+                        <li sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')"><a href="/userPage/siz/norms" class="link-dark rounded">Нормы</a><hr></li>
+                        <li sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')"><a href="/userPage/siz-types" class="link-dark rounded">Типы</a></li>
                     </ul>
                 </div>
             </li>

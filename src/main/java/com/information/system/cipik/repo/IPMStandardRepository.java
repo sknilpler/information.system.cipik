@@ -15,6 +15,14 @@ public interface IPMStandardRepository extends CrudRepository<IPMStandard,Long> 
     @Query(value = "SELECT COUNT(*) FROM issuedsiz,ipmstandard \n" +
             "WHERE issuedsiz.siz_id = ipmstandard.individual_protection_means_id AND \n" +
             "issuedsiz.status = \"На складе\" AND\n" +
-            "ipmstandard.id = :id_ipm", nativeQuery = true)
+            "ipmstandard.id = :id_ipm AND\n"+
+            " issuedsiz.komplex_id IS NULL", nativeQuery = true)
     int notIssuanceRate(@Param("id_ipm") Long id);
+
+    @Query(value = "SELECT COUNT(*) FROM issuedsiz,ipmstandard \n" +
+            "WHERE issuedsiz.siz_id = ipmstandard.individual_protection_means_id AND \n" +
+            "issuedsiz.status = \"На складе\" AND\n" +
+            "ipmstandard.id = :id_ipm AND\n"+
+            "issuedsiz.komplex_id = :id_komplex", nativeQuery = true)
+    int notIssuanceRateForKomplex(@Param("id_ipm") Long id_ipm, @Param("id_komplex") Long id_komplex);
 }
