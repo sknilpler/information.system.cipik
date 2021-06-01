@@ -9,7 +9,8 @@
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
-
+<!-- Modal windows for accepting delete -->
+<div th:insert="blocks/accept-delete :: accept-delete"></div>
 <!-- Modal window for add role -->
 <div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
      aria-hidden="true">
@@ -87,16 +88,15 @@
             </form>
             <span th:unless="${el.roles.contains(var_AdminRole)}">
                 <button class="btn btn-warning mx-1" th:onclick="'javascript:showModalWindow(\'' + ${el.id} + '\');'">Добавить роль</button>
-        </span>
-            <form th:action="'/admin/all-users/user-details/' + ${el.id} +'/remove'" method="post">
-                <button class="btn btn-danger mx-1" type="submit">Удалить</button>
-            </form>
+                <button class="btn btn-danger mx-1" th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'">Удалить</button>
+            </span>
         </div>
     </div>
 </div>
 <script th:inline="javascript">
 function closeModalWindow() {
 	$("#exampleModalLive").modal('hide');
+	$("#deleteAccept").modal('hide');
 };
 
 var user_id;
@@ -104,6 +104,14 @@ var user_id;
 function showModalWindow(value) {
    user_id = value;
    $("#exampleModalLive").modal('show');
+}
+
+var u_id_del;
+
+function showDeleteModalWindow(u_id){
+    u_id_del = u_id;
+    document.getElementById("delete-object").innerHTML = "Вы точно хотите удалить?";
+    $("#deleteAccept").modal('show');
 }
 
 //////////////////////////////////////
@@ -166,6 +174,22 @@ function deleteRole(u_id,r_id){
 		},
 	})
 }
+//////////////////////////////
+function deleteObject(){
+    post('/admin/all-users/user-details/' + u_id_del +'/remove');
+}
+
+function post(path, method='post') {
+  const form = document.createElement('form');
+  form.method = method;
+  form.action = path;
+  const hiddenField = document.createElement('input');
+  hiddenField.type = 'hidden';
+  form.appendChild(hiddenField);
+  document.body.appendChild(form);
+  form.submit();
+}
+
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

@@ -4,81 +4,128 @@
     <title>Сотрудники</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
 
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
-
+<!-- Modal windows for accepting delete -->
+<div th:insert="blocks/accept-delete :: accept-delete"></div>
 <!--Страница для вывода всех сотрудников-->
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-11">
-            <h1>Список всех сотрудников</h1>
-        </div>
-        <div class="col-sm-1">
-            <form th:action="'/userPage/employee/export/excel'" method="get">
-                <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
-                        aria-label="Распечатать">
-                    <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
-                </button>
-            </form>
-        </div>
-    </div>
-    <div class="pagination justify-content-start">
-        <div class="d-flex justify-content-start flex-wrap">
-            <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
-            <a th:href="'/userPage/employee/employee-add'" class="btn btn-success mx-1">Добавить</a>
-        </div>
-        <div class="d-flex justify-content-start flex-wrap">
-            <a th:href="'/userPage/posts/add'" class="btn btn-info mx-1">Должности</a>
-        </div>
-    </div>
-    <br>
-    <div class="bd-example">
-        <table class="table table-bordered">
-            <thead>
-            <tr align="center">
-                <th scope="col" rowspan="2">№</th>
-                <th scope="col" rowspan="2">ФИО</th>
-                <th scope="col" rowspan="2">Должность</th>
-                <th scope="col" rowspan="2">Табельный №</th>
-                <th scope="col" rowspan="2">Дата трудоустройства</th>
-                <th scope="col" rowspan="2">Пол</th>
-                <th scope="col" rowspan="2">Рост</th>
-                <th scope="col" colspan="3">Размеры</th>
-            <th scope="col" style="width: 310px;" rowspan="2"></th>
-            </tr>
-            <tr align="center">
-                <th scope="col" >Одежды</th>
-                <th scope="col">Обуви</th>
-                <th scope="col">Головного убора</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="el, stat : ${employees}">
-                <th scope="row" th:text="${stat.count}"></th>
-                <td th:text="${el.surname}+' '+${el.name}+' '+${el.patronymic}"></td>
-                <td align="center" th:text="${el.post.postName}"></td>
-                <td align="center" th:text="${el.tabNomer}"></td>
-                <td align="center" th:text="${#dates.format(el.dataStartWork, 'dd.MM.yyyy')}"></td>
-                <td align="center" th:text="${el.sex}"></td>
-                <td align="center" th:text="${el.height}"></td>
-                <td align="center" th:text="${el.clothingSize}"></td>
-                <td align="center" th:text="${el.shoeSize}"></td>
-                <td align="center" th:text="${el.headgearSize}"></td>
-                <td>
-                    <form th:action="'/userPage/employee/'+${el.id}+'/remove'" method="post">
-                        <a th:href="'/userPage/employee/'+${el.id}+'/edit'" class="btn btn-primary">Редактировать</a>
-                        <button class="btn btn-danger" type="submit">Удалить</button>
+<div class="d-flex">
+    <!-- Side panel -->
+    <div th:insert="user/mto/sidebar :: sidebar"></div>
+    <div class="my-container active-cont container-fluid">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-11">
+                    <h1>Список всех сотрудников</h1>
+                </div>
+                <div class="col-sm-1">
+                    <form th:action="'/userPage/employee/export/excel'" method="get">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
+                                aria-label="Распечатать">
+                            <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                        </button>
                     </form>
-                </td>
-            </tr>
-            </tbody>
+                </div>
+            </div>
+            <div class="pagination justify-content-start">
+                <div class="d-flex justify-content-start flex-wrap">
+                    <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
+                    <a th:href="'/userPage/employee/employee-add'" class="btn btn-success mx-1">Добавить</a>
+                </div>
+                <div class="d-flex justify-content-start flex-wrap">
+                    <a th:href="'/userPage/posts/add'" class="btn btn-info mx-1">Должности</a>
+                </div>
+            </div>
+            <br>
+            <div class="bd-example">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr align="center">
+                        <th scope="col" rowspan="2">№</th>
+                        <th scope="col" rowspan="2">ФИО</th>
+                        <th scope="col" rowspan="2">Должность</th>
+                        <th scope="col" rowspan="2">Табельный №</th>
+                        <th scope="col" rowspan="2">Дата трудоустройства</th>
+                        <th scope="col" rowspan="2">Пол</th>
+                        <th scope="col" rowspan="2">Рост</th>
+                        <th scope="col" colspan="3">Размеры</th>
+                        <th scope="col" style="width: 310px;" rowspan="2"></th>
+                    </tr>
+                    <tr align="center">
+                        <th scope="col">Одежды</th>
+                        <th scope="col">Обуви</th>
+                        <th scope="col">Головного убора</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="el, stat : ${employees}">
+                        <th scope="row" th:text="${stat.count}"></th>
+                        <td th:text="${el.surname}+' '+${el.name}+' '+${el.patronymic}"></td>
+                        <td align="center" th:text="${el.post.postName}"></td>
+                        <td align="center" th:text="${el.tabNomer}"></td>
+                        <td align="center" th:text="${#dates.format(el.dataStartWork, 'dd.MM.yyyy')}"></td>
+                        <td align="center" th:text="${el.sex}"></td>
+                        <td align="center" th:text="${el.height}"></td>
+                        <td align="center" th:text="${el.clothingSize}"></td>
+                        <td align="center" th:text="${el.shoeSize}"></td>
+                        <td align="center" th:text="${el.headgearSize}"></td>
+                        <td>
+                            <a th:href="'/userPage/employee/'+${el.id}+'/edit'"
+                               class="btn btn-primary">Редактировать</a>
+                            <button class="btn btn-danger" th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'">Удалить</button>
+                        </td>
+                    </tr>
+                    </tbody>
 
-        </table>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+<script th:inline="javascript">
+    ///////////////open sidebar///////////////////
+
+      var menu_btn = document.querySelector("#menu-btn");
+      var sidebar = document.querySelector("#sidebar");
+      var container = document.querySelector(".my-container");
+      menu_btn.addEventListener("click", () => {
+        sidebar.classList.toggle("active-nav");
+        container.classList.toggle("active-cont");
+      });
+
+/////////////////////////////////
+function closeModalWindow() {
+	$("#deleteAccept").modal('hide');
+};
+
+var id_del;
+
+function showDeleteModalWindow(id){
+    id_del = id;
+    document.getElementById("delete-object").innerHTML = "Вы точно хотите удалить?";
+    $("#deleteAccept").modal('show');
+}
+
+function deleteObject(){
+    post('/userPage/employee/'+id_del+'/remove');
+}
+
+function post(path, method='post') {
+  const form = document.createElement('form');
+  form.method = method;
+  form.action = path;
+  const hiddenField = document.createElement('input');
+  hiddenField.type = 'hidden';
+  form.appendChild(hiddenField);
+  document.body.appendChild(form);
+  form.submit();
+}
+</script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>
 </html>

@@ -4,10 +4,13 @@
     <title>Редактирование центра</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
+<!-- Modal windows for accepting delete -->
+<div th:insert="blocks/accept-delete :: accept-delete"></div>
 <div class="container mt-5">
     <h1>Редактирование данных о центрах</h1>
 </div>
@@ -57,10 +60,8 @@
                     <td th:text="${centr.shortName}"></td>
                     <td th:text="${centr.name}"></td>
                     <td>
-                        <form th:action="'/admin/centrs/'+${centr.id}+'/remove'" method="post">
-                            <a th:href="'/admin/centrs/'+${centr.id}+'/edit'" class="btn btn-primary">Редактировать</a>
-                            <button class="btn btn-danger" type="submit">Удалить</button>
-                        </form>
+                        <a th:href="'/admin/centrs/'+${centr.id}+'/edit'" class="btn btn-primary">Редактировать</a>
+                        <button class="btn btn-danger" th:onclick="'javascript:showDeleteModalWindow(\'' + ${centr.id} + '\');'">Удалить</button>
                     </td>
                 </tr>
                 </tbody>
@@ -68,6 +69,33 @@
         </div>
     </div>
 </div>
+<script th:inline="javascript">
+function closeModalWindow() {
+	$("#deleteAccept").modal('hide');
+};
 
+var id_del;
+
+function showDeleteModalWindow(id){
+    id_del = id;
+    document.getElementById("delete-object").innerHTML = "Вы точно хотите удалить?";
+    $("#deleteAccept").modal('show');
+}
+
+function deleteObject(){
+    post('/admin/centrs/'+id_del+'/remove');
+}
+
+function post(path, method='post') {
+  const form = document.createElement('form');
+  form.method = method;
+  form.action = path;
+  const hiddenField = document.createElement('input');
+  hiddenField.type = 'hidden';
+  form.appendChild(hiddenField);
+  document.body.appendChild(form);
+  form.submit();
+}
+</script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

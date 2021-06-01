@@ -16,7 +16,8 @@
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
-
+<!-- Modal windows for accepting delete -->
+<div th:insert="blocks/accept-delete :: accept-delete"></div>
 <!-- Side panel -->
 <div class="d-flex">
     <div th:insert="user/mto/sidebar :: sidebar"></div>
@@ -91,7 +92,7 @@
                                 <th style="10%">Размер</th>
                                 <th style="10%">Рост</th>
                                 <th style="width: 250px;">
-                                        <button class="btn btn-danger btn-sm" name="del_btn" id="del_btn" th:onclick="'javascript:deleteRecord();'" disabled>Удалить</button>
+                                        <button class="btn btn-danger btn-sm" name="del_btn" id="del_btn" th:onclick="'javascript:showDeleteModalWindow();'" disabled>Удалить</button>
                                 </th>
                             </tr>
                             </thead>
@@ -224,10 +225,6 @@ function selectAllRecord(value){
 ///////////////////////////////////////
 function deleteRecord(){
 
-//var xhttp = new XMLHttpRequest();
-//xhttp.open('GET', '/userPage/not-issued-siz/'+selRecs+'/remove', true);
-//xhttp.send();
-
 $.ajax({
 		type: 'post',
 		url: '/userPage/not-issued-siz/'+selRecs+'/remove',
@@ -236,6 +233,20 @@ $.ajax({
 		},
 	})
 }
+////////////////////////////////////////////////
+function closeModalWindow() {
+	$("#deleteAccept").modal('hide');
+};
+
+function showDeleteModalWindow(){
+    document.getElementById("delete-object").innerHTML = "Вы точно хотите удалить?";
+    $("#deleteAccept").modal('show');
+}
+
+function deleteObject(){
+    deleteRecord();
+}
+
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

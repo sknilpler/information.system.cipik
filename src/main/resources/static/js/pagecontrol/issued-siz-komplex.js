@@ -13,10 +13,6 @@ komplex_id = value;
     	})
 }
 
-/////////////////////////////////////////////
-function plusNumber(value){
-    console.log()
-}
 ///////////////open sidebar///////////////////
 
       var menu_btn = document.querySelector("#menu-btn");
@@ -81,7 +77,9 @@ function sendToKomplex(){
     	    var blob = new Blob([data],{type: xhr.getResponseHeader('Content-Type')});
     	    var link = document.createElement('a');
     	    link.href = window.URL.createObjectURL(blob);
-    	    link.download = 'Акт приема-передачи СИЗ для '+document.querySelector("#komplex").innerHTML+' от '+new Date()+'.xlsx';
+    	    var today = formatDateToRus(new Date());
+    	    var komplexName = $("#komplex option:selected").text();
+    	    link.download = 'Акт приема-передачи СИЗ для '+komplexName+' от '+today+'.xlsx';
     	    link.click();
     	},
         error : function(e) {
@@ -89,4 +87,12 @@ function sendToKomplex(){
              console.log("ERROR: ", e);
         }
     });
+
+    function formatDateToRus(dateTime){
+        var dd = String(dateTime.getDate()).padStart(2, '0');
+        var mm = String(dateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = dateTime.getFullYear();
+
+        return dd + '.' + mm + '.' + yyyy;
+    }
 }
