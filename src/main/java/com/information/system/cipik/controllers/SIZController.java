@@ -62,6 +62,11 @@ public class SIZController {
     private boolean sortedByEndIssuedDate;
     private TypeOfSortingEmployeeTable typeOfSortingEmployeeTable;
 
+    /**
+     * Список ошибок при выдаче СИЗ сотруднику
+     */
+    private List<String> listErrors = new ArrayList<>();
+
     @GetMapping("/userPage/siz-types")
     public String allSIZ(Model model) {
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
@@ -567,6 +572,7 @@ public class SIZController {
     @GetMapping("/userPage/issued-siz/{list}/add/{id}")
     public String addIssuedSiz(@PathVariable(value = "list") List<Long> list, @PathVariable(value = "id") long id, Model model) {
         String message = "";
+        listErrors.clear();
         List<IssuedSIZ> issuedSIZS = null;
         Date dateIssued = new Date();
         IPMStandard ipmStandard = ipmStandardRepository.findById(id).orElseThrow();
@@ -598,12 +604,12 @@ public class SIZController {
                 } else if (typeSIZ.equals("Рукавицы")) {
                     issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForMittens(id, employee_id);
                 } else {
-                    message = "Выбран несуществующий тип СИЗ";
+                    message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() +" выбран несуществующий тип СИЗ";
                 }
                 int issued_number = number-employeesSIZ.size();
                 if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
                     if (issuedSIZS.size() < issued_number) {
-                        message = "Для " + employee.getSurname() + " " + employee.getName() + " СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + issued_number + " запрошенных";
+                        message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() + " СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + issued_number + " запрошенных";
                     }
                     for (int i = 0; i < issued_number; i++) {
                         IssuedSIZ siz = issuedSIZS.get(i);
@@ -616,19 +622,33 @@ public class SIZController {
                         issuedSIZRepository.save(siz);
                     }
                 } else {
-                    message = "Нужные размеры для " + employee.getSurname() + " " + employee.getName() + " на складе отсутствуют";
+                    message = "Нужные размеры для " + employee.getSurname() + " " + employee.getName() + " "+ employee.getPatronymic() + " на складе отсутствуют";
                 }
             } else {
-                System.out.println("Для " + employee.getSurname() + " " + employee.getName() + " СИЗ выдан");
+                message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() +" СИЗ данного типа был выдан ранее";
             }
-            System.out.println(message);
+            if(!message.equals("")) {
+               listErrors.add(message);
+            }
         }
 
         List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
+        model.addAttribute("errors",listErrors);
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
         return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
+    }
+
+    /**
+     * Отправка на страницу списка ошибок при выдаче СИЗ
+     * @param model
+     * @return
+     */
+    @GetMapping("/userPage/issued-siz/errors")
+    public String sendErrors(Model model) {
+        model.addAttribute("errors", listErrors);
+        return "user/mto/siz/issued/issued-siz-add :: table-errors";
     }
 
     /**
@@ -1244,6 +1264,12 @@ public class SIZController {
         return "user/mto/siz/issued/issued-siz-edit :: table-siz";
     }
 
+    /**
+     * Печать списка укомплектованности сотрудников
+     * @param response
+     * @param authentication
+     * @throws IOException
+     */
     @GetMapping("/userPage/employee-siz/print-table")
     public void printTableEmployee (HttpServletResponse response,Authentication authentication) throws IOException {
         response.setContentType("application/octet-stream");

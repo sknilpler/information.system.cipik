@@ -9,9 +9,13 @@ function showModalWindow2(value) {
 	writeoffSIZId = value;
 	$("#exampleModalLive2").modal('show');
 }
+function showModalWindow3() {
+	$("#exampleModalLive3").modal('show');
+}
 function closeModalWindow() {
 	$("#exampleModalLive").modal('hide');
 	$("#exampleModalLive2").modal('hide');
+	$("#exampleModalLive3").modal('hide');
 };
 ///////////////////////////////////
 var employee_id;
@@ -126,20 +130,35 @@ function loadIssuedSiz(value) {
 //////////////////////////////////////////
 function updateIssuedSiz(value) {
 
-	$.ajax({
-		type: 'get',
-		url: '/userPage/issued-siz/' + selRecs + '/add/'+value,
-		success: function(data) {
-			$('.table-issuedSiz').html(data);
-			document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
+    $.ajax({
+	    type: 'get',
+	    url: '/userPage/issued-siz/' + selRecs + '/add/'+value,
+	    success: function(data) {
+		    $('.table-issuedSiz').html(data);
+		    document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
             $('body input:checkbox').prop('checked',false);
-			selRecs = [];
-		},
-	})
-	updateSizForEmployee(employee_id);
-	//$('body input:checkbox').prop('checked',false);
-
+		    selRecs = [];
+		    loadErrors();
+		    updateSizForEmployee(employee_id);
+	},
+})
+//$('body input:checkbox').prop('checked',false);
 };
+
+//////////////////////////////////////////
+function loadErrors(){
+        $.ajax({
+	    	type: 'get',
+	    	url: '/userPage/issued-siz/errors/',
+	    	success: function(data) {
+	    		$('.table-errors').html(data);
+                var count = $('#tb_err tr').length - 1;
+                if (count>0){
+                    alert('Возникли некоторые проблемы при выдачи СИЗ сотрудникам');
+                }
+	    	},
+	    })
+}
 //////////////////////////////////////////
 var dateExtending;
 

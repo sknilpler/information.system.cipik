@@ -49,12 +49,11 @@
                     <span class="lead">Таблица СИЗ для закупки</span>
                 </div>
                 <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
-                    <form th:action="'/userPage/purchasing-table/print-table'" method="get">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
-                                aria-label="Распечатать">
-                            <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
-                        </button>
-                    </form>
+                    <button class="btn btn-outline-secondary btn-sm float-right"
+                            th:onclick="'javascript:print();'"
+                            aria-label="Распечатать" title="Печать таблицы">
+                        <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                    </button>
                 </div>
             </div>
 

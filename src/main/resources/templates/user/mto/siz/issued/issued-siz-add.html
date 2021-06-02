@@ -70,6 +70,45 @@
     </div>
 </div>
 <!-- Modal window -->
+<!-- Modal window for error issued SIZ -->
+<div id="exampleModalLive3" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLive3Label"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLive3Label">Проблемы при выдаче СИЗ сотрудникам</h5>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-errors" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;"
+                     th:fragment="table-errors">
+                    <table class="table table-hover" id="tb_err">
+                        <thead>
+                        <tr>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="e : ${errors}">
+                            <td th:text="${e}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+                <!--                <button type="button" class="btn btn-primary" onclick="extendSIZ()">Сохранить</button>-->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
     <!-- Side panel -->
 <div class="d-flex">
 <div th:insert="user/mto/sidebar :: sidebar"></div>
@@ -171,17 +210,24 @@
                                   th:text="'Список выданного СИЗ сотруднику '+${selectedEmployee.surname}+' '+${selectedEmployee.name}+' '+${selectedEmployee.patronymic}"></span>
                             </div>
                             <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button class="btn btn-outline-danger btn-sm float-right"
+                                        aria-label="Распечатать" title="Имеются проблемы с выдачей СИЗ"
+                                        th:onclick="'javascript:showModalWindow3();'"
+                                        th:if="${not #lists.isEmpty(errors)}">
+                                    <img src="/images/bootstrap-icons/clipboard-x.svg" alt="Bootstrap" width="24"
+                                         height="24">
+                                </button>
                                 <form th:action="'/userPage/employee-siz/print-personal-card/'+${selectedEmployee.id}"
                                       method="get">
                                     <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
-                                            aria-label="Распечатать">
+                                            aria-label="Распечатать" title="Печать личной карточки">
                                         <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24"
                                              height="24">
                                     </button>
                                 </form>
                             </div>
                         </div>
-                        <p class="fs-6 text-danger" th:text="${issuedError}"></p>
+<!--                        <p class="fs-6 text-danger" th:text="${issuedError}"></p>-->
                         <div class="table-responsive" style="max-height: 40vh; min-height: 30vh; overflow-y: auto;">
                             <table class="table table-hover">
                                 <thead>
