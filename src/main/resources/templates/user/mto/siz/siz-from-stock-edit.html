@@ -14,6 +14,7 @@
     <div th:insert="user/mto/sidebar :: sidebar"></div>
     <!-- Side panel -->
     <div class="my-container active-cont container-fluid">
+
         <h1>Редактирование информации о СИЗ на складе</h1>
 
         <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
@@ -27,7 +28,8 @@
                                     th:text="${t.nameSIZ}"></option>
                         </select>
                     </div>
-                    <div class="col-sm-3">
+
+                    <div class="col-sm-2">
                         <label class="md-2" for="size">Размеры СИЗ</label>
                         <div class="md-7">
                             <input type="text" id="size" name="size" th:field="*{size}" class="form-control"
@@ -35,12 +37,18 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-3">
+                    <div class="col-sm-2">
                         <label class="md-2" for="height">Рост (для одежды)</label>
                         <div class="md-7">
                             <input type="text" id="height" name="height" th:field="*{height}" class="form-control"
                                    placeholder="Введите рост"/>
                         </div>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <label class="md-2" for="number">Количество подобного СИЗ</label>
+                        <input type="text" id="number" name="number" th:value="${number}" class="form-control"
+                               placeholder="Введите количество"/>
                     </div>
 
                     <div class="container mt-1 form-actions floatRight">
@@ -49,6 +57,7 @@
                             поля
                         </button>
                     </div>
+
                 </div>
             </form>
         </div>

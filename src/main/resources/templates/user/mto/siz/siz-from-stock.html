@@ -89,25 +89,28 @@
                                 <th style="5%">№ п/п</th>
                                 <th>Табельный №</th>
                                 <th>Наименование</th>
-                                <th style="10%">Размер</th>
-                                <th style="10%">Рост</th>
+                                <th style="width: 5%">Размер</th>
+                                <th style="width: 5%">Рост</th>
+                                <th style="width: 5%">Кол-во</th>
                                 <th style="width: 250px;">
-                                        <button class="btn btn-danger btn-sm" name="del_btn" id="del_btn" th:onclick="'javascript:showDeleteModalWindow();'" disabled>Удалить</button>
+                                    <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-danger btn-sm" name="del_btn"  th:onclick="'javascript:showDeleteModalWindow();'" disabled>Удалить</button>
+                                    <button sec:authorize="isAuthenticated() && !hasRole('ROLE_USER')" class="btn btn-danger btn-sm" name="del_btn" th:onclick="'javascript:showDeleteModalWindow();'" disabled>Возврат на склад центра</button>
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="n,iter : ${notIssuedSIZ}">
                                 <td>
-                                        <input type="checkbox" name="record-checkbox" th:onchange="'javascript:selectRecord(this,\'' + ${n.id} + '\');'">
+                                        <input type="checkbox" name="record-checkbox" th:data-size="${n.size}" th:data-height="${n.height}" th:data-id="${n.id}" onchange="selectRecord(this,this.getAttribute('data-id'),this.getAttribute('data-size'),this.getAttribute('data-height'));">
                                 </td>
                                 <td th:text="${iter.index+1}"></td>
-                                <td th:text="${n.siz.nomenclatureNumber}"></td>
-                                <td th:text="${n.siz.nameSIZ}"></td>
+                                <td th:text="${n.nomenclatureNumber}"></td>
+                                <td th:text="${n.nameSIZ}"></td>
                                 <td th:text="${n.size}"></td>
                                 <td th:text="${n.height}"></td>
+                                <td th:text="${n.number}"></td>
                                 <td>
-                                        <a th:href="'/userPage/not-issued-siz/'+${n.id}+'/edit'"
+                                        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/not-issued-siz/'+${n.id}+'/'+${n.size}+'/'+${n.height}+'/'+${n.number}+'/edit'"
                                            class="btn btn-primary btn-sm">Редактировать</a>
                                 </td>
                             </tr>
@@ -186,11 +189,13 @@ function U2A(str) {
 //////////////////////////////////////
 var selRecs = [];
 
-function selectRecord(value, id) {
+function selectRecord(value, id,size,height) {
+    var str = id+'_'+size+'_'+height;
+
 	if (value.checked) {
-		selRecs.push(Number(id));
+		selRecs.push(str);
 	} else {
-		selRecs = arrayRemove(selRecs, Number(id));
+		selRecs = arrayRemove(selRecs, str);
 	}
 	var btns =  document.getElementsByName('del_btn');
 	if(selRecs.length === 0){
@@ -211,7 +216,7 @@ function selectAllRecord(value){
 		/*<![CDATA[*/
  	    var list = [];
  	    /*[# th:each="elVar : ${notIssuedSIZ}"]*/
- 	        list.push(/*[[${elVar.id}]]*/);
+ 	        list.push(/*[[${elVar.id}+'_'+${elVar.size}+'_'+${elVar.height}]]*/);
  		/*[/]*/
  		/*]]>*/
         selRecs = list;
@@ -224,7 +229,8 @@ function selectAllRecord(value){
 }
 ///////////////////////////////////////
 function deleteRecord(){
-
+console.log('deleting');
+console.log(selRecs);
 $.ajax({
 		type: 'post',
 		url: '/userPage/not-issued-siz/'+selRecs+'/remove',

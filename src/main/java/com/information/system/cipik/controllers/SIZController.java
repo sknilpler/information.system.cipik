@@ -286,21 +286,23 @@ public class SIZController {
      */
     @GetMapping("/userPage/not-issued-siz")
     public String notIssuedSIZAll(Model model, Authentication authentication) {
-
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        List<SIZForStock> sizesForStock = new ArrayList<>();
+        List<Object[]> objectList;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        List<IssuedSIZ> issuedSIZS;
         if (role.getName().equals("ROLE_USER")) {
-            issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+            objectList = issuedSIZRepository.findGroupbySizeAndHeight();
         } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
-            // userKomplex = komplexRepository.findByRoleId(role.getId());
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexId("На складе", komplex.getId());
+            objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplex(komplex.getId());
             model.addAttribute("komplex",komplex);
+        }
+        for (Object[] obj : objectList) {
+            sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("typeSIZS", individualProtectionMeans);
-        model.addAttribute("notIssuedSIZ", issuedSIZS);
+        model.addAttribute("notIssuedSIZ", sizesForStock);
         return "user/mto/siz/siz-from-stock";
     }
 
@@ -329,19 +331,22 @@ public class SIZController {
 
     /**
      * Редактирование данных о СИЗ
-     * @param id
-     * @param model
-     * @return
+     * @param id id SIZ
+     * @param model model from page
+     * @return page
      */
-    @GetMapping("/userPage/not-issued-siz/{id}/edit")
-    public String notIssuedSIZEdit(@PathVariable(value = "id") long id, Model model){
-        if (!issuedSIZRepository.existsById(id)) {
-            return "redirect:/userPage/not-issued-siz";
+    @GetMapping("/userPage/not-issued-siz/{id}/{size}/{height}/{number}/edit")
+    public String notIssuedSIZEdit(@PathVariable(value = "id") long id,@PathVariable(value = "height") String height,@PathVariable(value = "size") String size,@PathVariable(value = "number") int number, Model model){
+        IssuedSIZ siz;
+        if ((height == null)||(height.equals(""))||(height.equals("null"))) {
+            siz = issuedSIZRepository.findByStock(size, id, "На складе").get(0);
+        } else {
+            siz = issuedSIZRepository.findByStock(size, height, id, "На складе").get(0);
         }
-        IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow();
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
-        model.addAttribute("typeSIZS",individualProtectionMeans);
-        model.addAttribute("siz",siz);
+        model.addAttribute("typeSIZS", individualProtectionMeans);
+        model.addAttribute("siz", siz);
+        model.addAttribute("number", number);
         return "user/mto/siz/siz-from-stock-edit";
     }
 
@@ -355,12 +360,15 @@ public class SIZController {
      * @return
      */
     @PostMapping("/userPage/not-issued-siz/{id}/edit")
-    public String notIssuedSIZUpdate(@PathVariable(value = "id") long id,@RequestParam IndividualProtectionMeans siz, @RequestParam String size, @RequestParam String height, Model model){
-        IssuedSIZ isiz = issuedSIZRepository.findById(id).orElseThrow();
-        isiz.setSiz(siz);
-        isiz.setSize(size);
-        isiz.setHeight(height);
-        issuedSIZRepository.save(isiz);
+    public String notIssuedSIZUpdate(@PathVariable(value = "id") long id,@RequestParam IndividualProtectionMeans siz, @RequestParam String size, @RequestParam String height, @RequestParam int number,  Model model){
+        List<IssuedSIZ> list = issuedSIZRepository.findByStock(size, height, id, "На складе");
+        for (IssuedSIZ s : list) {
+            issuedSIZRepository.deleteById(s.getId());
+        }
+        for (int i = 0; i < number; i++) {
+            IssuedSIZ isiz = new IssuedSIZ(siz, size, height);
+            issuedSIZRepository.save(isiz);
+        }
         return "redirect:/userPage/not-issued-siz";
     }
 
@@ -371,25 +379,52 @@ public class SIZController {
      * @return
      */
     @PostMapping("/userPage/not-issued-siz/{list}/remove")
-    public String notIssuedSIZDelete(@PathVariable(value = "list") List<Long> list,Authentication authentication, Model model){
-//определение текущей роли пользователя
+    public String notIssuedSIZDelete(@PathVariable(value = "list") List<String> list, Authentication authentication, Model model) {
+        //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
-        List<IssuedSIZ> issuedSIZS;
-        if (role.getName().equals("ROLE_USER")){    //если пользователь СуперЮзер то просто удаляем записи из базы
-            for (Long id : list) {
-                issuedSIZRepository.deleteById(id);
+        List<SIZForStock> sizesForStock = new ArrayList<>();
+        List<Object[]> objectList;
+        if (role.getName().equals("ROLE_USER")) {    //если пользователь СуперЮзер то просто удаляем записи из базы
+            for (String str : list) {
+                String[] arrData = str.split("_");
+                long id = Long.parseLong(arrData[0]);
+                String size = arrData[1];
+                String height = arrData[2];
+                List<IssuedSIZ> sizs;
+                if ((height == null) || (height.equals("")) || (height.equals("null"))) {
+                    sizs = issuedSIZRepository.findByStock(size, id, "На складе");
+                } else {
+                    sizs = issuedSIZRepository.findByStock(size, height, id, "На складе");
+                }
+                for (IssuedSIZ s : sizs) {
+                    issuedSIZRepository.deleteById(s.getId());
+                }
             }
-            issuedSIZS = issuedSIZRepository.findByStatus("На складе");
-        }else{      //иначе возвращаем СИЗ на главный склад центра
-            for (Long id : list) {
-               IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow();
-               siz.setKomplex(null);
-               issuedSIZRepository.save(siz);
-            }
+            objectList = issuedSIZRepository.findGroupbySizeAndHeight();
+        } else {      //иначе возвращаем СИЗ на главный склад центра
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexId("На складе", komplex.getId());
+            for (String str : list) {
+                String[] arrData = str.split("#");
+                long id = Long.parseLong(arrData[0]);
+                String size = arrData[1];
+                String height = arrData[2];
+                List<IssuedSIZ> sizs;
+                if ((height == null) || (height.equals("")) || (height.equals("null"))) {
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, id, "На складе",komplex.getId());
+                } else {
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, height, id, "На складе",komplex.getId());
+                }
+                for (IssuedSIZ s : sizs) {
+                    s.setKomplex(null);
+                    issuedSIZRepository.save(s);
+                }
+            }
+            objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplex(komplex.getId());
         }
-        model.addAttribute("notIssuedSIZ", issuedSIZS);
+        for (Object[] obj : objectList) {
+            sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
+        }
+        model.addAttribute("notIssuedSIZ", sizesForStock);
         return "user/mto/siz/siz-from-stock :: table-sock-siz";
     }
 
@@ -403,24 +438,28 @@ public class SIZController {
     public String searchStockSiz(@PathVariable(value = "keyword") String keyword,Authentication authentication, Model model) {
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
-        List<IssuedSIZ> issuedSIZS;
+        List<SIZForStock> sizesForStock = new ArrayList<>();
+        List<Object[]> objectList;
         if (role.getName().equals("ROLE_USER")){    //если пользователь СуперЮзер то выводим общую информацию
             if (keyword.equals("0")) {
-                issuedSIZS = issuedSIZRepository.findByStatus("На складе");
+                objectList = issuedSIZRepository.findGroupbySizeAndHeight();
             } else {
-                issuedSIZS = issuedSIZRepository.findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike("На складе","%"+keyword+"%","%"+keyword+"%", "%"+keyword+"%");
+                objectList = issuedSIZRepository.findGroupbySizeAndHeightByKeyword(keyword);
             }
         }else{      //иначе отображаем информацию по текущему подразделению
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             if (keyword.equals("0")) {
-                issuedSIZS = issuedSIZRepository.findByStatusAndKomplexId("На складе", komplex.getId());
+                objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplex(komplex.getId());
             } else {
-                issuedSIZS = issuedSIZRepository.findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike(komplex.getId(), keyword);
+                objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplexAndKeyword(komplex.getId(),keyword);
             }
+        }
+        for (Object[] obj : objectList) {
+            sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("typeSIZS", individualProtectionMeans);
-        model.addAttribute("notIssuedSIZ", issuedSIZS);
+        model.addAttribute("notIssuedSIZ", sizesForStock);
         return "user/mto/siz/siz-from-stock :: table-sock-siz";
     }
 

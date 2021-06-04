@@ -15,11 +15,43 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
     List<IssuedSIZ> findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status, String size, String height, String nameSIZ);
     //List<IssuedSIZ> findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status,Long komplex_id, String size, String height, String nameSIZ);
 
-//    @Query(value = "SELECT s.id,s.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num\n" +
-//            "FROM issuedsiz i, individual_protection_means s\n" +
-//            "WHERE s.id=i.siz_id\n" +
-//            "GROUP BY 1,2,3,4,5",nativeQuery = true)
-//    List<> findGroupbySizeAndHeight();
+    @Query(value = "SELECT s.id,s.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
+            "FROM issuedsiz i, individual_protection_means s \n" +
+            "WHERE s.id=i.siz_id AND \n" +
+            "i.status = \"На складе\" AND \n" +
+            "i.employee_id IS null AND \n" +
+            "i.komplex_id IS null \n"+
+            "GROUP BY 1,2,3,4,5",nativeQuery = true)
+    List<Object[]> findGroupbySizeAndHeight();
+
+    @Query(value = "SELECT s.id,s.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
+            "FROM issuedsiz i, individual_protection_means s \n" +
+            "WHERE s.id=i.siz_id AND \n" +
+            "i.status = \"На складе\" AND \n" +
+            "i.employee_id IS null AND \n" +
+            "i.komplex_id IS null AND\n"+
+            "CONCAT(i.size,i.height,s.namesiz,s.nomenclature_number) LIKE %:keyword% \n"+
+            "GROUP BY 1,2,3,4,5",nativeQuery = true)
+    List<Object[]> findGroupbySizeAndHeightByKeyword(@Param("keyword") String keyword);
+
+    @Query(value = "SELECT s.id,s.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
+            "FROM issuedsiz i, individual_protection_means s \n" +
+            "WHERE s.id=i.siz_id AND \n" +
+            "i.status = \"На складе\" AND \n" +
+            "i.employee_id IS null AND \n" +
+            "i.komplex_id = :id \n"+
+            "GROUP BY 1,2,3,4,5",nativeQuery = true)
+    List<Object[]> findGroupbySizeAndHeightByKomplex(@Param("id") Long id);
+
+    @Query(value = "SELECT s.id,s.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
+            "FROM issuedsiz i, individual_protection_means s \n" +
+            "WHERE s.id=i.siz_id AND \n" +
+            "i.status = \"На складе\" AND \n" +
+            "i.employee_id IS null AND \n" +
+            "i.komplex_id = :id AND \n"+
+            "CONCAT(i.size,i.height,s.namesiz,s.nomenclature_number) LIKE %:keyword% \n"+
+            "GROUP BY 1,2,3,4,5",nativeQuery = true)
+    List<Object[]> findGroupbySizeAndHeightByKomplexAndKeyword(@Param("id") Long id,@Param("keyword") String keyword);
 
     @Query(value = "SELECT i.* FROM issuedsiz i,individual_protection_means s\n" +
             "WHERE i.status = \"На складе\" AND\n" +
@@ -344,5 +376,43 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ,Long> {
             "ORDER BY 3,4,5",nativeQuery = true)
     List<Object[]> getIssuedSIZForKomplex(@Param("id") Long id);
 
-    List<IssuedSIZ> findBySizeAndHeightAndSizIdAndStatusAndKomplexIdAndEmployeeId(String size,String height,Long siz_id,String status,Long komplex_id,Long employee_id);
+    List<IssuedSIZ> findBySizeAndHeightAndSizIdAndStatusAndKomplexIdAndEmployeeId(String size, String height, Long siz_id, String status, Long komplex_id, Long employee_id);
+
+    @Query(value = "SELECT * FROM issuedsiz WHERE \n" +
+            "size =:s AND\n" +
+            "height =:h AND\n" +
+            "siz_id =:s_id AND\n" +
+            "status =:stat AND\n" +
+            "komplex_id IS NULL AND\n" +
+            "employee_id IS NULL",nativeQuery = true)
+    List<IssuedSIZ> findByStock(@Param("s") String size, @Param("h") String height, @Param("s_id") long siz_id, @Param("stat") String status);
+
+    @Query(value = "SELECT * FROM issuedsiz WHERE \n" +
+            "size =:s AND\n" +
+            "height IS NULL AND\n" +
+            "siz_id =:s_id AND\n" +
+            "status =:stat AND\n" +
+            "komplex_id IS NULL AND\n" +
+            "employee_id IS NULL",nativeQuery = true)
+    List<IssuedSIZ> findByStock(@Param("s") String size, @Param("s_id") long siz_id, @Param("stat") String status);
+
+    @Query(value = "SELECT * FROM issuedsiz WHERE \n" +
+            "size =:s AND\n" +
+            "height =:h AND\n" +
+            "siz_id =:s_id AND\n" +
+            "status =:stat AND\n" +
+            "komplex_id =:k_id AND\n" +
+            "employee_id IS NULL",nativeQuery = true)
+    List<IssuedSIZ> findByStockAndKomplex(@Param("s") String size, @Param("h") String height, @Param("s_id") long siz_id, @Param("stat") String status,@Param("k_id") long k_id);
+
+    @Query(value = "SELECT * FROM issuedsiz WHERE \n" +
+            "size =:s AND\n" +
+            "height IS NULL AND\n" +
+            "siz_id =:s_id AND\n" +
+            "status =:stat AND\n" +
+            "komplex_id =:k_id AND\n" +
+            "employee_id IS NULL",nativeQuery = true)
+    List<IssuedSIZ> findByStockAndKomplex(@Param("s") String size, @Param("s_id") long siz_id, @Param("stat") String status,@Param("k_id") long k_id);
+
+
 }

@@ -48,4 +48,20 @@ public class IssuedSIZ {
         this.size = size;
         this.height = height;
     }
+
+    @Override
+    public String toString() {
+        return "IssuedSIZ{" +
+                "id=" + id +
+                ", employee=" + employee +
+                ", siz=" + siz +
+                ", dateIssued=" + dateIssued +
+                ", dateEndWear=" + dateEndWear +
+                ", status='" + status + '\'' +
+                ", size='" + size + '\'' +
+                ", height='" + height + '\'' +
+                ", writeOffAct='" + writeOffAct + '\'' +
+                ", komplex=" + komplex +
+                '}';
+    }
 }
