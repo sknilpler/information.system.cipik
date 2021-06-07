@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -50,23 +51,43 @@ public class SIZController {
     @Autowired
     IssuedSIZRepository issuedSIZRepository;
     @Autowired
-    ItemsRepository itemsRepository;
-    @Autowired
     SizeSizRepository sizeSizRepository;
 
+    /**
+     * Список должностей для норм выдачи
+     */
     private Iterable<Post> listPosts;
+    /**
+     * Выбранная должность для норм выдачи
+     */
     private Post postAddToNorm;
-    private Post postToIssued;
+    /**
+     * Сотрудник которому выдается СИЗ
+     */
     private Employee employeeForIssuedSIZ;
+    /**
+     * Строка фильтрации для выданного СИЗ
+     */
     private String filerIssuedSizAll;
+    /**
+     * Условие проверки сортировки по окончанию даты носки СИЗ
+     */
     private boolean sortedByEndIssuedDate;
+    /**
+     * Тип сортировки таблицы укомплектованности сотрудников
+     */
     private TypeOfSortingEmployeeTable typeOfSortingEmployeeTable;
-
     /**
      * Список ошибок при выдаче СИЗ сотруднику
      */
-    private List<String> listErrors = new ArrayList<>();
+    private final List<String> listErrors = new ArrayList<>();
 
+    /**
+     * Первоначальное открытие страницы с типами СИЗ
+     *
+     * @param model модель аттрибутов страницы
+     * @return веб страница со списком типов СИЗ
+     */
     @GetMapping("/userPage/siz-types")
     public String allSIZ(Model model) {
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
@@ -74,7 +95,16 @@ public class SIZController {
         return "user/mto/siz/types-of-siz";
     }
 
-
+    /**
+     * Добавление нового типа СИЗ
+     *
+     * @param nameSIZ            наименование СИЗ
+     * @param ed_izm             единицы измерения
+     * @param typeIPM            тип СИЗ
+     * @param nomenclatureNumber номенклатурный номер
+     * @param model              модель аттрибутов страницы
+     * @return перенаправление на /userPage/siz-types
+     */
     @PostMapping("/userPage/siz-types")
     public String addSIZ(@RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, @RequestParam String nomenclatureNumber, Model model) {
         IndividualProtectionMeans individualProtectionMeans = new IndividualProtectionMeans(nameSIZ, ed_izm, typeIPM, nomenclatureNumber);
@@ -82,6 +112,13 @@ public class SIZController {
         return "redirect:/userPage/siz-types";
     }
 
+    /**
+     * Открытие страницы для редактирования типа СИЗ
+     *
+     * @param id    ID выбранного для редактирования типа СИЗ
+     * @param model модель аттрибутов страницы
+     * @return страница для редактирования СИЗ
+     */
     @GetMapping("/userPage/siz-types/{id}/edit")
     public String editSIZ(@PathVariable(value = "id") long id, Model model) {
         if (!sizRepository.existsById(id)) {
@@ -92,6 +129,17 @@ public class SIZController {
         return "user/mto/siz/types-of-siz-edit";
     }
 
+    /**
+     * Сохранение отредактированного типа СИЗ
+     *
+     * @param id                 ID типа СИЗ
+     * @param nameSIZ            наименование СИЗ
+     * @param ed_izm             единицы измерения
+     * @param typeIPM            тип СИЗ
+     * @param nomenclatureNumber номенклатурный номер
+     * @param model              модель аттрибутов страницы
+     * @return перенаправление на /userPage/siz-types
+     */
     @PostMapping("/userPage/siz-types/{id}/edit")
     public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, @RequestParam String nomenclatureNumber, Model model) {
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
@@ -103,6 +151,13 @@ public class SIZController {
         return "redirect:/userPage/siz-types";
     }
 
+    /**
+     * Удаление выбранного типа СИЗ
+     *
+     * @param id    ID типа СИЗ
+     * @param model модель аттрибутов страницы
+     * @return перенаправление на /userPage/siz-types
+     */
     @PostMapping("/userPage/siz-types/{id}/remove")
     public String deleteSIZ(@PathVariable(value = "id") long id, Model model) {
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
@@ -110,11 +165,69 @@ public class SIZController {
         return "redirect:/userPage/siz-types";
     }
 
+    /**
+     * Открытие страницы размеров выбранного типа СИЗ
+     *
+     * @param id    ID выбранного типа СИЗ
+     * @param model модель аттрибутов страницы
+     * @return страницу с размерами
+     */
+    @GetMapping("/userPage/siz-types/sizes/{id}")
+    public String openSizeSizPage(@PathVariable(value = "id") long id, Model model) {
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
+        model.addAttribute("siz", individualProtectionMeans);
+        model.addAttribute("sizes", sizeSizRepository.findAllByIndividualProtectionMeansId(id));
+        return "user/mto/siz/sizes";
+    }
+
+    /**
+     * Сохранение нового размера для выбранного типа СИЗ
+     *
+     * @param id     ID выбранного типа СИЗ
+     * @param height рост
+     * @param size   размер
+     * @param model  модель аттрибутов страницы
+     * @return страницу с размерами
+     */
+    @PostMapping("/userPage/siz-types/sizes/{id}")
+    public String addSizeToSIZ(@PathVariable(value = "id") long id, @RequestParam String height, @RequestParam String size, Model model) {
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
+        SizeSiz sizeSiz = new SizeSiz(individualProtectionMeans, size, height);
+        sizeSizRepository.save(sizeSiz);
+        model.addAttribute("siz", individualProtectionMeans);
+        model.addAttribute("sizes", sizeSizRepository.findAllByIndividualProtectionMeansId(id));
+        return "user/mto/siz/sizes";
+    }
+
+    /**
+     * Удаление размера из выбранного типа СИЗ
+     *
+     * @param id    ID размера
+     * @param model модель аттрибутов страницы
+     * @return страницу с размерами
+     */
+    @PostMapping("/userPage/sizes/{id}/remove")
+    public String deleteSizeFromSiz(@PathVariable(value = "id") long id, Model model) {
+        SizeSiz sizeSiz = sizeSizRepository.findById(id).orElseThrow();
+        IndividualProtectionMeans individualProtectionMeans = sizeSiz.getIndividualProtectionMeans();
+        sizeSizRepository.deleteById(id);
+        model.addAttribute("siz", individualProtectionMeans);
+        model.addAttribute("sizes", sizeSizRepository.findAllByIndividualProtectionMeansId(individualProtectionMeans.getId()));
+        return "redirect:/userPage/siz-types/sizes/" + individualProtectionMeans.getId();
+    }
+
     //////////////////нормы СИЗ//////////////////////
 
+    /**
+     * Первоначальное открытие страницы с нормами выдачи СИЗ
+     *
+     * @param model   модель аттрибутов страницы
+     * @param keyword строка поиска
+     * @return страница со списком норм
+     */
     @GetMapping("/userPage/siz/norms")
     public String normsAll(Model model, String keyword) {
-        Iterable<IPMStandard> normas = null;
+        //Iterable<IPMStandard> normas = null;
         postAddToNorm = new Post("");
         if (keyword != null) {
             listPosts = postRepository.findAllByKeyword(keyword);
@@ -125,7 +238,7 @@ public class SIZController {
             listPosts = posts;
         }
         model.addAttribute("selected", postAddToNorm);
-        model.addAttribute("norms", normas);
+        model.addAttribute("norms", null);
 
 //        List<SizeSiz> list = new ArrayList<>();
 //        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
@@ -208,20 +321,32 @@ public class SIZController {
 //        }
 
 
-
         return "user/mto/siz/norms/siz-norms";
     }
 
+    /**
+     * Загрузка на страницу норм выдачи для выбранной должности
+     *
+     * @param id    ID выбранной должности
+     * @param model модель аттрибутов страницы
+     * @return страница норм выдачи с отображенными данными по выбранной должности
+     */
     @GetMapping("/userPage/siz/norms/getNormsForPost/{id}")
     public String normsForPost(@PathVariable(value = "id") long id, Model model) {
         Iterable<IPMStandard> normas = ipmStandardRepository.findAllByPostId(id);
         postAddToNorm = postRepository.findById(id).orElseThrow();
         model.addAttribute("norms", normas);
-        model.addAttribute("posts",listPosts);
+        model.addAttribute("posts", listPosts);
         model.addAttribute("selected", postAddToNorm);
         return "user/mto/siz/norms/siz-norms";
     }
 
+    /**
+     * Открытие страницы создания новой нормы выдачи для выбранной должности
+     *
+     * @param model модель аттрибутов страницы
+     * @return веб страница
+     */
     @GetMapping("/userPage/siz/norms/add")
     public String normsAdd(Model model) {
         if (!postAddToNorm.getPostName().equals("")) {
@@ -233,29 +358,57 @@ public class SIZController {
         }
     }
 
+    /**
+     * Сохранение новой нормы выдачи для выбранного СИЗ
+     *
+     * @param dropSIZ             ID типа СИЗ
+     * @param issuanceRate        нормы выдачи (кол-во)
+     * @param serviceLife         срок носки
+     * @param regulatoryDocuments регламентирующий документ
+     * @param model               модель аттрибутов страницы
+     * @return перенаправление на /userPage/siz/norms
+     */
     @PostMapping("/userPage/siz/norms/add")
     public String normsAdding(@RequestParam Long dropSIZ, @RequestParam int issuanceRate,
                               @RequestParam int serviceLife, @RequestParam String regulatoryDocuments, Model model) {
         if (!postAddToNorm.getPostName().equals("")) {
             IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElseThrow();
-            IPMStandard norma = new IPMStandard(postAddToNorm, siz, issuanceRate,serviceLife,regulatoryDocuments);
+            IPMStandard norma = new IPMStandard(postAddToNorm, siz, issuanceRate, serviceLife, regulatoryDocuments);
             ipmStandardRepository.save(norma);
         }
         return "redirect:/userPage/siz/norms";
     }
 
+    /**
+     * Открытие страницы редактирования нормы выдачи СИЗ
+     *
+     * @param id    ID нормы
+     * @param model модель аттрибутов страницы
+     * @return веб станица
+     */
     @GetMapping("/userPage/siz/norms/{id}/edit")
     public String normsEdit(@PathVariable(value = "id") long id, Model model) {
         if (!ipmStandardRepository.existsById(id)) {
             return "redirect:/userPage/siz/norms";
         }
         IPMStandard norma = ipmStandardRepository.findById(id).orElseThrow();
-        model.addAttribute("sizs",sizRepository.findAll());
-        model.addAttribute("post",postAddToNorm);
+        model.addAttribute("sizs", sizRepository.findAll());
+        model.addAttribute("post", postAddToNorm);
         model.addAttribute("norma", norma);
         return "user/mto/siz/norms/siz-norms-edit";
     }
 
+    /**
+     * Сохранение изменений после редактирования норм выдачи
+     *
+     * @param id                  ID нормы
+     * @param dropSIZ             ID типа СИЗ
+     * @param issuanceRate        норма выдачи (кол-во)
+     * @param serviceLife         срок носки
+     * @param regulatoryDocuments регламентирующий документ
+     * @param model               модель аттрибутов страницы
+     * @return перенаправление на /userPage/siz/norms
+     */
     @PostMapping("/userPage/siz/norms/{id}/edit")
     public String normsUpdate(@PathVariable(value = "id") long id, @RequestParam Long dropSIZ, @RequestParam int issuanceRate,
                               @RequestParam int serviceLife, @RequestParam String regulatoryDocuments, Model model) {
@@ -270,9 +423,16 @@ public class SIZController {
         return "redirect:/userPage/siz/norms";
     }
 
+    /**
+     * Удаление нормы выдачи СИЗ
+     *
+     * @param id    ID нормы
+     * @param model модель аттрибутов страницы
+     * @return перенаправление на /userPage/siz/norms
+     */
     @PostMapping("/userPage/siz/norms/{id}/remove")
     public String normsDelete(@PathVariable(value = "id") long id, Model model) {
-       IPMStandard norma = ipmStandardRepository.findById(id).orElseThrow();
+        IPMStandard norma = ipmStandardRepository.findById(id).orElseThrow();
         ipmStandardRepository.deleteById(id);
         return "redirect:/userPage/siz/norms";
     }
@@ -281,8 +441,9 @@ public class SIZController {
 
     /**
      * Первоначальное открытие страницы склада СИЗ
-     * @param model
-     * @return
+     *
+     * @param model модель аттрибутов страницы
+     * @return веб страница
      */
     @GetMapping("/userPage/not-issued-siz")
     public String notIssuedSIZAll(Model model, Authentication authentication) {
@@ -295,7 +456,7 @@ public class SIZController {
         } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplex(komplex.getId());
-            model.addAttribute("komplex",komplex);
+            model.addAttribute("komplex", komplex);
         }
         for (Object[] obj : objectList) {
             sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
@@ -307,38 +468,59 @@ public class SIZController {
     }
 
     /**
+     * Отправка на страницу списка размеров для конкретного СИЗ
+     *
+     * @param id    ID выбранного типа СИЗ
+     * @param model модель атрибутов страницы
+     * @return фрагмент со списком размеров
+     */
+    @GetMapping("/userPage/not-issued-siz/get-sizes/{id}")
+    public String getSizesOfSIZ(@PathVariable(value = "id") long id, Model model) {
+        List<SizeSiz> sizeSizs = sizeSizRepository.findAllByIndividualProtectionMeansId(id);
+        List<String> temp = new ArrayList<>();
+        for (SizeSiz s : sizeSizs) {
+            temp.add(s.getSize());
+        }
+        List<String> sizes = temp.stream().distinct().collect(Collectors.toList());
+        model.addAttribute("sizes", sizes);
+        return "user/mto/siz/siz-from-stock :: list-sizes";
+    }
+
+    /**
      * Добавление нового СИЗ
-     * @param typeSIZ
-     * @param size
-     * @param height
-     * @param model
-     * @return
+     *
+     * @param typeSIZ ID типа СИЗ
+     * @param size    размер
+     * @param height  рост
+     * @param model   модель аттрибутов страницы
+     * @return веб страница
      */
     @PostMapping("/userPage/not-issued-siz")
     public String notIssuedSIZAdd(@RequestParam Long typeSIZ, @RequestParam String size, @RequestParam String height, @RequestParam int number, Model model) {
         IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ).orElseThrow();
-        IssuedSIZ issuedSIZ =null;
+        IssuedSIZ issuedSIZ;
         for (int i = 0; i < number; i++) {
-        if (height.equals("non")) {
-            issuedSIZ = new IssuedSIZ(ipm,size);
-        }else{
-            issuedSIZ = new IssuedSIZ(ipm,size,height);
-        }
+            if (height.equals("non")) {
+                issuedSIZ = new IssuedSIZ(ipm, size);
+            } else {
+                issuedSIZ = new IssuedSIZ(ipm, size, height);
+            }
             issuedSIZRepository.save(issuedSIZ);
         }
-       return  "redirect:/userPage/not-issued-siz";
+        return "redirect:/userPage/not-issued-siz";
     }
 
     /**
      * Редактирование данных о СИЗ
-     * @param id id SIZ
+     *
+     * @param id    id SIZ
      * @param model model from page
      * @return page
      */
     @GetMapping("/userPage/not-issued-siz/{id}/{size}/{height}/{number}/edit")
-    public String notIssuedSIZEdit(@PathVariable(value = "id") long id,@PathVariable(value = "height") String height,@PathVariable(value = "size") String size,@PathVariable(value = "number") int number, Model model){
+    public String notIssuedSIZEdit(@PathVariable(value = "id") long id, @PathVariable(value = "height") String height, @PathVariable(value = "size") String size, @PathVariable(value = "number") int number, Model model) {
         IssuedSIZ siz;
-        if ((height == null)||(height.equals(""))||(height.equals("null"))) {
+        if ((height == null) || (height.equals("")) || (height.equals("null"))) {
             siz = issuedSIZRepository.findByStock(size, id, "На складе").get(0);
         } else {
             siz = issuedSIZRepository.findByStock(size, height, id, "На складе").get(0);
@@ -352,15 +534,16 @@ public class SIZController {
 
     /**
      * Сохранение отредактированных данных о СИЗ
-     * @param id
-     * @param siz
-     * @param size
-     * @param height
-     * @param model
-     * @return
+     *
+     * @param id     ID СИЗ на складе
+     * @param siz    тип СИЗ
+     * @param size   размер
+     * @param height рост
+     * @param model  модель аттрибутов страницы
+     * @return веб страница
      */
     @PostMapping("/userPage/not-issued-siz/{id}/edit")
-    public String notIssuedSIZUpdate(@PathVariable(value = "id") long id,@RequestParam IndividualProtectionMeans siz, @RequestParam String size, @RequestParam String height, @RequestParam int number,  Model model){
+    public String notIssuedSIZUpdate(@PathVariable(value = "id") long id, @RequestParam IndividualProtectionMeans siz, @RequestParam String size, @RequestParam String height, @RequestParam int number, Model model) {
         List<IssuedSIZ> list = issuedSIZRepository.findByStock(size, height, id, "На складе");
         for (IssuedSIZ s : list) {
             issuedSIZRepository.deleteById(s.getId());
@@ -374,9 +557,10 @@ public class SIZController {
 
     /**
      * Удаление выбранного СИЗ
-     * @param list
-     * @param model
-     * @return
+     *
+     * @param list  список СИЗ на складе для удаления
+     * @param model модель аттрибутов страницы
+     * @return веб страница
      */
     @PostMapping("/userPage/not-issued-siz/{list}/remove")
     public String notIssuedSIZDelete(@PathVariable(value = "list") List<String> list, Authentication authentication, Model model) {
@@ -410,9 +594,9 @@ public class SIZController {
                 String height = arrData[2];
                 List<IssuedSIZ> sizs;
                 if ((height == null) || (height.equals("")) || (height.equals("null"))) {
-                    sizs = issuedSIZRepository.findByStockAndKomplex(size, id, "На складе",komplex.getId());
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, id, "На складе", komplex.getId());
                 } else {
-                    sizs = issuedSIZRepository.findByStockAndKomplex(size, height, id, "На складе",komplex.getId());
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, height, id, "На складе", komplex.getId());
                 }
                 for (IssuedSIZ s : sizs) {
                     s.setKomplex(null);
@@ -430,28 +614,29 @@ public class SIZController {
 
     /**
      * Поиск СИЗ на складе
-     * @param keyword
-     * @param model
-     * @return
+     *
+     * @param keyword ключевое слово по которому осуществляется поиск
+     * @param model   модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/not-issued-siz/search/stock-siz/{keyword}")
-    public String searchStockSiz(@PathVariable(value = "keyword") String keyword,Authentication authentication, Model model) {
+    public String searchStockSiz(@PathVariable(value = "keyword") String keyword, Authentication authentication, Model model) {
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         List<SIZForStock> sizesForStock = new ArrayList<>();
         List<Object[]> objectList;
-        if (role.getName().equals("ROLE_USER")){    //если пользователь СуперЮзер то выводим общую информацию
+        if (role.getName().equals("ROLE_USER")) {    //если пользователь СуперЮзер то выводим общую информацию
             if (keyword.equals("0")) {
                 objectList = issuedSIZRepository.findGroupbySizeAndHeight();
             } else {
                 objectList = issuedSIZRepository.findGroupbySizeAndHeightByKeyword(keyword);
             }
-        }else{      //иначе отображаем информацию по текущему подразделению
+        } else {      //иначе отображаем информацию по текущему подразделению
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             if (keyword.equals("0")) {
                 objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplex(komplex.getId());
             } else {
-                objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplexAndKeyword(komplex.getId(),keyword);
+                objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplexAndKeyword(komplex.getId(), keyword);
             }
         }
         for (Object[] obj : objectList) {
@@ -467,29 +652,29 @@ public class SIZController {
 
     /**
      * Первоначальная загрузка страницы выдачи СИЗ
-     * @param model
-     * @param keyword
-     * @return
+     *
+     * @param model модель аттрибутов страницы
+     * @return веб страница
      */
     @GetMapping("/userPage/issued-siz")
-    public String issuedSIZAll(Model model, String keyword,Authentication authentication) {
+    public String issuedSIZAll(Model model, Authentication authentication) {
         Post post = new Post("");
-        Employee employee = new Employee("","","","","",null,null);
+        Employee employee = new Employee("", "", "", "", "", null, null);
         Iterable<Post> posts = postRepository.findAll();
         model.addAttribute("posts", posts);
         model.addAttribute("komplexs", komplexRepository.findAll());
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
-        if (role.getName().equals("ROLE_USER")){
+        if (role.getName().equals("ROLE_USER")) {
             employees = employeeRepository.findAll();
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             employees = employeeRepository.findAllByKomplexId(komplex.getId());
-            model.addAttribute("komplex",komplex);
+            model.addAttribute("komplex", komplex);
         }
         model.addAttribute("employees", employees);
-        model.addAttribute("selectedEmployee",employee);
+        model.addAttribute("selectedEmployee", employee);
         model.addAttribute("selected", post);
         model.addAttribute("ipmStandardRepository", ipmStandardRepository);
         return "user/mto/siz/issued/issued-siz-add";
@@ -497,9 +682,10 @@ public class SIZController {
 
     /**
      * Обновление таблицы сотрудников по выбранному подразделению
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID подразделения
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/getEmployeeForKomplex/{id}")
     public String getEmployeeForKomplex(@PathVariable(value = "id") long id, Model model) {
@@ -510,21 +696,22 @@ public class SIZController {
 
     /**
      * Обновление таблицы сотрудников по выбранной должности
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID должности
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/getEmployeeForPost/{id}")
-    public String getEmployeeForPost(@PathVariable(value = "id") long id,Authentication authentication, Model model) {
+    public String getEmployeeForPost(@PathVariable(value = "id") long id, Authentication authentication, Model model) {
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
+        if (role.getName().equals("ROLE_USER")) {
             employees = employeeRepository.findAllByPostId(id);
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            employees = employeeRepository.findAllByKomplexIdAndPostId(komplex.getId(),id);
+            employees = employeeRepository.findAllByKomplexIdAndPostId(komplex.getId(), id);
         }
         model.addAttribute("employees", employees);
         return "user/mto/siz/issued/issued-siz-add :: table-employees";
@@ -532,30 +719,32 @@ public class SIZController {
 
     /**
      * Обновление таблицы сотрудников по подразделению и должности
-     * @param id_komplex
-     * @param id_post
-     * @param model
-     * @return
+     *
+     * @param id_komplex ID подразделения
+     * @param id_post    ID должности
+     * @param model      модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/getEmployeeForKomplexAndPost/{id_komplex}/{id_post}")
     public String getEmployeeForKomplexAndPost(@PathVariable(value = "id_komplex") long id_komplex, @PathVariable(value = "id_post") long id_post, Model model) {
-        List<Employee> employees = employeeRepository.findAllByKomplexIdAndPostId(id_komplex,id_post);
+        List<Employee> employees = employeeRepository.findAllByKomplexIdAndPostId(id_komplex, id_post);
         model.addAttribute("employees", employees);
         return "user/mto/siz/issued/issued-siz-add :: table-employees";
     }
 
     /**
      * Обновление таблицы Нормы СИЗ для выбранного сотрудника и должности
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID должности
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/getSizForEmployee/{id}")
-    public String getSizForEmployee(@PathVariable(value = "id") long id,Authentication authentication, Model model) {
+    public String getSizForEmployee(@PathVariable(value = "id") long id, Authentication authentication, Model model) {
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
-        if (!role.getName().equals("ROLE_USER")){
-            model.addAttribute("komplex",komplexRepository.findByRoleId(role.getId()));
+        if (!role.getName().equals("ROLE_USER")) {
+            model.addAttribute("komplex", komplexRepository.findByRoleId(role.getId()));
         }
         Post post = postRepository.findByEmployeeId(id);
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(post.getId());
@@ -567,16 +756,18 @@ public class SIZController {
 
     /**
      * Обновление таблицы Нормы СИЗ для выбранной должности
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id             ID должности
+     * @param authentication данные о пользователе
+     * @param model          модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/getSizForPost/{id}")
-    public String getSizForPost(@PathVariable(value = "id") long id,Authentication authentication, Model model) {
+    public String getSizForPost(@PathVariable(value = "id") long id, Authentication authentication, Model model) {
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
-        if (!role.getName().equals("ROLE_USER")){
-            model.addAttribute("komplex",komplexRepository.findByRoleId(role.getId()));
+        if (!role.getName().equals("ROLE_USER")) {
+            model.addAttribute("komplex", komplexRepository.findByRoleId(role.getId()));
         }
         Post post = postRepository.findById(id).orElseThrow();
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(id);
@@ -588,25 +779,28 @@ public class SIZController {
 
     /**
      * Обновление таблицы уже выданного СИЗ сотруднику
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID сотрудника
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/getIssuedSizForEmployee/{id}")
     public String getIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
-        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id,"Выдано");
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Выдано");
         Employee employee = employeeRepository.findById(id).orElseThrow();
         employeeForIssuedSIZ = employee;
-        model.addAttribute("selectedEmployee",employee);
-        model.addAttribute("vidanSIZ",issuedSIZS);
+        model.addAttribute("selectedEmployee", employee);
+        model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
     }
 
     /**
-     * Функция выдачи СИЗ сотруднику
-     * @param id
-     * @param model
-     * @return
+     * Функция выдачи СИЗ сотрудникам
+     *
+     * @param list  список ID сотрудников которым выдается СИЗ
+     * @param id    ID нормы выдачи
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/{list}/add/{id}")
     public String addIssuedSiz(@PathVariable(value = "list") List<Long> list, @PathVariable(value = "id") long id, Model model) {
@@ -623,11 +817,11 @@ public class SIZController {
         Date dateEndWear = c.getTime();
         String typeSIZ = ipmStandard.getIndividualProtectionMeans().getTypeIPM();
 
-        for (Long employee_id: list) {
+        for (Long employee_id : list) {
             message = "";
             Employee employee = employeeRepository.findById(employee_id).orElseThrow();
             List<IssuedSIZ> employeesSIZ = issuedSIZRepository.findByEmployeeIdAndIPMStandart(id, employee_id);
-            if(employeesSIZ.size()<number) {        //проверка выдано ли все СИЗ сотруднику
+            if (employeesSIZ.size() < number) {        //проверка выдано ли все СИЗ сотруднику
                 if (typeSIZ.equals("Одежда")) {
                     issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForClothing(id, employee_id);
                 } else if (typeSIZ.equals("Головной убор")) {
@@ -643,9 +837,9 @@ public class SIZController {
                 } else if (typeSIZ.equals("Рукавицы")) {
                     issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForMittens(id, employee_id);
                 } else {
-                    message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() +" выбран несуществующий тип СИЗ";
+                    message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() + " выбран несуществующий тип СИЗ";
                 }
-                int issued_number = number-employeesSIZ.size();
+                int issued_number = number - employeesSIZ.size();
                 if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
                     if (issuedSIZS.size() < issued_number) {
                         message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() + " СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + issued_number + " запрошенных";
@@ -661,18 +855,18 @@ public class SIZController {
                         issuedSIZRepository.save(siz);
                     }
                 } else {
-                    message = "Нужные размеры для " + employee.getSurname() + " " + employee.getName() + " "+ employee.getPatronymic() + " на складе отсутствуют";
+                    message = "Нужные размеры для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() + " на складе отсутствуют";
                 }
             } else {
-                message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() +" СИЗ данного типа был выдан ранее";
+                message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() + " СИЗ данного типа был выдан ранее";
             }
-            if(!message.equals("")) {
-               listErrors.add(message);
+            if (!message.equals("")) {
+                listErrors.add(message);
             }
         }
 
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
-        model.addAttribute("errors",listErrors);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
+        model.addAttribute("errors", listErrors);
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -681,8 +875,9 @@ public class SIZController {
 
     /**
      * Отправка на страницу списка ошибок при выдаче СИЗ
-     * @param model
-     * @return
+     *
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/errors")
     public String sendErrors(Model model) {
@@ -692,10 +887,11 @@ public class SIZController {
 
     /**
      * Продление ресурса по дате для выбранного СИЗ
-     * @param id
-     * @param dateExtending
-     * @param model
-     * @return
+     *
+     * @param id            ID выданного СИЗ
+     * @param dateExtending дата продления
+     * @param model         модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/{id}/extend/{dateExtending}")
     public String extendIssuedSiz(@PathVariable(value = "id") long id, @PathVariable(value = "dateExtending") String dateExtending, Model model) {
@@ -710,7 +906,7 @@ public class SIZController {
         }
         issuedSIZ.setDateEndWear(exDate);
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -719,9 +915,10 @@ public class SIZController {
 
     /**
      * Отмена выдачи СИЗ
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID выданного СИЗ
+     * @param model модель аттрибутов страницы
+     * @return фрагмент страницы
      */
     @GetMapping("/userPage/issued-siz/{id}/cancel")
     public String cancelIssuedSiz(@PathVariable(value = "id") long id, Model model) {
@@ -733,7 +930,7 @@ public class SIZController {
         issuedSIZ.setEmployee(null);
         issuedSIZ.setStatus("На складе");
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -742,9 +939,10 @@ public class SIZController {
 
     /**
      * Списание СИЗ
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID выданного СИЗ
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/{id}/writeoff/{actName}")
     public String writeOfIssuedSiz(@PathVariable(value = "id") long id, @PathVariable(value = "actName") String actName, Model model) {
@@ -754,7 +952,7 @@ public class SIZController {
         issuedSIZ.setEmployee(null);
         issuedSIZ.setWriteOffAct(actName);
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -763,27 +961,28 @@ public class SIZController {
 
     /**
      * Поиск сотрудников по ключевому слову
-     * @param keyword
-     * @param model
-     * @return
+     *
+     * @param keyword ключевое слово поиска
+     * @param model   модель аттрибутов страницы
+     * @return фрагмент страницы
      */
     @GetMapping("/userPage/issued-siz/search/employee/{keyword}")
-    public String searchEmployee(@PathVariable(value = "keyword") String keyword,Authentication authentication, Model model) {
+    public String searchEmployee(@PathVariable(value = "keyword") String keyword, Authentication authentication, Model model) {
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
-            if (keyword.equals("0")){
+        if (role.getName().equals("ROLE_USER")) {
+            if (keyword.equals("0")) {
                 employees = employeeRepository.findAll();
-            }else{
+            } else {
                 employees = employeeRepository.findAllByPostAndKeyword(keyword);
             }
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            if (keyword.equals("0")){
+            if (keyword.equals("0")) {
                 employees = employeeRepository.findAllByKomplexId(komplex.getId());
-            }else{
+            } else {
                 employees = employeeRepository.findAllByPostAndKomplexIdAndKeyword(keyword, komplex.getId());
             }
         }
@@ -792,55 +991,55 @@ public class SIZController {
     }
 
 
-
     //////////////////////Укомплектованность сотрудников СИЗ//////////////////////
 
     /**
      * Первоначальное открытие страницы укомплектованности СИЗ
-     * @param model
-     * @return
+     *
+     * @param model модель аттрибутов страницы
+     * @return веб страница
      */
     @GetMapping("/userPage/employee-siz")
-    public String staffingOfAllEmployeesSIZ(Model model,Authentication authentication) {
+    public String staffingOfAllEmployeesSIZ(Model model, Authentication authentication) {
         filerIssuedSizAll = "all";
         typeOfSortingEmployeeTable = new TypeOfSortingEmployeeTable();
         typeOfSortingEmployeeTable.setFilter("all");
         typeOfSortingEmployeeTable.setSearching("");
-        String nextYearBegin = (Year.now().getValue()+1)+"_01_01";
-        String nextYearEnd = (Year.now().getValue()+1)+"_12_31";
+        String nextYearBegin = (Year.now().getValue() + 1) + "_01_01";
+        String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
         Iterable<Employee> fullStaffEmpl;
         Iterable<Employee> employeesEndingDateWear;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
+        if (role.getName().equals("ROLE_USER")) {
             employees = employeeRepository.findAll();
             fullStaffEmpl = employeeRepository.getFullStaffingOfEmployee();
-            employeesEndingDateWear = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin,nextYearEnd);
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+            employeesEndingDateWear = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin, nextYearEnd);
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             employees = employeeRepository.findAllByKomplexId(komplex.getId());
             fullStaffEmpl = employeeRepository.getFullStaffingOfEmployeeByKomplex(komplex.getId());
-            employeesEndingDateWear = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex(nextYearBegin,nextYearEnd, komplex.getId());
-            model.addAttribute("komplex",komplex);
+            employeesEndingDateWear = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex(nextYearBegin, nextYearEnd, komplex.getId());
+            model.addAttribute("komplex", komplex);
         }
         int countE = 0;
-        for (Employee e:employees) {
+        for (Employee e : employees) {
             countE++;
         }
         int countFE = 0;
-        for (Employee e:fullStaffEmpl) {
+        for (Employee e : fullStaffEmpl) {
             countFE++;
         }
         int countEE = 0;
-        for (Employee e:employeesEndingDateWear) {
+        for (Employee e : employeesEndingDateWear) {
             countEE++;
         }
-        StatisticForStaffing info = new StatisticForStaffing(countE,countFE,countEE);
-        model.addAttribute("info",info);
-        model.addAttribute("employees",employees);
-        model.addAttribute("employeeRepository",employeeRepository);
+        StatisticForStaffing info = new StatisticForStaffing(countE, countFE, countEE);
+        model.addAttribute("info", info);
+        model.addAttribute("employees", employees);
+        model.addAttribute("employeeRepository", employeeRepository);
         model.addAttribute("ipmStandardRepository", issuedSIZRepository);
         model.addAttribute("employee", employees.iterator().next());
         return "user/mto/siz/issued/issued-siz-all";
@@ -848,35 +1047,36 @@ public class SIZController {
 
     /**
      * Фильтрация сотрудников по укомплектованности
-     * @param keyword
-     * @param model
-     * @return
+     *
+     * @param keyword ключевое слово поиска
+     * @param model   модель аттрибутов страницы
+     * @return фрагмент страницы
      */
     @GetMapping("/userPage/employee-siz/filter/employee/{keyword}")
-    public String filterStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword,Authentication authentication, Model model) {
+    public String filterStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, Authentication authentication, Model model) {
         filerIssuedSizAll = keyword;
         sortedByEndIssuedDate = false;
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
-            if (keyword.equals("not-issued")){
+        if (role.getName().equals("ROLE_USER")) {
+            if (keyword.equals("not-issued")) {
                 employees = employeeRepository.getNotFullStaffingOfEmployee();
                 typeOfSortingEmployeeTable.setFilter("not-issued");
-            } else if (keyword.equals("issued")){
+            } else if (keyword.equals("issued")) {
                 employees = employeeRepository.getFullStaffingOfEmployee();
                 typeOfSortingEmployeeTable.setFilter("issued");
             } else {
                 employees = employeeRepository.findAll();
                 typeOfSortingEmployeeTable.setFilter("all");
             }
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            if (keyword.equals("not-issued")){
+            if (keyword.equals("not-issued")) {
                 employees = employeeRepository.getNotFullStaffingOfEmployeeByKomlex(komplex.getId());
                 typeOfSortingEmployeeTable.setFilter("not-issued");
-            } else if (keyword.equals("issued")){
+            } else if (keyword.equals("issued")) {
                 employees = employeeRepository.getFullStaffingOfEmployeeByKomplex(komplex.getId());
                 typeOfSortingEmployeeTable.setFilter("issued");
             } else {
@@ -891,23 +1091,24 @@ public class SIZController {
 
     /**
      * Отображение сотрудников у которых срок носки СИЗ заканчивается в следующем году
-     * @param model
-     * @return
+     *
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/show-employees-with-end-wear-date")
-    public String showEmployeesWithEndWearDate(Model model, Authentication authentication){
+    public String showEmployeesWithEndWearDate(Model model, Authentication authentication) {
         typeOfSortingEmployeeTable.setFilter("end_date");
-        String nextYearBegin = (Year.now().getValue()+1)+"_01_01";
-        String nextYearEnd = (Year.now().getValue()+1)+"_12_31";
+        String nextYearBegin = (Year.now().getValue() + 1) + "_01_01";
+        String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
-            employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin,nextYearEnd);
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        if (role.getName().equals("ROLE_USER")) {
+            employees = employeeRepository.getEmployeesWithEndingDateWearForNextYear(nextYearBegin, nextYearEnd);
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex(nextYearBegin,nextYearEnd, komplex.getId());
+            employees = employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex(nextYearBegin, nextYearEnd, komplex.getId());
         }
         model.addAttribute("employees", employees);
         model.addAttribute("employeeRepository", employeeRepository);
@@ -916,33 +1117,34 @@ public class SIZController {
 
     /**
      * Сортировка таблицы сотрудников по дате списания СИЗ
-     * @param model
-     * @return
+     *
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/sorting-date/employee")
-    public String sortingByDateStaffingOfAllEmployeesSIZ(Model model,Authentication authentication) {
+    public String sortingByDateStaffingOfAllEmployeesSIZ(Model model, Authentication authentication) {
         sortedByEndIssuedDate = true;
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
-            if (filerIssuedSizAll.equals("not-issued")){
+        if (role.getName().equals("ROLE_USER")) {
+            if (filerIssuedSizAll.equals("not-issued")) {
                 employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
                 typeOfSortingEmployeeTable.setFilter("not-issued-date");
-            } else if (filerIssuedSizAll.equals("issued")){
+            } else if (filerIssuedSizAll.equals("issued")) {
                 employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
                 typeOfSortingEmployeeTable.setFilter("issued-date");
             } else {
                 employees = employeeRepository.getStaffingOfEmployeeOrderByEndDateIssued();
                 typeOfSortingEmployeeTable.setFilter("date");
             }
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            if (filerIssuedSizAll.equals("not-issued")){
+            if (filerIssuedSizAll.equals("not-issued")) {
                 employees = employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
                 typeOfSortingEmployeeTable.setFilter("not-issued-date");
-            } else if (filerIssuedSizAll.equals("issued")){
+            } else if (filerIssuedSizAll.equals("issued")) {
                 employees = employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
                 typeOfSortingEmployeeTable.setFilter("issued-date");
             } else {
@@ -957,12 +1159,13 @@ public class SIZController {
 
     /**
      * Поиск укомплектованных сотрудников по ключевому слову
-     * @param keyword
-     * @param model
-     * @return
+     *
+     * @param keyword ключевое слово поиска
+     * @param model   модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/search/employee/{keyword}")
-    public String searchStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword,Authentication authentication, Model model) {
+    public String searchStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, Authentication authentication, Model model) {
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
@@ -1096,13 +1299,14 @@ public class SIZController {
 
     /**
      * Обновление таблицы укомплектованности СИЗ для выбранного сотрудника
-     * @param id_e
-     * @param id_p
-     * @param model
-     * @return
+     *
+     * @param id_e  ID сотрудника
+     * @param id_p  ID должности
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/info-siz/employee/{id_e}/{id_p}")
-    public String getInfoStaffingOfEmployee(@PathVariable(value = "id_e") long id_e,@PathVariable(value = "id_p") long id_p, Model model) {
+    public String getInfoStaffingOfEmployee(@PathVariable(value = "id_e") long id_e, @PathVariable(value = "id_p") long id_p, Model model) {
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(id_p);
         Employee employee = employeeRepository.findById(id_e).orElseThrow();
         model.addAttribute("siz", ipmStandards);
@@ -1113,51 +1317,55 @@ public class SIZController {
 
     /**
      * Обновление таблицы с информацией об уже выданном СИЗ выбранного сотрудника
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID сотрудника
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/info-issued-siz/employee/{id}")
     public String getInfoIssuedSizOfEmployee(@PathVariable(value = "id") long id, Model model) {
-        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id,"Выдано");
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Выдано");
         Employee employee = employeeRepository.findById(id).orElseThrow();
-        model.addAttribute("employee",employee);
-        model.addAttribute("vidanSIZ",issuedSIZS);
+        model.addAttribute("employee", employee);
+        model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all :: table-issued-siz";
     }
 ////////////////////////////////redaktirovanie vidannogo siz sotrudniku
+
     /**
      * Открытие страницы редактирования укомплектованности СИЗ выбранного сотрудника
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID сотрудника
+     * @param model модель аттрибутов страницы
+     * @return веб страница
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/{id}")
-    public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id,Authentication authentication, Model model) {
+    public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id, Authentication authentication, Model model) {
         Employee employee = employeeRepository.findById(id).orElseThrow();
         employeeForIssuedSIZ = employee;
-        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id,"Выдано");
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Выдано");
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(employee.getPost().getId());
 
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
-        if (!role.getName().equals("ROLE_USER")){
-            model.addAttribute("komplex",komplexRepository.findByRoleId(role.getId()));
+        if (!role.getName().equals("ROLE_USER")) {
+            model.addAttribute("komplex", komplexRepository.findByRoleId(role.getId()));
         }
 
         model.addAttribute("siz", ipmStandards);
-        model.addAttribute("employee",employee);
-        model.addAttribute("vidanSIZ",issuedSIZS);
+        model.addAttribute("employee", employee);
+        model.addAttribute("vidanSIZ", issuedSIZS);
         model.addAttribute("ipmStandardRepository", ipmStandardRepository);
         return "user/mto/siz/issued/issued-siz-edit";
     }
 
     /**
      * Продление ресурса СИЗ для сотрудника
-     * @param id
-     * @param dateExtending
-     * @param model
-     * @return
+     *
+     * @param id            ID выданного СИЗ
+     * @param dateExtending дата продления носки
+     * @param model         модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/extend/{dateExtending}")
     public String extendIssuedSizForEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "dateExtending") String dateExtending, Model model) {
@@ -1171,17 +1379,18 @@ public class SIZController {
         }
         issuedSIZ.setDateEndWear(exDate);
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
-        model.addAttribute("employee",employeeForIssuedSIZ);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
+        model.addAttribute("employee", employeeForIssuedSIZ);
         model.addAttribute("vidanSIZ", issuedSIZS2);
         return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
     }
 
     /**
      * Отмена выдачи СИЗ сотрудника
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID выданного СИЗ
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/cancel")
     public String cancelIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
@@ -1192,18 +1401,19 @@ public class SIZController {
         issuedSIZ.setEmployee(null);
         issuedSIZ.setStatus("На складе");
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
-        model.addAttribute("employee",employeeForIssuedSIZ);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
+        model.addAttribute("employee", employeeForIssuedSIZ);
         model.addAttribute("vidanSIZ", issuedSIZS2);
         return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
     }
 
     /**
      * Списание выданного СИЗ сотрудника
-     * @param id
-     * @param actName
-     * @param model
-     * @return
+     *
+     * @param id      ID выданного СИЗ
+     * @param actName № акта списания
+     * @param model   модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/writeoff/{actName}")
     public String writeOfIssuedSizForEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "actName") String actName, Model model) {
@@ -1211,17 +1421,18 @@ public class SIZController {
         issuedSIZ.setStatus("Списано");
         issuedSIZ.setWriteOffAct(actName);
         issuedSIZRepository.save(issuedSIZ);
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
-        model.addAttribute("employee",employeeForIssuedSIZ);
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
+        model.addAttribute("employee", employeeForIssuedSIZ);
         model.addAttribute("vidanSIZ", issuedSIZS2);
         return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
     }
 
     /**
      * Функция выдачи СИЗ сотруднику на странице комплектации
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID нормы выдачи
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/add/{id}")
     public String addIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
@@ -1260,7 +1471,7 @@ public class SIZController {
                 message = "Выбран несуществующий тип СИЗ";
             }
             if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
-                int issued_number = number-employeesSIZ.size();
+                int issued_number = number - employeesSIZ.size();
                 if (issuedSIZS.size() < issued_number) {
                     message = "Для " + employeeForIssuedSIZ.getSurname() + " " + employeeForIssuedSIZ.getName() + " СИЗ на складе не достаточно, выдано " + issuedSIZS.size() + " из " + issued_number + " запрошенных";
                 }
@@ -1281,7 +1492,7 @@ public class SIZController {
         }
         System.out.println(message);
 
-        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(),"Выдано");
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("employee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
@@ -1290,8 +1501,9 @@ public class SIZController {
 
     /**
      * Обновление таблицы с нормами выдачи СИЗ для сотрудника
-     * @param model
-     * @return
+     *
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/update-norms")
     public String updateSizNormsForEmployee(Model model) {
@@ -1305,12 +1517,13 @@ public class SIZController {
 
     /**
      * Печать списка укомплектованности сотрудников
-     * @param response
-     * @param authentication
-     * @throws IOException
+     *
+     * @param response       http данные со страницы
+     * @param authentication информация о пользователе
+     * @throws IOException выброс исключения в случае невозможности отправки на страницу потока с данными
      */
     @GetMapping("/userPage/employee-siz/print-table")
-    public void printTableEmployee (HttpServletResponse response,Authentication authentication) throws IOException {
+    public void printTableEmployee(HttpServletResponse response, Authentication authentication) throws IOException {
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -1322,69 +1535,69 @@ public class SIZController {
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
-            listEmployee= (List<Employee>) employeeRepository.findAll();
-            if (typeOfSortingEmployeeTable.getFilter().equals("all") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+        if (role.getName().equals("ROLE_USER")) {
+            listEmployee = (List<Employee>) employeeRepository.findAll();
+            if (typeOfSortingEmployeeTable.getFilter().equals("all") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexAndKeyword(typeOfSortingEmployeeTable.getSearching());
-            }else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("not-issued") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployee();
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("not-issued") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeyword(typeOfSortingEmployeeTable.getSearching());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployee();
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeyword(typeOfSortingEmployeeTable.getSearching());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getStaffingOfEmployeeOrderByEndDateIssued();
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("date") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssued();
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssued();
-            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssued(typeOfSortingEmployeeTable.getSearching());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && typeOfSortingEmployeeTable.getSearching().equals("")){
-                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31");
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
-                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",typeOfSortingEmployeeTable.getSearching());
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("end_date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
+                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYear((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31");
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("end_date") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
+                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeyword((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31", typeOfSortingEmployeeTable.getSearching());
             }
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            listEmployee= (List<Employee>) employeeRepository.findAllByKomplexId(komplex.getId());
-            if (typeOfSortingEmployeeTable.getFilter().equals("all") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            listEmployee = (List<Employee>) employeeRepository.findAllByKomplexId(komplex.getId());
+            if (typeOfSortingEmployeeTable.getFilter().equals("all") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexIdAndKeyword(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
-            }else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("not-issued") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeByKomlex(komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("not-issued") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeywordAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeByKomplex(komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeywordAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getStaffingOfEmployeeOrderByEndDateIssuedByKomplex(komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("date") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexAndKeywordOrderByEndDateIssuedAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("not-issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getNotFullStaffingOfEmployeeAndKeywordOrderByEndDateIssuedAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeOrderByEndDateIssuedAndKomplex(komplex.getId());
-            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("issued-date") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                 listEmployee = (List<Employee>) employeeRepository.getFullStaffingOfEmployeeAndKeywordOrderByEndDateIssuedAndKomplex(typeOfSortingEmployeeTable.getSearching(), komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && typeOfSortingEmployeeTable.getSearching().equals("")){
-                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31", komplex.getId());
-            } else if(typeOfSortingEmployeeTable.getFilter().equals("end_date") && !typeOfSortingEmployeeTable.getSearching().equals("")){
-                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeywordAndKomplex((Year.now().getValue()+1)+"_01_01",(Year.now().getValue()+1)+"_12_31",typeOfSortingEmployeeTable.getSearching(), komplex.getId());
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("end_date") && typeOfSortingEmployeeTable.getSearching().equals("")) {
+                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKomplex((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31", komplex.getId());
+            } else if (typeOfSortingEmployeeTable.getFilter().equals("end_date") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
+                listEmployee = (List<Employee>) employeeRepository.getEmployeesWithEndingDateWearForNextYearByKeywordAndKomplex((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31", typeOfSortingEmployeeTable.getSearching(), komplex.getId());
             }
         }
 
-        for (Employee e: listEmployee) {
-            listEmployeeForPrint.add(new EmployeeForPrint(e,issuedSIZRepository.getByEndWearDateForEmployee(e.getId()),employeeRepository.getPercentStaffingOfEmployee(e.getId(),e.getPost().getId())));
+        for (Employee e : listEmployee) {
+            listEmployeeForPrint.add(new EmployeeForPrint(e, issuedSIZRepository.getByEndWearDateForEmployee(e.getId()), employeeRepository.getPercentStaffingOfEmployee(e.getId(), e.getPost().getId())));
         }
         EmployeeStaffingExcelExporter excelExporter = new EmployeeStaffingExcelExporter(listEmployeeForPrint);
         excelExporter.export(response);
@@ -1392,72 +1605,75 @@ public class SIZController {
 
     /**
      * Отображение таблицы с историей выдачи СИЗ выбранного сотрудника
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID сотрудника
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/history-issued-siz/{id}")
     public String getHistoryInfoIssuedSizOfEmployee(@PathVariable(value = "id") long id, Model model) {
-        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id,"Списано");
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Списано");
         Employee employee = employeeRepository.findById(id).orElseThrow();
-        model.addAttribute("employee",employee);
-        model.addAttribute("vidanSIZ",issuedSIZS);
+        model.addAttribute("employee", employee);
+        model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-edit :: table-history-issued-siz";
     }
 
     /**
      * Первоначальное открытие страницы по выдаче СИЗ подразделениям
-     * @param model
-     * @return
+     *
+     * @param model модель аттрибутов страницы
+     * @return веб страница
      */
     @GetMapping("/userPage/issued-for-komplex")
     public String getIssuedForKomplexSIZ(Model model) {
-        model.addAttribute("komplexes",komplexRepository.findAll());
+        model.addAttribute("komplexes", komplexRepository.findAll());
         return "user/mto/siz/issued/issued-siz-komplex";
     }
 
     /**
      * Отображение на странице СИЗ для передачи со склада на выбранное подразделение
-     * @param id
-     * @param model
-     * @return
+     *
+     * @param id    ID подразделения
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
      */
     @GetMapping("/userPage/issued-for-komplex/get/{id}")
-    public String getIssuedForKomplexSIZ(@PathVariable(value = "id") long id,Model model) {
+    public String getIssuedForKomplexSIZ(@PathVariable(value = "id") long id, Model model) {
         List<SIZForPurchase> sizesForKomplex = new ArrayList<>();
         List<Object[]> objectList = issuedSIZRepository.getIssuedSIZForKomplex(id);
         for (Object[] obj : objectList) {
             sizesForKomplex.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
         }
-        model.addAttribute("siz",sizesForKomplex);
-        model.addAttribute("issuedSIZRepository",issuedSIZRepository);
+        model.addAttribute("siz", sizesForKomplex);
+        model.addAttribute("issuedSIZRepository", issuedSIZRepository);
         return "user/mto/siz/issued/issued-siz-komplex :: table-siz";
     }
 
     /**
      * Получение списка СИЗ и печать акта приема-передачи в выбранное подразделение
-     * @param objectList
-     * @param response
-     * @param id
-     * @return
+     *
+     * @param objectList список СИЗ передаваемого с общего склада на склад выбранного подразделения
+     * @param response   http данные со страницы
+     * @param id         ID подразделения
      */
     @PostMapping("/userPage/issued-for-komplex/send/{id}")
     public void sendSIZToKomplex(@RequestBody List<SIZForKomplex> objectList, HttpServletResponse response, @PathVariable(value = "id") long id) throws IOException {
         Komplex komplex = komplexRepository.findById(id).orElseThrow();
         String message = "";
         for (SIZForKomplex obj : objectList) {
-            List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findBySizeAndHeightAndSizIdAndStatusAndKomplexIdAndEmployeeId(obj.getSize(),obj.getHeight(),obj.getId(),"На складе",null,null);
-            if(issuedSIZS.size()>=obj.getNumber()) {
+            List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findBySizeAndHeightAndSizIdAndStatusAndKomplexIdAndEmployeeId(obj.getSize(), obj.getHeight(), obj.getId(), "На складе", null, null);
+            if (issuedSIZS.size() >= obj.getNumber()) {
                 for (int i = 0; i < obj.getNumber(); i++) {
                     IssuedSIZ siz = issuedSIZS.get(0);
                     siz.setKomplex(komplex);
                     issuedSIZRepository.save(siz);
                     issuedSIZS.remove(0);
                 }
-            }else {
+            } else {
                 int size = issuedSIZS.size();
-                message = message+"На складе "+obj.getNomenclatureNumber()+" "+obj.getNamesiz()+" рост: "+obj.getHeight()+" размер: "+obj.getSize()+" не достаточно\n" +
-                        "в подазделение отправлено "+size + " из запрошеных "+obj.getNumber()+"\n";
+                message = message + "На складе " + obj.getNomenclatureNumber() + " " + obj.getNamesiz() + " рост: " + obj.getHeight() + " размер: " + obj.getSize() + " не достаточно\n" +
+                        "в подазделение отправлено " + size + " из запрошеных " + obj.getNumber() + "\n";
                 for (int i = 0; i < size; i++) {
                     IssuedSIZ siz = issuedSIZS.get(0);
                     siz.setKomplex(komplex);
@@ -1471,10 +1687,10 @@ public class SIZController {
         response.setContentType("application/octet-stream");
         String headerKey = "Content-Disposition";
         Transliterator toLatinTrans = Transliterator.getInstance("Russian-Latin/BGN");
-        String headerValue = "attachment; filename=act_priema_peredachi_podrazdeleniyu_"+toLatinTrans.transliterate(komplex.getShortName())+"_ot_"+dateFormatter.format(new Date())+".xlsx";
+        String headerValue = "attachment; filename=act_priema_peredachi_podrazdeleniyu_" + toLatinTrans.transliterate(komplex.getShortName()) + "_ot_" + dateFormatter.format(new Date()) + ".xlsx";
         response.setHeader(headerKey, headerValue);
 
-        String excelFilePath = Paths.get("").toAbsolutePath().toString()+ File.separator+"template"+File.separator+"akt-priema-peredachi-siz.xlsx";
+        String excelFilePath = Paths.get("").toAbsolutePath().toString() + File.separator + "template" + File.separator + "akt-priema-peredachi-siz.xlsx";
 
         try {
             FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
@@ -1485,7 +1701,7 @@ public class SIZController {
             int row = 12;
             Row exampleRow = sheet.getRow(12);
             int count = 1;
-            for (SIZForKomplex s: objectList) {
+            for (SIZForKomplex s : objectList) {
                 if (s.getNumber() != 0) {
                     sheet.getRow(row).setRowStyle(exampleRow.getRowStyle());
                     sheet.getRow(row).setHeight(exampleRow.getHeight());

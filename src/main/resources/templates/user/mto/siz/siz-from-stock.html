@@ -37,9 +37,15 @@
                     </div>
 
                     <div class="col-sm-3">
-                        <label class="md-2" for="size">Размеры СИЗ</label>
-                        <input type="text" id="size" name="size" class="form-control"
-                               placeholder="Введите размер"/>
+                        <div class="list-sizes"
+                             th:fragment="list-sizes">
+                            <label class="md-2" for="size">Размеры СИЗ</label>
+                            <select class="form-control" id="size" name="size" required disabled>
+                                <option value="">Выберите размер</option>
+                                <option th:each="s : ${sizes}" th:value="${s}"
+                                        th:text="${s}"></option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="col-sm-3">
@@ -147,6 +153,15 @@ function selectTypeSiz(elem){
  	} else{
  	    document.getElementsByName('height').forEach(el => el.disabled = true);
  	}
+
+ 	$.ajax({
+    		type: 'get',
+    		url: '/userPage/not-issued-siz/get-sizes/' + id,
+    		success: function(data) {
+    			$('.list-sizes').html(data);
+    			document.getElementsByName('size').forEach(el => el.disabled = false);
+    		},
+    	});
 }
 
 function U2A(str) {

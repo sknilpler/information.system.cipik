@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Размеры СИЗ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<!-- Modal windows for accepting delete -->
+<div th:insert="blocks/accept-delete :: accept-delete"></div>
+<div class="container mt-1">
+    <h2 class="text-center">Редактирование данных о размерах</h2>
+    <h2 class="text-center" th:text="${siz.nameSIZ}"></h2>
+</div>
+
+<form method="post">
+    <input type="text" id="id_siz" name="id_siz" class="form-control" th:field="${siz.id}"
+           placeholder="Введите рост" hidden="true"/>
+    <div class="container mt-5 floatRight">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="md-2" for="size">Размер</label>
+                <div class="md-7">
+                    <input type="text" id="size" name="size" class="form-control"
+                           placeholder="Введите размер" required/>
+                </div>
+            </div>
+
+            <div class="col-md-3" th:if="${siz.typeIPM}=='Одежда'">
+                <label class="md-2" for="height">Рост</label>
+                <div class="md-7">
+                    <input type="text" id="height" name="height" class="form-control"
+                           placeholder="Введите рост" required/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container mt-1 form-actions floatRight">
+        <a th:href="'/userPage/siz-types'" class="btn btn-primary mx-auto">Назад</a>
+        <button type="submit" class="btn btn-success">Добавить</button>
+        <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить поля</button>
+    </div>
+    <br>
+
+</form>
+
+<div class="container panel panel-default">
+    <div class="panel-heading"><span class="lead">Список размеров </span></div>
+    <div class="panel-body">
+        <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Рост</th>
+                    <th>Размер</th>
+                    <th style="width: 310px;"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${sizes}">
+                    <td th:text="${s.height}"></td>
+                    <td th:text="${s.size}"></td>
+                    <td>
+                        <button class="btn btn-danger" th:onclick="'javascript:showDeleteModalWindow(\'' + ${s.id} + '\');'">Удалить</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+function closeModalWindow() {
+	$("#deleteAccept").modal('hide');
+};
+
+var id_del;
+
+function showDeleteModalWindow(id){
+    id_del = id;
+    document.getElementById("delete-object").innerHTML = "Вы точно хотите удалить?";
+    $("#deleteAccept").modal('show');
+}
+
+function deleteObject(){
+    post('/userPage/sizes/'+id_del+'/remove');
+}
+
+function post(path, method='post') {
+  const form = document.createElement('form');
+  form.method = method;
+  form.action = path;
+  const hiddenField = document.createElement('input');
+  hiddenField.type = 'hidden';
+  form.appendChild(hiddenField);
+  document.body.appendChild(form);
+  form.submit();
+}
+</script>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
