@@ -39,7 +39,7 @@
                 <tr>
                     <th>Код</th>
                     <th>Название</th>
-                    <th style="width: 310px;"></th>
+                    <th style="width: 95px;"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -48,8 +48,14 @@
                     <td th:text="${post.postName}"></td>
                     <td>
                         <form th:action="'/userPage/posts/'+${post.id}+'/remove'" method="post">
-                            <a th:href="'/userPage/posts/'+${post.id}+'/edit'" class="btn btn-primary">Редактировать</a>
-                            <button class="btn btn-danger" type="submit">Удалить</button>
+                            <a th:href="'/userPage/posts/'+${post.id}+'/edit'" class="btn btn-primary btn-sm" title="Редактировать">
+                                <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"
+                                     height="16" style="filter: invert (100%);">
+                            </a>
+                            <button class="btn btn-danger btn-sm" type="submit" title="Удалить">
+                                <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"
+                                     height="16" style="filter: invert (1);">
+                            </button>
                         </form>
                     </td>
                 </tr>

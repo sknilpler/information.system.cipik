@@ -82,7 +82,7 @@
                                 <th>Номенклатурный №</th>
                                 <th>Наименование</th>
                                 <th>Ед. изм.</th>
-                                <th style="width: 310px;"></th>
+                                <th style="width: 135px;"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -91,9 +91,18 @@
                                 <td th:text="${ipm.nameSIZ}"></td>
                                 <td th:text="${ipm.ed_izm}"></td>
                                 <td>
-                                    <a th:href="'/userPage/siz-types/'+${ipm.id}+'/edit'" class="btn btn-primary">Редактировать</a>
-                                    <a th:href="'/userPage/siz-types/sizes/'+${ipm.id}" class="btn btn-primary">Размеры</a>
-                                    <button class="btn btn-danger" th:onclick="'javascript:showDeleteModalWindow(\'' + ${ipm.id} + '\');'">Удалить</button>
+                                    <a th:href="'/userPage/siz-types/'+${ipm.id}+'/edit'" class="btn btn-primary btn-sm" title="Редактировать">
+                                        <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"
+                                             height="16" style="filter: invert (100%);">
+                                    </a>
+                                    <a th:href="'/userPage/siz-types/sizes/'+${ipm.id}" class="btn btn-info btn-sm" title="Размеры СИЗ">
+                                        <img src="/images/bootstrap-icons/arrows-angle-expand.svg" alt="Bootstrap" width="16"
+                                             height="16" style="filter: invert (100%);">
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" th:onclick="'javascript:showDeleteModalWindow(\'' + ${ipm.id} + '\');'" title="Удалить">
+                                        <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"
+                                             height="16" style="filter: invert (1);">
+                                    </button>
                                 </td>
                             </tr>
                             </tbody>

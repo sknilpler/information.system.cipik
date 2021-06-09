@@ -54,7 +54,7 @@
                         <th scope="col" rowspan="2">Пол</th>
                         <th scope="col" rowspan="2">Рост</th>
                         <th scope="col" colspan="3">Размеры</th>
-                        <th scope="col" style="width: 310px;" rowspan="2"></th>
+                        <th scope="col" style="width: 95px;" rowspan="2"></th>
                     </tr>
                     <tr align="center">
                         <th scope="col">Одежды</th>
@@ -76,8 +76,14 @@
                         <td align="center" th:text="${el.headgearSize}"></td>
                         <td>
                             <a th:href="'/userPage/employee/'+${el.id}+'/edit'"
-                               class="btn btn-primary">Редактировать</a>
-                            <button class="btn btn-danger" th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'">Удалить</button>
+                               class="btn btn-primary btn-sm" title="Редактировать данные о сотруднике">
+                                <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"
+                                     height="16" style="filter: invert (100%);">
+                            </a>
+                            <button class="btn btn-danger btn-sm" th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'" title="Удалить сотрудника">
+                                <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"
+                                     height="16" style="filter: invert (1);">
+                            </button>
                         </td>
                     </tr>
                     </tbody>

@@ -29,12 +29,18 @@
         <div class="panel-body">
             <div class="row g-3">
                 <div class="col-sm-6 h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
-                    <form th:action="'/userPage/siz/norms'" method="get">
-                        <input id="textSearch" type="text" name="keyword">
-                        <button type="submit" class="btn btn-secondary">Найти</button>
-                    </form>
-                    <span class="lead">Список должностей</span>
-                    <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <span class="lead">Список должностей</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <form th:action="'/userPage/siz/norms'" method="get">
+                                <input id="textSearch" type="text" name="keyword">
+                                <button type="submit" class="btn btn-secondary">Найти</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 60vh; min-height: 40vh; overflow-y: auto;">
                         <table class="table table-hover" id="tb">
                             <thead>
                             <tr>
@@ -95,12 +101,19 @@ function cli(e) {
                 </div>
 
                 <div class="col-sm-6 h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
-                    <div class="mt-1 form-actions floatRight">
-                        <a onclick="checkParams()" th:href="'/userPage/siz/norms/add'" class="btn btn-success"
-                           id="addButton">Добавить</a>
+                    <div class="row">
+                        <div class="col-sm-11">
+                            <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
+                        </div>
+                        <div class="col-sm-1">
+                            <a onclick="checkParams()" th:href="'/userPage/siz/norms/add'" class="btn btn-success"
+                               id="addButton" title="Добавить норму">
+                                <img src="/images/bootstrap-icons/clipboard-plus.svg" alt="Bootstrap" width="20"
+                                     height="20" style="filter: invert (1);">
+                            </a>
+                        </div>
                     </div>
-                    <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
-                    <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;">
+                    <div class="table-responsive" style="max-height: 60vh; min-height: 40vh; overflow-y: auto;">
                         <table class="table table-hover">
                             <thead>
                             <tr>
@@ -109,7 +122,7 @@ function cli(e) {
                                 <th>Ед. изм.</th>
                                 <th>Срок службы</th>
                                 <th>Регламентирующие документы</th>
-                                <th style="width: 310px;"></th>
+                                <th style="width: 95px;"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -120,8 +133,14 @@ function cli(e) {
                                 <td th:text="${norm.serviceLife}"></td>
                                 <td th:text="${norm.regulatoryDocuments}"></td>
                                 <td>
-                                    <a th:href="'/userPage/siz/norms/'+${norm.id}+'/edit'" class="btn btn-primary">Редактировать</a>
-                                    <button class="btn btn-danger" th:onclick="'javascript:showDeleteModalWindow(\'' + ${norm.id} + '\');'">Удалить</button>
+                                    <a th:href="'/userPage/siz/norms/'+${norm.id}+'/edit'" class="btn btn-primary btn-sm" title="Редактировать">
+                                        <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"
+                                             height="16" style="filter: invert (100%);">
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" th:onclick="'javascript:showDeleteModalWindow(\'' + ${norm.id} + '\');'" title="Удалить">
+                                        <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"
+                                             height="16" style="filter: invert (1);">
+                                    </button>
                                 </td>
                             </tr>
                             </tbody>

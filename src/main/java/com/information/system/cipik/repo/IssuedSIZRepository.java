@@ -43,7 +43,10 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "i.status = \"На складе\" AND \n" +
             "i.employee_id IS null AND \n" +
             "i.komplex_id IS null AND\n" +
-            "CONCAT(i.size,i.height,s.namesiz,s.nomenclature_number) LIKE %:keyword% \n" +
+            "  (i.size LIKE %:keyword% OR\n" +
+            "  i.height LIKE %:keyword% OR\n" +
+            "  s.namesiz LIKE %:keyword% OR\n" +
+            "  s.nomenclature_number LIKE %:keyword%)"+
             "GROUP BY 1,2,3,4,5", nativeQuery = true)
     List<Object[]> findGroupbySizeAndHeightByKeyword(@Param("keyword") String keyword);
 
@@ -75,7 +78,10 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "i.status = \"На складе\" AND \n" +
             "i.employee_id IS null AND \n" +
             "i.komplex_id = :id AND \n" +
-            "CONCAT(i.size,i.height,s.namesiz,s.nomenclature_number) LIKE %:keyword% \n" +
+            "  (i.size LIKE %:keyword% OR\n" +
+            "  i.height LIKE %:keyword% OR\n" +
+            "  s.namesiz LIKE %:keyword% OR\n" +
+            "  s.nomenclature_number LIKE %:keyword%)"+
             "GROUP BY 1,2,3,4,5", nativeQuery = true)
     List<Object[]> findGroupbySizeAndHeightByKomplexAndKeyword(@Param("id") Long id,
                                                                @Param("keyword") String keyword);
@@ -90,7 +96,11 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
     @Query(value = "SELECT i.* FROM issuedsiz i,individual_protection_means s\n" +
             "WHERE i.status = \"На складе\" AND\n" +
             "i.siz_id = s.id AND\n" +
-            "i.komplex_id =:id AND CONCAT(i.size,i.height,s.namesiz,s.nomenclature_number) LIKE %:keyword%", nativeQuery = true)
+            "i.komplex_id =:id AND " +
+            "  (i.size LIKE %:keyword% OR\n" +
+            "  i.height LIKE %:keyword% OR\n" +
+            "  s.namesiz LIKE %:keyword% OR\n" +
+            "  s.nomenclature_number LIKE %:keyword%)", nativeQuery = true)
     List<IssuedSIZ> findByStatusAndKomplexIdAndSizeLikeOrHeightLikeOrSizNameSIZLike(@Param("id") Long id,
                                                                                     @Param("keyword") String keyword);
 
