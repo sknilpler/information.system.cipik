@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Сущность склад
+ * Сущность склад материальных ценностей (приход)
  */
 @Getter
 @Setter

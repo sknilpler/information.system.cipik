@@ -141,24 +141,24 @@
                     <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
                         <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
                              th:fragment="table-siz">
-                            <div class="col-sm-6">
+                            <div class="col-sm-12">
                                 <span class="lead" th:text="'Список СИЗ для должности '+${employee.post.postName}"></span>
                             </div>
                             <table class="table table-hover">
                                 <thead>
                                 <tr>
-                                    <th style="width: 40%">Наименование</th>
-                                    <th>Кол-во по норме</th>
-                                    <th>Остаток на складе</th>
-                                    <th style="width: 100px;"></th>
+                                    <th>Наименование</th>
+                                    <th style="width: 100px">По норме</th>
+                                    <th style="width: 100px">На складе</th>
+                                    <th style="width: 80px;"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="s : ${siz}" style="cursor: pointer">
                                     <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
-                                    <td th:text="${s.issuanceRate}"></td>
-                                    <td sec:authorize="isAuthenticated() && !hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRateForKomplex(s.id,employee.komplex.id)}"></td>
-                                    <td sec:authorize="hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
+                                    <td align="center" th:text="${s.issuanceRate}"></td>
+                                    <td align="center" sec:authorize="isAuthenticated() && !hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRateForKomplex(s.id,employee.komplex.id)}"></td>
+                                    <td align="center" sec:authorize="hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" name="iss-btn"
                                                 th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</button>
@@ -201,17 +201,17 @@
                             <table class="table table-hover">
                                 <thead>
                                 <tr>
-                                    <th style="width: 40%">Наименование</th>
-                                    <th>Дата выдачи</th>
-                                    <th>Дата окончания носки</th>
-                                    <th style="width: 450px;"></th>
+                                    <th>Наименование</th>
+                                    <th align="center">Дата выдачи</th>
+                                    <th align="center">Дата окончания носки</th>
+                                    <th style="width: 320px;"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
                                     <td th:text="${s.siz.nameSIZ}"></td>
-                                    <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
-                                    <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
+                                    <td align="center" th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
+                                    <td align="center" th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" type="button"
                                                 th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'">Списать

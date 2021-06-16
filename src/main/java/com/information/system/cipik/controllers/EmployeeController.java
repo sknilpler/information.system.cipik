@@ -10,7 +10,6 @@ import com.information.system.cipik.repo.PostRepository;
 import com.information.system.cipik.repo.RoleRepository;
 import com.information.system.cipik.utils.EmployeeExcelExporter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,14 +33,11 @@ public class EmployeeController {
     EmployeeRepository employeeRepository;
     @Autowired
     PostRepository postRepository;
-//    @Autowired
-//    OtdelRepository otdelRepository;
     @Autowired
     KomplexRepository komplexRepository;
     @Autowired
     RoleRepository roleRepository;
 
-   // private Komplex userKomplex;
 
     @GetMapping("/userPage/employee/employees-all")
     public String allEmployee(Model model, Authentication authentication) {
@@ -76,11 +73,16 @@ public class EmployeeController {
         return "user/employee/employee-add";
     }
 
-    @DateTimeFormat(pattern = "dd.MM.yyyy")
     @PostMapping("/userPage/employee/employee-add")
-    public String addEmployee(@ModelAttribute("newEmployee") Employee newEmployee, @ModelAttribute("dataStart") Date dataStart, Model model) {
-        System.out.println("дата: "+dataStart);
-            newEmployee.setDataStartWork(dataStart);
+    public String addEmployee(@ModelAttribute("newEmployee") Employee newEmployee, @RequestParam("dataStart") String dataStart, Model model) {
+        Date dataStartWork = null;
+        try {
+            dataStartWork = new SimpleDateFormat("yyyy-MM-dd").parse(dataStart);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            dataStartWork = new Date();
+        }
+        newEmployee.setDataStartWork(dataStartWork);
         employeeRepository.save(newEmployee);
         return "redirect:/userPage/employee/employees-all";
     }
@@ -92,7 +94,7 @@ public class EmployeeController {
         }
         Employee employee = employeeRepository.findById(id).orElseThrow();
         model.addAttribute("posts", postRepository.findAll());
-//        model.addAttribute("otdels", otdelRepository.findAll());
+//      model.addAttribute("otdels", otdelRepository.findAll());
         model.addAttribute("komplexes", komplexRepository.findAll());
         model.addAttribute("employee", employee);
         model.addAttribute("dataStart",employee.getDataStartWork());
@@ -100,10 +102,15 @@ public class EmployeeController {
     }
 
     @PostMapping("/userPage/employee/{id}/edit")
-    public String employeeUpdate(@PathVariable(value = "id") long id, @ModelAttribute("employee") Employee newEmployee, @ModelAttribute("dataStart") Date dataStart, Model model) {
+    public String employeeUpdate(@PathVariable(value = "id") long id, @ModelAttribute("employee") Employee newEmployee, @RequestParam("dataStart") String dataStart, Model model) {
+        Date dataStartWork = null;
+        try {
+            dataStartWork = new SimpleDateFormat("yyyy-MM-dd").parse(dataStart);
+            newEmployee.setDataStartWork(dataStartWork);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         newEmployee.setId(id);
-        newEmployee.setDataStartWork(dataStart);
-        System.out.println(newEmployee.getDataStartWork());
         employeeRepository.save(newEmployee);
         return "redirect:/userPage/employee/employees-all";
     }

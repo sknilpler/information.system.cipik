@@ -98,9 +98,15 @@
                                 <th style="width: 5%">Размер</th>
                                 <th style="width: 5%">Рост</th>
                                 <th style="width: 5%">Кол-во</th>
-                                <th style="width: 250px;">
-                                    <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-danger btn-sm" name="del_btn"  th:onclick="'javascript:showDeleteModalWindow();'" disabled>Удалить</button>
-                                    <button sec:authorize="isAuthenticated() && !hasRole('ROLE_USER')" class="btn btn-danger btn-sm" name="del_btn" th:onclick="'javascript:showDeleteModalWindow();'" disabled>Возврат на склад центра</button>
+                                <th style="width: 50px;">
+                                    <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-danger btn-sm" name="del_btn"  th:onclick="'javascript:showDeleteModalWindow();'" title="Удалить со склада" disabled>
+                                        <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"
+                                             height="16" style="filter: invert (1);">
+                                    </button>
+                                    <button sec:authorize="isAuthenticated() && !hasRole('ROLE_USER')" class="btn btn-danger btn-sm" name="del_btn" th:onclick="'javascript:showDeleteModalWindow();'" title="Возврат на склад центра" disabled>
+                                        <img src="/images/bootstrap-icons/x-circle.svg" alt="Bootstrap" width="16"
+                                             height="16" style="filter: invert (1);">
+                                    </button>
                                 </th>
                             </tr>
                             </thead>
@@ -117,7 +123,10 @@
                                 <td th:text="${n.number}"></td>
                                 <td>
                                         <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/not-issued-siz/'+${n.id}+'/'+${n.size}+'/'+${n.height}+'/'+${n.number}+'/edit'"
-                                           class="btn btn-primary btn-sm">Редактировать</a>
+                                           class="btn btn-primary btn-sm" title="Редактировать">
+                                            <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"
+                                                 height="16" style="filter: invert (100%);">
+                                        </a>
                                 </td>
                             </tr>
                             </tbody>

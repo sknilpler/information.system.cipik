@@ -6,6 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -25,7 +26,7 @@ public class DBAutoBackupController {
 //|  |  |  |  |  |  |
 //*  *  *  *  *  *  * command to be executed
 
-    @Scheduled(cron = "0 0 0/24 * * ?")
+    @Scheduled(cron = "0 0 0/12 * * ?")
     public void scheduleDbBackup() {
         String dbUserName = "craft";
         String dbUserPassword = "111";
@@ -38,7 +39,7 @@ public class DBAutoBackupController {
         String backupDateStr = format.format(backupDate);
 
         String fileName = "Daily_DB_Backup"; // default file name
-        String folderPath = "/home/first/Рабочий стол/ПРОЕКТ информационной системы ЦИП ИК/DBBackupFiles";
+        String folderPath = Paths.get("").toAbsolutePath().toString()+File.separator+"DBBackupFiles";;
         File f1 = new File(folderPath);
         f1.mkdir(); // create folder if not exist
 
@@ -50,7 +51,13 @@ public class DBAutoBackupController {
 
         Process runtimeProcess = null;
         try {
-            runtimeProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", executeCmd});
+            String osName = System.getProperty("os.name");
+            if (osName.charAt(0) == 'W') {
+                runtimeProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", executeCmd});  //for Windows
+            }
+            else{
+                runtimeProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", executeCmd}); //for Linux
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

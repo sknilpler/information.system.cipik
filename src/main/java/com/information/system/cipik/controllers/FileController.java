@@ -36,11 +36,11 @@ import java.util.List;
 @Controller
 public class FileController {
 
-    private String folderPath = Paths.get("").toAbsolutePath().toString()+File.separator+"DBBackupFiles";
+    private final String folderPath = Paths.get("").toAbsolutePath().toString()+File.separator+"DBBackupFiles";
   //  private String folderPath = "/home/first/Рабочий стол/ПРОЕКТ информационной системы ЦИП ИК/DBBackupFiles";
-    private String dbUserName = "craft";
-    private String dbUserPassword = "111";
-    private String dbNameList = "cipik";
+    private final String dbUserName = "craft";
+    private final String dbUserPassword = "111";
+    private final String dbNameList = "cipik";
 
     public String CYRILLIC_TO_LATIN = "Russian-Latin/BGN";
 
@@ -53,7 +53,7 @@ public class FileController {
      * Выгрузка SQL дампа БД пользователю
      *
      * @return SQL file
-     * @throws IOException
+     * @throws IOException в случае ошибки
      */
     @GetMapping(value = "admin/download_backup")
     public ResponseEntity<Object> downloadBackupFile() throws IOException {
@@ -128,7 +128,7 @@ public class FileController {
      * @param file       файл дампа SQL
      * @param attributes статус выполнения операции
      * @return Сообщение
-     * @throws IOException
+     * @throws IOException в случае ошибки
      */
     @PostMapping(value = "admin/upload_backup")
     public String uploadBackupFile(@RequestParam("file") MultipartFile file, RedirectAttributes attributes) throws IOException {
@@ -175,7 +175,13 @@ public class FileController {
         return "redirect:/admin";
     }
 
-
+    /**
+     * Печать личной карточки сотрудника
+     *
+     * @param id ID сотрудника
+     * @param response Http заголовок страницы
+     * @throws IOException в случае ошибки
+     */
     @GetMapping("/userPage/employee-siz/print-personal-card/{id}")
     public void printEmployeePersonalCard (@PathVariable(value = "id") long id, HttpServletResponse response) throws IOException {
         Employee employee = employeeRepository.findById(id).orElseThrow();
