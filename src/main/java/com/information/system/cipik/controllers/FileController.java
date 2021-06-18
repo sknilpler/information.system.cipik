@@ -5,6 +5,7 @@ import com.information.system.cipik.models.Employee;
 import com.information.system.cipik.models.IPMStandard;
 import com.information.system.cipik.repo.EmployeeRepository;
 import com.information.system.cipik.repo.IPMStandardRepository;
+import org.apache.commons.io.IOUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -23,10 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -56,8 +54,7 @@ public class FileController {
      * @throws IOException в случае ошибки
      */
     @GetMapping(value = "admin/download_backup")
-    public ResponseEntity<Object> downloadBackupFile() throws IOException {
-
+    public void downloadBackupFile(HttpServletResponse response) throws IOException {
 
         Date backupDate = new Date();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
@@ -78,8 +75,9 @@ public class FileController {
         try {
             String osName = System.getProperty("os.name");
 
-            if (osName.charAt(0) == 'W'){
-                runtimeProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", executeCmd});  //for Windows
+            if (osName.charAt(0) == 'W') {
+                String pathToMysql = "C:" + File.separator + "OpenServer" + File.separator + "modules" + File.separator + "database" + File.separator + "MySQL-8.0" + File.separator + "bin";
+                runtimeProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", pathToMysql + File.separator + executeCmd});  //for Windows
             } else {
                 runtimeProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", executeCmd});   //for Linux
             }
@@ -99,27 +97,23 @@ public class FileController {
         } else {
             System.out.println("Backup Failure with: " + processComplete);
         }
-
         File dfile = new File(savePath);
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(dfile));
-        HttpHeaders headers = new HttpHeaders();
+        response.setContentType("application/sql");
+        response.setHeader("Content-disposition", "attachment; filename=" + dfile.getName());
 
-        headers.add("Content-Disposition", String.format("attachment; filename=\"%s\"", dfile.getName()));
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
+        OutputStream out = response.getOutputStream();
+        FileInputStream in = new FileInputStream(dfile);
 
-        ResponseEntity<Object>
-                responseEntity = ResponseEntity.ok().headers(headers).contentLength(
-                dfile.length()).contentType(MediaType.parseMediaType("application/sql")).body(resource);
+        // copy from in to out
+        IOUtils.copy(in, out);
+        out.close();
+        in.close();
 
         if (dfile.delete()) {
             System.out.println(dfile.getName() + " временный файл бэкапа удален!");
         } else {
             System.out.println("Не удалось удалить файл бэкапа " + dfile.getName());
         }
-
-        return responseEntity;
     }
 
     /**

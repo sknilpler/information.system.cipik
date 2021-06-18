@@ -53,7 +53,8 @@ public class DBAutoBackupController {
         try {
             String osName = System.getProperty("os.name");
             if (osName.charAt(0) == 'W') {
-                runtimeProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", executeCmd});  //for Windows
+                String pathToMysql = "C:" + File.separator + "OpenServer" + File.separator + "modules" + File.separator + "database" + File.separator + "MySQL-8.0" + File.separator + "bin";
+                runtimeProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", pathToMysql + File.separator + executeCmd});//for Windows
             }
             else{
                 runtimeProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", executeCmd}); //for Linux
