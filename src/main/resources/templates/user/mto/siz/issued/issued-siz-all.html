@@ -114,8 +114,14 @@
     <div class="my-container active-cont container-fluid">
         <div class="panel-body">
             <div class="row g-3">
-                <div class="col-sm-3">
-                    <label for="issued-filter" class="form-label">Фильтр по выдачи</label>
+                <div class="col-sm-4">
+                    <select sec:authorize="hasAnyRole('ROLE_USER')" class="form-select mb-2" aria-label="example" name="issued-by-komplex" id="issued-by-komplex"
+                            th:onchange="'javascript:filterByKomplex(this.value);'">
+                        <option selected disabled value="">Выберите подразделение</option>
+                        <option value="all">Все</option>
+                        <option th:each="k : ${komplexes}" th:value="${k.id}"
+                                th:text="${k.shortName}"></option>
+                    </select>
                     <select class="form-select" aria-label="example" name="issued-filter" id="issued-filter"
                             th:onchange="'javascript:filter(this.value);'">
                         <option selected disabled value="">Выберите фильтрацию</option>
@@ -124,29 +130,30 @@
                         <option value="not-issued">Не выдан весь СИЗ</option>
                     </select>
                 </div>
-                <div class="col-sm-3">
-                    <label for="issued-sort" class="form-label">Сортировка</label>
-                    <select class="form-select" aria-label="example" name="issued-sort" id="issued-sort"
+                <div class="col-sm-4">
+                    <select class="form-select mb-2" aria-label="example" name="issued-sort" id="issued-sort"
                             th:onchange="'javascript:sorting(this.value);'">
                         <option selected disabled value="">Выберите тип сортировки</option>
                         <option value="date">Дата окончания носки</option>
                         <option sec:authorize="hasAnyRole('ROLE_USER')" value="k_and_p">Подразделение и должность</option>
                     </select>
-                </div>
-                <div class="col-sm-2">
-                    <label for="textSearch" class="form-label">Поиск по таблице</label>
-                    <input id="textSearch" class="form-control" type="text" name="keyword"
+                    <input id="textSearch" class="form-control" type="text" name="keyword" placeholder="Поиск"
                            oninput="searching(this.value)">
                 </div>
-                <div class="col-sm-4 alert alert-primary row g-1">
-                    <div class="col-6">
-                        <p th:text="${'Всего сотрудников: '+info.numberOfEmployee}" class="mb-0"></p>
-                        <p th:text="${'Полностью выдан СИЗ: '+info.numberOfFullStaffing}" class="mb-0"></p>
-                    </div>
-                    <div class="col-6">
-                        <p th:text="${'Недоукомплектованы: '+(info.numberOfEmployee-info.numberOfFullStaffing)}"
-                           class="mb-0"></p>
-                        <a th:text="${'Истекает срок носки СИЗ: '+info.numberOfEndIssuedSIZ}" th:onclick="'javascript:showEmployeeWithEndDateWear();'" class="mb-0"></a>
+                <div class="col-sm-4">
+                    <div class="info-window" th:fragment="info-window">
+                        <div class="alert alert-primary row g-1">
+                            <div class="col-6">
+                                <p th:text="${'Всего сотрудников: '+info.numberOfEmployee}" class="mb-0"></p>
+                                <p th:text="${'Полностью выдан СИЗ: '+info.numberOfFullStaffing}" class="mb-0"></p>
+                            </div>
+                            <div class="col-6">
+                                <p th:text="${'Недоукомплектованы: '+(info.numberOfEmployee-info.numberOfFullStaffing)}"
+                                   class="mb-0"></p>
+                                <a th:text="${'Истекает срок носки СИЗ: '+info.numberOfEndIssuedSIZ}"
+                                   th:onclick="'javascript:showEmployeeWithEndDateWear();'" class="mb-0"></a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,12 +163,11 @@
                     <span class="lead">Укомплектованность сотрудников СИЗ</span>
                 </div>
                 <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
-                    <form th:action="'/userPage/employee-siz/print-table'" method="get">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
-                                aria-label="Распечатать" title="Печать таблицы">
-                            <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
-                        </button>
-                    </form>
+                    <button class="btn btn-outline-secondary btn-sm float-right"
+                            th:onclick="'javascript:print();'"
+                            aria-label="Распечатать" title="Печать таблицы">
+                        <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                    </button>
                 </div>
             </div>
             <div class="table-employees" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;"
