@@ -3,6 +3,7 @@ package com.information.system.cipik.controllers;
 import com.ibm.icu.text.Transliterator;
 import com.information.system.cipik.models.*;
 import com.information.system.cipik.repo.*;
+import com.information.system.cipik.services.AdminService;
 import com.information.system.cipik.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -31,6 +32,8 @@ public class AdminController {
     private UserService userService;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private AdminService adminService;
 
 //////////////пользователи created by Tashmetov Tahir////////////////////////
 
@@ -281,6 +284,18 @@ public class AdminController {
         Otdel otdel = otdelRepository.findById(id).orElseThrow();
         otdelRepository.deleteById(id);
         return "redirect:/admin/otdels/add";
+    }
+
+    /////////////////settings/////////////////////
+
+    @PostMapping("/admin/settings/save-db-data")
+    public String saveDBSettings(@RequestParam String user_name, @RequestParam String pass, @RequestParam String db_name, Model model) {
+        if (user_name.equals("") || pass.equals("") || db_name.equals("")) {
+            System.out.println("Данные аутентификации к БД не должны быть пустыми");
+        } else {
+            adminService.saveDBSettings(user_name, pass, db_name);
+        }
+        return "redirect:/admin";
     }
 
 }

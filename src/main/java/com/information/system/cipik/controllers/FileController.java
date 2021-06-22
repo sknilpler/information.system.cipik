@@ -5,15 +5,12 @@ import com.information.system.cipik.models.Employee;
 import com.information.system.cipik.models.IPMStandard;
 import com.information.system.cipik.repo.EmployeeRepository;
 import com.information.system.cipik.repo.IPMStandardRepository;
+import com.information.system.cipik.services.AdminService;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,9 +33,6 @@ public class FileController {
 
     private final String folderPath = Paths.get("").toAbsolutePath().toString()+File.separator+"DBBackupFiles";
   //  private String folderPath = "/home/first/Рабочий стол/ПРОЕКТ информационной системы ЦИП ИК/DBBackupFiles";
-    private final String dbUserName = "craft";
-    private final String dbUserPassword = "111";
-    private final String dbNameList = "cipik";
 
     public String CYRILLIC_TO_LATIN = "Russian-Latin/BGN";
 
@@ -46,6 +40,10 @@ public class FileController {
     EmployeeRepository employeeRepository;
     @Autowired
     IPMStandardRepository ipmStandardRepository;
+    @Autowired
+    AdminService adminService;
+
+
 
     /**
      * Выгрузка SQL дампа БД пользователю
@@ -55,13 +53,14 @@ public class FileController {
      */
     @GetMapping(value = "admin/download_backup")
     public void downloadBackupFile(HttpServletResponse response) throws IOException {
-
+        String dbUserName = adminService.getDBSettings()[0];
+        String dbUserPassword = adminService.getDBSettings()[1];
+        String dbNameList = adminService.getDBSettings()[2];
         Date backupDate = new Date();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         String backupDateStr = format.format(backupDate);
 
         String fileName = "Express_DB_Backup";
-
         File f1 = new File(folderPath);
         f1.mkdir(); // create folder if not exist
 
@@ -132,6 +131,9 @@ public class FileController {
             attributes.addFlashAttribute("message", "Выберите файл формата *.sql для загрузки");
             return "redirect:/admin";
         }
+        String dbUserName = adminService.getDBSettings()[0];
+        String dbUserPassword = adminService.getDBSettings()[1];
+        String dbNameList = adminService.getDBSettings()[2];
 
         File convertFile = new File(folderPath + File.separator + file.getOriginalFilename());
         convertFile.createNewFile();

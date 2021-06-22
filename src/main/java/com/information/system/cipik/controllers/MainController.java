@@ -2,6 +2,7 @@ package com.information.system.cipik.controllers;
 
 import com.information.system.cipik.models.Komplex;
 import com.information.system.cipik.repo.KomplexRepository;
+import com.information.system.cipik.services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class MainController {
     @Autowired
     KomplexRepository komplexRepository;
+    @Autowired
+    private AdminService adminService;
 
     @GetMapping("/")
     public String home(Model model) {
@@ -28,6 +31,10 @@ public class MainController {
 
     @GetMapping("/admin")
     public String admin(Model model){
+        String[] s = adminService.getDBSettings();
+        model.addAttribute("user_name",s[0]);
+        model.addAttribute("pass",s[1]);
+        model.addAttribute("db_name",s[2]);
         model.addAttribute("title", "Администрирование основных данных");
         return "admin/admin";
     }

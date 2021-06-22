@@ -4,6 +4,7 @@
     <title th:text="${title}"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
 </head>
 <body>
@@ -43,8 +44,11 @@
         <div class="form-group">
             <input type="file" name="file" class="form-control-file">
         </div>
-        <button type="submit" class="btn btn-primary">Восстановить</button>
+        <button type="submit" class="btn btn-primary mt-2">Восстановить</button>
     </form>
+    <button type="button" class="btn btn-primary mt-5"
+            onclick="showModalWindow();">Настройки подключения к БД
+    </button>
 </div>
 <div class="container mt-5">
 <h6>Загрузить список сотрудников из файла CSV</h6>
@@ -53,10 +57,66 @@
     <div class="form-group">
         <input type="file" name="file" class="form-control-file">
     </div>
-    <button type="submit" class="btn btn-primary">Загрузить</button>
+    <button type="submit" class="btn btn-primary mt-2">Загрузить</button>
 </form>
 </div>
 
+<!-- Modal window for settings DB -->
+<div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" th:action="@{/admin/settings/save-db-data}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLiveLabel">Выданный СИЗ сотруднику</h5>
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                            onclick="closeModalWindow()">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <label class="md-2" for="user_name">Имя пользователя</label>
+                    <div class="md-7">
+                        <input type="text" th:value=${user_name} id="user_name" name="user_name" class="form-control"
+                               placeholder="Введите имя пользователя" required/>
+                    </div>
+                    <label class="md-2" for="pass">Пароль</label>
+                    <div class="md-7">
+                        <input type="text" th:value=${pass} id="pass" name="pass" class="form-control"
+                               placeholder="Введите пароль" required/>
+                    </div>
+                    <label class="md-2" for="db_name">Наименование БД</label>
+                    <div class="md-7">
+                        <input type="text" th:value=${db_name} id="db_name" name="db_name" class="form-control"
+                               placeholder="Введите название БД" required/>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                        Сохранить
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                            onclick="closeModalWindow()">
+                        Закрыть
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
+
+<script th:inline="javascript">
+function closeModalWindow() {
+	$("#exampleModalLive").modal('hide');
+};
+
+function showModalWindow(){
+    $("#exampleModalLive").modal('show');
+}
+</script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>
 </html>
