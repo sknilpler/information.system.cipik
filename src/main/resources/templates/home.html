@@ -5,39 +5,166 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <style>
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+</style>
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
-
-<div class="bg-image d-flex justify-content-center align-items-center"
-     style="background-image: url('/images/background.jpeg');
-      height: 100vh">
-    <div class="d-grid gap-2">
-<!--        <div th:each="k : ${komplexes}">-->
-<!--             <a sec:authorize="hasRole(' + ${k.role.name} + ')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button" th:text="${k.shortName}"></a>-->
-<!--        </div>-->
-        <a sec:authorize="hasAnyRole('ROLE_USER')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">ЦИП ИК</a>
-        <a sec:authorize="hasAnyRole('ROLE_MTO')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">МТО</a>
-        <a sec:authorize="hasAnyRole('ROLE_IP-1')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">ИП-1</a>
-        <a sec:authorize="hasAnyRole('ROLE_IP-2')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">ИП-2</a>
-        <a sec:authorize="hasAnyRole('ROLE_IP-3')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">ИП-3</a>
-        <a sec:authorize="hasAnyRole('ROLE_IP-5')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">ИП-5</a>
-        <a sec:authorize="hasAnyRole('ROLE_IVTS')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">ИВЦ</a>
-        <a sec:authorize="hasAnyRole('ROLE_GE')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">ГЭ</a>
-        <a sec:authorize="hasAnyRole('ROLE_KOIPSIK')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">КОИПСИК</a>
-        <a sec:authorize="hasAnyRole('ROLE_OT')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">ОТ</a>
-        <a sec:authorize="hasAnyRole('ROLE_OKHSOiEZS')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">OKHSOiEZS</a>
-        <a sec:authorize="hasAnyRole('ROLE_Upravleniye')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">Управление</a>
-        <a sec:authorize="hasAnyRole('ROLE_UTS')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">УЦ</a>
-        <a sec:authorize="hasAnyRole('ROLE_EMS')" href="/userPage/employee-siz" class="btn btn-primary btn-lg" type="button">ЭМС</a>
-        <!--        <a th:href="'/user/ge'" class="btn btn-primary btn-lg" type="button">ГЭ</a>-->
-<!--        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/item-all'" class="btn btn-primary btn-lg" type="button">СКЛАД</a>-->
-        <a sec:authorize="isAuthenticated() && !hasRole('ROLE_ADMIN')" th:href="'/userPage/employee/employees-all'" class="btn btn-primary btn-lg" type="button">Сотрудники</a>
+<section class="jumbotron text-center">
+    <div class="container">
+        <h1 sec:authorize="hasAnyRole('ROLE_USER')" class="jumbotron-heading">Центр испытаний и применения
+            измерительного комплекса</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_MTO')" class="jumbotron-heading">Материально-техническое обеспечение</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_IP-1')" class="jumbotron-heading">Измерительный пункт №1</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_IP-2')" class="jumbotron-heading">Измерительный пункт №2</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_IP-3')" class="jumbotron-heading">Измерительный пункт №3</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_IP-5')" class="jumbotron-heading">Измерительный пункт №5</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_IVTS')" class="jumbotron-heading">Информационно-вычислительный центр</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_GE')" class="jumbotron-heading">Группа эксплуатации</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_KOIPSIK')" class="jumbotron-heading">Комплексный отдел испытаний и
+            применения средств измерительного комплекса</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_OT')" class="jumbotron-heading">Охрана труда</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_OKHSOiEZS')" class="jumbotron-heading">Хозяйственный отдел</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_Upravleniye')" class="jumbotron-heading">Управление</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_UTS')" class="jumbotron-heading">Учебный центр</h1>
+        <h1 sec:authorize="hasAnyRole('ROLE_EMS')" class="jumbotron-heading">Отдел электромагнитной совместимости</h1>
+        <p class="lead text-muted">Автоматизированная информационная система обеспечения сотрудников предприятия
+            средствами индивидуальной защиты</p>
     </div>
+</section>
+
+<div class="album py-5 bg-light bg-image" style="background-image: url('/images/background.jpeg'); min-height: 80vh">
+    <div class="container">
+        <div class="row" sec:authorize="isAuthenticated() && !hasRole('ROLE_ADMIN')" >
+
+            <div class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>Укомплектованность сотрудников</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Отображение подробной информации об укомплектованности сотрудников средствами индивидуальной защиты</font></font></p>
+                        <a href="/userPage/employee-siz" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>Выдача СИЗ сотрудникам</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Выдача сотрудникам средств индивидуальной защиты</font></font></p>
+                        <a href="/userPage/issued-siz" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>Склад СИЗ</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Отображение и редактирование информации о хранящихся на складе средствах индивидуальной защиты</font></font></p>
+                        <a href="/userPage/not-issued-siz" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>Закупка СИЗ</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Формирование таблицы со списком средств индивидуальной защиты необходимых к закупке предприятием</font></font></p>
+                        <a href="/userPage/purchasing-table" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>Выдача СИЗ подразделениям</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Выдача необходимых средств индивидуальной защиты подразделениям для дальнейшего распределения между сотрудниками</font></font></p>
+                        <a href="/userPage/issued-for-komplex" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>Нормы выдачи СИЗ</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Отображение и редактирование норм выдачи средств индивидуальной защиты</font></font></p>
+                        <a href="/userPage/siz/norms" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>Типы СИЗ</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Отображение и редактирование типов средств индивидуальной защиты используемых на предприятии</font></font></p>
+                        <a href="/userPage/siz-types" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>Список сотрудников</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Отображение и редактирование информации о сотрудниках предприятия</font></font></p>
+                        <a href="/userPage/employee/employees-all" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!--        <a th:href="'/user/ge'" class="btn btn-primary btn-lg" type="button">ГЭ</a>-->
+<!--        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/item-all'" class="btn btn-primary btn-lg" type="button">СКЛАД</a>-->
 <!--    <section class="logo-right">-->
 <!--        <img src="/images/roscosmos.png" alt="Роскосмос">-->
 <!--    </section>-->
-</div>
 
 <div th:insert="blocks/footer :: footer"></div>
 </body>
