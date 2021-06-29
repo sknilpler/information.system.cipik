@@ -82,6 +82,9 @@ public class SIZController {
      */
     private final List<String> listErrors = new ArrayList<>();
 
+
+    private final List<IssuedSIZ> SIZForPrint = new ArrayList<>();
+
     /**
      * Первоначальное открытие страницы с типами СИЗ
      *
@@ -816,6 +819,7 @@ public class SIZController {
         c.add(Calendar.MONTH, serviceLife);
         Date dateEndWear = c.getTime();
         String typeSIZ = ipmStandard.getIndividualProtectionMeans().getTypeIPM();
+        SIZForPrint.clear();
 
         for (Long employee_id : list) {
             message = "";
@@ -853,6 +857,7 @@ public class SIZController {
                         siz.setStatus("Выдано");
                         siz.setKomplex(null);
                         issuedSIZRepository.save(siz);
+                        SIZForPrint.add(siz);
                     }
                 } else {
                     message = "Нужные размеры для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() + " на складе отсутствуют";
@@ -871,6 +876,64 @@ public class SIZController {
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
         model.addAttribute("issuedError", message);
         return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
+    }
+
+    /**
+     * Печать акта выдачи сотрудникам СИЗ
+     */
+    @PostMapping("/userPage/issued-siz/print-issued-siz")
+    public void printPurchasingTable(HttpServletResponse response) throws IOException {
+        //if (!SIZForPrint.isEmpty()) {
+            DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+            response.setContentType("application/octet-stream");
+            String headerKey = "Content-Disposition";
+            String headerValue = "attachment; filename=act_vidachi_siz_ot_" + dateFormatter.format(new Date()) + ".xlsx";
+            response.setHeader(headerKey, headerValue);
+
+            String excelFilePath = Paths.get("").toAbsolutePath().toString() + File.separator + "template" + File.separator + "akt-vidachi-siz.xlsx";
+
+            try {
+                FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+                Workbook workbook = WorkbookFactory.create(inputStream);
+
+                Sheet sheet = workbook.getSheetAt(0);
+
+                int row = 12;
+                Row exampleRow = sheet.getRow(12);
+                int count = 1;
+                for (IssuedSIZ s : SIZForPrint) {
+                    sheet.createRow(row+2);
+                    sheet.getRow(row).setRowStyle(exampleRow.getRowStyle());
+                    sheet.getRow(row).setHeight(exampleRow.getHeight());
+
+                    for (int i = 0; i < 8; i++) {
+                        sheet.getRow(row+1).createCell(i);
+                        sheet.getRow(row).getCell(i).setCellStyle(exampleRow.getCell(i).getCellStyle());
+                    }
+                    sheet.getRow(row).getCell(0).setCellValue(count);
+                    sheet.getRow(row).getCell(1).setCellValue(s.getSiz().getNomenclatureNumber());
+                    sheet.getRow(row).getCell(2).setCellValue(s.getSiz().getNameSIZ());
+                    sheet.getRow(row).getCell(3).setCellValue(s.getSize());
+                    sheet.getRow(row).getCell(4).setCellValue(s.getHeight());
+                    sheet.getRow(row).getCell(5).setCellValue(s.getSiz().getEd_izm());
+                    sheet.getRow(row).getCell(6).setCellValue(s.getEmployee().getSurname() + " " + s.getEmployee().getName().charAt(0) + " " + s.getEmployee().getPatronymic().charAt(0));
+                    row++;
+                    count++;
+
+                }
+
+                inputStream.close();
+
+                ServletOutputStream outputStream = response.getOutputStream();
+                workbook.write(outputStream);
+                workbook.close();
+                outputStream.close();
+
+            } catch (IOException | EncryptedDocumentException
+                    ex) {
+                ex.printStackTrace();
+            }
+        //}
     }
 
     /**

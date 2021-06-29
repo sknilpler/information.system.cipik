@@ -137,14 +137,45 @@ function updateIssuedSiz(value) {
 		    $('.table-issuedSiz').html(data);
 		    document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
             $('body input:checkbox').prop('checked',false);
-		    selRecs = [];
-		    loadErrors();
+            loadErrors();
 		    updateSizForEmployee(employee_id);
+		    printIssuedSIZ();
 	},
 })
 //$('body input:checkbox').prop('checked',false);
 };
+//////////////////////////////////////////
+function printIssuedSIZ(){
+    $.ajax({
+    	type : "POST",
+    	contentType : "application/json",
+    	accept: 'text/plain',
+    	url : '/userPage/issued-siz/print-issued-siz',
+    	dataType: 'binary',
+    	xhrFields: {
+    	    'responseType':'blob'
+    	},
+    	success : function(data,status,xhr) {
+    	    var blob = new Blob([data],{type: xhr.getResponseHeader('Content-Type')});
+    	    var link = document.createElement('a');
+    	    link.href = window.URL.createObjectURL(blob);
+    	    var today = formatDateToRus(new Date());
+    	    link.download = 'Акт выдачи СИЗ сотрудникам от '+today+'.xlsx';
+    	    link.click();
+    	},
+        error : function(e) {
+             alert("Error!")
+             console.log("ERROR: ", e);
+        }
+    });
+}
+function formatDateToRus(dateTime){
+        var dd = String(dateTime.getDate()).padStart(2, '0');
+        var mm = String(dateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = dateTime.getFullYear();
 
+        return dd + '.' + mm + '.' + yyyy;
+    }
 //////////////////////////////////////////
 function loadErrors(){
         $.ajax({
