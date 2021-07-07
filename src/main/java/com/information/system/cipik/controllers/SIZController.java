@@ -523,7 +523,7 @@ public class SIZController {
     @GetMapping("/userPage/not-issued-siz/{id}/{size}/{height}/{number}/edit")
     public String notIssuedSIZEdit(@PathVariable(value = "id") long id, @PathVariable(value = "height") String height, @PathVariable(value = "size") String size, @PathVariable(value = "number") int number, Model model) {
         IssuedSIZ siz;
-        if ((height == null) || (height.equals("")) || (height.equals("null"))) {
+        if ((height == null) || (height.equals("")) || (height.equals("non"))) {
             siz = issuedSIZRepository.findByStock(size, id, "На складе").get(0);
         } else {
             siz = issuedSIZRepository.findByStock(size, height, id, "На складе").get(0);
@@ -547,14 +547,22 @@ public class SIZController {
      */
     @PostMapping("/userPage/not-issued-siz/{id}/edit")
     public String notIssuedSIZUpdate(@PathVariable(value = "id") long id, @RequestParam IndividualProtectionMeans siz, @RequestParam String size, @RequestParam String height, @RequestParam int number, Model model) {
-        List<IssuedSIZ> list = issuedSIZRepository.findByStock(size, height, id, "На складе");
+        List<IssuedSIZ> list;
+
+        if ((height == null) || (height.equals("")) || (height.equals("non"))) {
+            list = issuedSIZRepository.findByStock(size, siz.getId(), "На складе");
+        } else {
+            list = issuedSIZRepository.findByStock(size, height, siz.getId(), "На складе");
+        }
+
         for (IssuedSIZ s : list) {
-            issuedSIZRepository.deleteById(s.getId());
+            issuedSIZRepository.delete(s);
         }
+
         for (int i = 0; i < number; i++) {
-            IssuedSIZ isiz = new IssuedSIZ(siz, size, height);
-            issuedSIZRepository.save(isiz);
+            issuedSIZRepository.save(new IssuedSIZ(siz, size, height));
         }
+
         return "redirect:/userPage/not-issued-siz";
     }
 

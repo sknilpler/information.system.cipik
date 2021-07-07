@@ -155,13 +155,26 @@
                 </div>
             </div>
 
+            <div sec:authorize="hasRole('ROLE_USER')" class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>CКЛАД</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Склад материальных ценностей</font></font></p>
+                        <a href="/userPage/item-all" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
 
 <!--        <a th:href="'/user/ge'" class="btn btn-primary btn-lg" type="button">ГЭ</a>-->
-<!--        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/item-all'" class="btn btn-primary btn-lg" type="button">СКЛАД</a>-->
 <!--    <section class="logo-right">-->
 <!--        <img src="/images/roscosmos.png" alt="Роскосмос">-->
 <!--    </section>-->

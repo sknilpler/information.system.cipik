@@ -599,7 +599,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
      */
     @Query(value = "SELECT * FROM issuedsiz WHERE \n" +
             "size =:s AND\n" +
-            "height IS NULL AND\n" +
+            "height = '' AND\n" +
             "siz_id =:s_id AND\n" +
             "status =:stat AND\n" +
             "komplex_id IS NULL AND\n" +

@@ -22,7 +22,6 @@ public class Komplex {
     private Long id;
 
     private String name, adres;
-
     private String shortName;
 
     @ManyToOne
@@ -45,14 +44,20 @@ public class Komplex {
     @JsonIgnore
     private List<IssuedSIZ> issuedSIZS;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "komplex_id")
+    private List<IssuanceItems> issuanceItems;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "komplex_id")
+    private List<WriteOffAct> writeOffActs;
+
 
     public Komplex(String name, String adres, String shortName, Centr centr, Role role) {
         this.name = name;
         this.adres = adres;
         this.centr = centr;
         this.shortName = shortName;
-        this.otdels = otdels;
-
         this.role = role;
     }
 

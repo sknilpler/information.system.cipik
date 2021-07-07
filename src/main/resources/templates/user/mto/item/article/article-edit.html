@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Редактирование статьи расхода</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div class="container mt-5">
+    <h1>Редактирование данных о статье расхода</h1>
+
+
+    <form  th:object="${article}" th:action="'/userPage/article/'+*{id}+'/edit'"  method="post">
+
+        <div class="container mt-1 md-12">
+            <label class="md-2" for="name">Наименование статьи</label>
+            <div class="md-7">
+                <input type="text" th:field="*{name}" id="name" name="name" class="form-control"
+                       placeholder="Введите наименование статьи" required/>
+            </div>
+        </div>
+
+        <div class="container mt-1 col-md-12">
+            <label class="md-2" for="type">Тип статьи</label>
+            <div class="md-7">
+                <input type="text" th:field="*{type}" id="type" name="type" class="form-control"
+                       placeholder="Введите тип статьи" required/>
+            </div>
+        </div>
+
+
+        <div class="container mt-1 form-actions floatRight">
+            <button type="submit" class="btn btn-success">Сохранить</button>
+            <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Сбросить поля</button>
+        </div>
+        <br>
+
+    </form>
+</div>
+
+<div th:insert="blocks/footer :: footer"></div>
+</body>

@@ -1,0 +1,70 @@
+<!-- Modal window for issued items for komplex -->
+<div th:fragment="issued-for-komplex">
+<div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLiveLabel">Выдача </h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-mc" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                     th:fragment="table-mc">
+<!--                    <h6 th:text="${employee.surname}+' '+${#strings.substring(employee.name,0,1)}+' '+${#strings.substring(employee.patronymic,0,1)}"></h6>-->
+                    <select class="form-control custom-select d-block w-100" id="komplex" name="komplex">
+                        <option selected disabled value="">Выберите подразделение</option>
+                        <option th:each="k : ${komplexes}" th:value="${k.id}"
+                                th:text="${k.shortName}"></option>
+                    </select>
+                    <table class="table table-hover" id="tb">
+                        <thead>
+                        <tr>
+                            <th style="display:none;">ID</th>
+                            <th>Наименование</th>
+                            <th>Номенклатурный №</th>
+                            <th style="width: 10%">Ед. изм.</th>
+                            <th style="width: 10%">Количество</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${items_issued}" style="cursor: pointer">
+                            <td data-type="id" th:text="${item.id}" style="display:none;"></td>
+                            <td data-type="name" th:text="${item.name}"></td>
+                            <td data-type="nomenclature" th:text="${item.nomenclature}"></td>
+                            <td data-type="unit" th:text="${item.unit}"></td>
+                            <td>
+                                <div class="input-group" th:with="quantityInStock=${item.number}">
+<!--                                <span class="input-group-btn">-->
+<!--                                    <button type="button" class="btn btn-default btn-number" name="btn-number" data-type="minus" data-field="quant[1]">-</button>-->
+<!--                                </span>-->
+                                    <input type="text" name="quant[1]" data-type="quantity" class="form-control input-number"
+                                           th:value="0"
+                                           min="0" th:max="${quantityInStock}"
+                                           th:title="'На складе: '+${quantityInStock}">
+<!--                                    <span class="input-group-btn">-->
+<!--                                    <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="quant[1]">+</button>-->
+<!--                                </span>-->
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" name="send_btn" id="send_btn"
+                        th:onclick="'javascript:sendToKomplex();'" disabled>Выдать
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Modal window -->

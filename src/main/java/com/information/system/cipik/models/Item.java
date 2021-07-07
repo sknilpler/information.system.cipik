@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -19,35 +18,49 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String bill;
-    private String expense_item;
-    private String name;
-    private String number;
-    private String price;
-    private String unit; //Еденицы измерения
-    private String code;
-    private LocalDate dateOfReceive;
-    private int count;
-    private int dlc_count;
-    private int all_count;
-    private boolean issued;
 
+    private String bill;    //счет
+    private String name; //наименование
+    private double number; //количество
+    private String unit; //единицы измерения
+    private String price;//стоимость
+    private String code; //код
+    private String nomenclature; //номенклатурный номер
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @ManyToOne
+    private Article article; //статья
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "item_id")
-    private List<WriteOffAct> writeOffActs;
+    private List<WriteOffAct> writeOffActs; //акты списания
 
-    public Item(String bill, String expense_item, String name, String number, String price, String unit, String code, int count) {
+    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
+    @JoinColumn(name = "item_id")
+    private List<IssuanceItems> issuanceItems;  //выдано
+
+    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
+    @JoinColumn(name = "item_id")
+    private List<Coming> comings;   //приход
+
+    /**
+     * Конструктор сущности материальной ценности на складе
+     *
+     * @param bill         счет
+     * @param name         наименование
+     * @param number       количество
+     * @param unit         единицы измерения
+     * @param code         код
+     * @param nomenclature номенклатурный номер
+     * @param article      статья
+     */
+    public Item(String bill, String name, double number, String unit, String code, String nomenclature, Article article, String price) {
         this.bill = bill;
-        this.expense_item = expense_item;
         this.name = name;
         this.number = number;
-        this.price = price;
         this.unit = unit;
         this.code = code;
-        this.count= count;
-        this.issued = false;
+        this.nomenclature = nomenclature;
+        this.article = article;
+        this.price = price;
     }
-
-
 }

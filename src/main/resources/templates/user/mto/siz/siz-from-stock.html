@@ -122,7 +122,7 @@
                                 <td th:text="${n.height}"></td>
                                 <td th:text="${n.number}"></td>
                                 <td>
-                                        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/not-issued-siz/'+${n.id}+'/'+${n.size}+'/'+${n.height}+'/'+${n.number}+'/edit'"
+                                        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/not-issued-siz/'+${n.id}+'/'+${n.size}+'/'+${#strings.defaultString(n.height,'non')}+'/'+${n.number}+'/edit'"
                                            class="btn btn-primary btn-sm" title="Редактировать">
                                             <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"
                                                  height="16" style="filter: invert (100%);">

@@ -1,29 +1,41 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Администрирование</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/sidebar.css">
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
 
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
 
 <div class="d-flex">
+    <!-- Modal windows for accepting delete -->
+    <div th:insert="blocks/accept-delete :: accept-delete"></div>
+    <!-- Modal window for issued items for komplex -->
+    <div th:insert="user/mto/item/blocks/issued-modal :: issued-for-komplex"></div>
     <!-- Side panel -->
-    <div th:insert="user/mto/sidebar :: sidebar"></div>
+    <div th:insert="user/mto/item/sidebar :: sidebar"></div>
     <!-- Side panel -->
     <div class="my-container active-cont container-fluid">
-        <!--Страница для вывода всех пользователей-->
         <div class="container-fluid">
             <h1>Склад</h1>
-
-            <div class="bd-example">
+            <div class="pagination justify-content-start">
+                <div class="d-flex justify-content-start flex-wrap">
+                    <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
+                    <a th:href="'/userPage/coming-add'" class="btn btn-success mx-1">Добавить</a>
+                </div>
+            </div>
+            <div class="bd-example" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;">
                 <table class="table table-bordered">
                     <thead>
                     <tr>
+                        <th style="5%">
+                            <input type="checkbox" name="all-checkbox"  th:onchange="'javascript:selectAllRecord(this);'" >
+                        </th>
                         <th scope="col">№</th>
                         <th scope="col">Счет</th>
                         <th scope="col">Статья</th>
@@ -33,42 +45,50 @@
                         <th scope="col">Ед. изм.</th>
                         <th scope="col">Код</th>
                         <th scope="col">Кол-во</th>
-                        <th scope="col">Доп. приход</th>
-                        <th scope="col">Всего приход</th>
-                        <th scope="col" style="width: 310px;"></th>
+                        <th scope="col" style="width: 310px;">
+                            <button sec:authorize="hasRole('ROLE_USER')" class="btn border-0 btn-sm" name="btn_do_some"  th:onclick="'javascript:sendListIdsToIssued();'" title="Выдать подразделению" disabled>
+                                <img src="/images/bootstrap-icons/clipboard-check.svg" alt="Bootstrap" width="20"
+                                     height="16" style="filter: invert (1);">
+                            </button>
+                            <button sec:authorize="hasRole('ROLE_USER')" class="btn border-0 btn-sm" name="btn_do_some"  th:onclick="'javascript:showModalWindow2();'" title="Списать" disabled>
+                                <img src="/images/bootstrap-icons/clipboard-x.svg" alt="Bootstrap" width="20"
+                                     height="16" style="filter: invert (1);">
+                            </button>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="el : ${allItems}">
-                        <th scope="row" th:text="${el.id}"></th>
+                    <tr th:each="el, iter : ${allItems}">
+                        <td>
+                            <input type="checkbox" name="record-checkbox"  th:onchange="'javascript:selectRecord(this,\'' +${el.id}+ '\');'">
+                        </td>
+                        <th scope="row" th:text="${iter.index+1}"></th>
                         <td th:text="${el.bill}"></td>
-                        <td th:text="${el.expense_item}"></td>
+                        <td th:text="${el.article.name}"></td>
                         <td th:text="${el.name}"></td>
-                        <td th:text="${el.number}"></td>
+                        <td th:text="${el.nomenclature}"></td>
                         <td th:text="${el.price}"></td>
                         <td th:text="${el.unit}"></td>
                         <td th:text="${el.code}"></td>
-                        <td th:text="${el.count}"></td>
-                        <td th:text="${el.dlc_count}"></td>
-                        <td th:text="${el.all_count}"></td>
+                        <td th:text="${el.number}"></td>
                         <td>
-                            <form th:action="'/userPage/item/'+${el.id}+'/remove'" method="post">
-                                <a th:href="'/userPage/item/'+${el.id}+'/edit'"
-                                   class="btn btn-primary">Редактировать</a>
-                                <button class="btn btn-danger" type="submit">Удалить</button>
-                            </form>
+<!--                            <form th:action="'/userPage/item/'+${el.id}+'/remove'" method="post">-->
+<!--                                <button class="btn btn-danger btn-sm" type="submit" title="Удалить">-->
+<!--                                    <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"-->
+<!--                                                                                  height="16" style="filter: invert (1);">-->
+<!--                                </button>-->
+<!--                            </form>-->
+                            <button class="btn btn-danger btn-sm" th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'" title="Удалить">
+                                <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"
+                                     height="16" style="filter: invert (1);">
+                            </button>
                         </td>
                     </tr>
                     </tbody>
 
                 </table>
             </div>
-            <div class="pagination justify-content-start">
-                <div class="d-flex justify-content-start flex-wrap">
-                    <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
-                    <a th:href="'/userPage/item-add'" class="btn btn-success mx-1">Добавить</a>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>
@@ -84,6 +104,152 @@
       });
 
 /////////////////////////////////
+function closeModalWindow() {
+	$("#deleteAccept").modal('hide');
+	$("#exampleModalLive").modal('hide');
+};
+
+var id_del;
+
+function showDeleteModalWindow(id){
+    id_del = id;
+    document.getElementById("delete-object").innerHTML = "Вы точно хотите удалить?";
+    $("#deleteAccept").modal('show');
+}
+
+function deleteObject(){
+    post('/userPage/item/'+id_del+'/remove');
+}
+
+function post(path, method='post') {
+  const form = document.createElement('form');
+  form.method = method;
+  form.action = path;
+  const hiddenField = document.createElement('input');
+  hiddenField.type = 'hidden';
+  form.appendChild(hiddenField);
+  document.body.appendChild(form);
+  form.submit();
+}
+//////////////////////////////////////
+var selRecs = [];
+
+function selectRecord(value, id) {
+
+	if (value.checked) {
+		selRecs.push(id);
+	} else {
+		selRecs = arrayRemove(selRecs, id);
+	}
+	var btns =  document.getElementsByName('btn_do_some');
+	if(selRecs.length === 0){
+	   btns.forEach(el => el.disabled = true);
+	} else {
+	   btns.forEach(el => el.disabled = false);
+	}
+};
+
+function arrayRemove(arr, value) {
+	return arr.filter(function(ele) {
+		return ele !== value;
+	});
+}
+////////////////////////////////////
+function selectAllRecord(value){
+    if (value.checked) {
+		/*<![CDATA[*/
+ 	    var list = [];
+ 	    /*[# th:each="elVar : ${allItems}"]*/
+ 	        list.push(/*[[${elVar.id}]]*/);
+ 		/*[/]*/
+ 		/*]]>*/
+        selRecs = list;
+	} else {
+		selRecs = [];
+	}
+	$('body input:checkbox').prop('checked',value.checked);
+	var btns =  document.getElementsByName('btn_do_some');
+	btns.forEach(el => el.disabled = !value.checked);
+}
+///////////////////////////////////////
+function sendListIdsToIssued(){
+console.log(selRecs);
+    $.ajax({
+		type: 'post',
+		url: '/userPage/add-coming-for-item/'+selRecs+'/issued',
+		success: function(data) {
+			$('.table-mc').html(data);
+			$("#exampleModalLive").modal('show');
+		},
+	})
+}
+//////////////////////////////////////////////
+function loadClickListener(){
+     const items = document.querySelectorAll('#tb tbody tr');
+     Array.from(items).forEach((item) => {
+         const btnMinus = item.querySelector('[data-type="minus"]');
+         const btnPlus = item.querySelector('[data-type="plus"]');
+         const input = item.querySelector('input');
+         btnMinus.addEventListener('click', () => {
+         btnPlus.disabled = false;
+             if (Number(input.value)===0){
+                 btnMinus.disabled = true;
+             }else{
+                 input.value = Number(input.value) - 1;
+             }
+         });
+         btnPlus.addEventListener('click', () => {
+             btnMinus.disabled = false;
+             if (input.value === input.max){
+                btnPlus.disabled = true;
+             }else{
+                input.value = Number(input.value) + 1;
+             }
+         });
+     });
+}
+///////////////////////////////////////////////
+////////////////collect data and send////////////
+function sendToKomplex(){
+    const listOfObjects = new Map();
+    const items = document.querySelectorAll('#tb tbody tr');
+    Array.from(items).forEach((item) => {
+       listOfObjects.set(Number(item.querySelector('[data-type="id"]').innerHTML),item.querySelector('input').value)
+    });
+
+    $.ajax({
+    	type : "POST",
+    	contentType : "application/json",
+    	accept: 'text/plain',
+    	url : '/userPage/add-coming-for-item/send/'+document.querySelector('#komplex').value,
+    	data : JSON.stringify(listOfObjects),
+    	dataType: 'binary',
+    	xhrFields: {
+    	    'responseType':'blob'
+    	},
+    	success : function(data,status,xhr) {
+    	    var blob = new Blob([data],{type: xhr.getResponseHeader('Content-Type')});
+    	    var link = document.createElement('a');
+    	    link.href = window.URL.createObjectURL(blob);
+    	    var today = formatDateToRus(new Date());
+    	    var komplexName = $("#komplex option:selected").text();
+    	    link.download = 'Акт выдачи МЦ для '+komplexName+' от '+today+'.xlsx';
+    	    link.click();
+    	},
+        error : function(e) {
+             alert("Error!")
+             console.log("ERROR: ", e);
+        }
+    });
+
+    function formatDateToRus(dateTime){
+        var dd = String(dateTime.getDate()).padStart(2, '0');
+        var mm = String(dateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = dateTime.getFullYear();
+
+        return dd + '.' + mm + '.' + yyyy;
+    }
+}
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

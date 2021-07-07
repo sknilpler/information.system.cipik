@@ -2,16 +2,38 @@ package com.information.system.cipik.repo;
 
 
 import com.information.system.cipik.models.Item;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+
+import java.util.List;
 
 public interface ItemsRepository extends CrudRepository<Item, Long> {
     Item findByName(String name);
 
+    /**
+     * Поиск на складе МЦ по соответствующим критериям
+     *
+     * @param name наименование МЦ
+     * @param unit единицы измерения
+     * @param code номенклатурный номер
+     * @param id   ID статьи
+     * @return МЦ (Item)
+     */
+    Item findByNameAndUnitAndCodeAndArticleId(String name, String unit, String code, long id);
 
-//    @Query(value = "select item.* FROM item,ipmstandard,individual_protection_means WHERE\n" +
-//            " item.name LIKE individual_protection_means.namesiz AND\n" +
-//            " item.issued = 0 AND\n" +
-//            " individual_protection_means.id = ipmstandard.individual_protection_means_id AND\n" +
-//            " ipmstandard.id = :id_ipm_st", nativeQuery = true)
-//    List<Item> findIssuedByIPMStandart(@Param("id_ipm_st") Long id);
+    /**
+     * Поиск на складе МЦ по количеству
+     * @param number количество
+     * @return список МЦ
+     */
+    List<Item> findAllByNumber(double number);
+
+    /**
+     * Поиск МЦ на складе
+     * @return список мц
+     */
+    @Query(value = "select * from item where number > 0", nativeQuery = true)
+    List<Item> findAllNotEmpty();
+
+
 }
