@@ -15,11 +15,35 @@
                 <div class="table-mc" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
                      th:fragment="table-mc">
 <!--                    <h6 th:text="${employee.surname}+' '+${#strings.substring(employee.name,0,1)}+' '+${#strings.substring(employee.patronymic,0,1)}"></h6>-->
-                    <select class="form-control custom-select d-block w-100" id="komplex" name="komplex">
-                        <option selected disabled value="">Выберите подразделение</option>
-                        <option th:each="k : ${komplexes}" th:value="${k.id}"
-                                th:text="${k.shortName}"></option>
-                    </select>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <select class="form-control custom-select d-block w-100" id="komplex" name="komplex"
+                                    required>
+                                <option selected disabled value="">Выберите подразделение</option>
+                                <option th:each="k : ${komplexes}" th:value="${k.id}"
+                                        th:text="${k.shortName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="md-2" for="employeeAccepting">ФИО принимающего</label>
+                            <input type="text" id="employeeAccepting" name="employeeAccepting" class="form-control"
+                                   placeholder="Введите ФИО" required/>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="md-2" for="employeeGaveOut">ФИО выдающего</label>
+                            <input type="text" id="employeeGaveOut" name="employeeGaveOut" class="form-control"
+                                   placeholder="Введите ФИО" required/>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="dateIssued" class="form-label md-2">Дата выдачи</label>
+                            <input type="date" class="form-control" name="dateIssued" id="dateIssued"
+                                   th:attr="max=${now}" required>
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="invoiceNumber" class="form-label md-2">№ накладной</label>
+                            <input type="text" class="form-control" name="invoiceNumber" id="invoiceNumber" required>
+                        </div>
+                    </div>
                     <table class="table table-hover" id="tb">
                         <thead>
                         <tr>
@@ -57,7 +81,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" name="send_btn" id="send_btn"
-                        th:onclick="'javascript:sendToKomplex();'" disabled>Выдать
+                        th:onclick="'javascript:sendToKomplex();'">Выдать
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
                     Закрыть

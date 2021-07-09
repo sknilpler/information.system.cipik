@@ -210,45 +210,56 @@ function loadClickListener(){
 }
 ///////////////////////////////////////////////
 ////////////////collect data and send////////////
-function sendToKomplex(){
-    const listOfObjects = new Map();
-    const items = document.querySelectorAll('#tb tbody tr');
-    Array.from(items).forEach((item) => {
-       listOfObjects.set(Number(item.querySelector('[data-type="id"]').innerHTML),item.querySelector('input').value)
-    });
+function sendToKomplex() {
+	var listOfObjects = {};
+	var employeeAccepting = document.querySelector('#employeeAccepting').value;
+	var employeeGaveOut = document.querySelector('#employeeGaveOut').value;
+	var dateIssued = document.querySelector('#dateIssued' ).value;
+	var invoiceNumber = document.querySelector('#invoiceNumber').value;
 
-    $.ajax({
-    	type : "POST",
-    	contentType : "application/json",
-    	accept: 'text/plain',
-    	url : '/userPage/add-coming-for-item/send/'+document.querySelector('#komplex').value,
-    	data : JSON.stringify(listOfObjects),
-    	dataType: 'binary',
-    	xhrFields: {
-    	    'responseType':'blob'
-    	},
-    	success : function(data,status,xhr) {
-    	    var blob = new Blob([data],{type: xhr.getResponseHeader('Content-Type')});
-    	    var link = document.createElement('a');
-    	    link.href = window.URL.createObjectURL(blob);
-    	    var today = formatDateToRus(new Date());
-    	    var komplexName = $("#komplex option:selected").text();
-    	    link.download = 'Акт выдачи МЦ для '+komplexName+' от '+today+'.xlsx';
-    	    link.click();
-    	},
-        error : function(e) {
-             alert("Error!")
-             console.log("ERROR: ", e);
-        }
-    });
+	if ( employeeAccepting == "" || mployeeGaveOut == "" || dateIssued == "" || invoiceNumber == "" ) {
+		alert("Не все данные введены");
+	} else {
+		const items = document.querySelectorAll('#tb tbody tr');
+		Array.from(items).forEach((item) => {
+				listOfObjects[ item.querySelector('[data-type="id"]').innerHTML ] = [ item.querySelector('input').value ]
+			} );
+		$.ajax( {
+			type: "POST",
+			contentType: "application/json",
+			accept: 'text/plain',
+			url: '/userPage/add-coming-for-item/send/' + document.querySelector('#komplex').value + '/' + employeeAccepting + '/' + employeeGaveOut + '/' + dateIssued + '/' + invoiceNumber,
+			data: JSON.stringify(listOfObjects),
+			dataType: 'binary',
+			xhrFields: {
+				'responseType': 'blob'
+			},
+			success: function(data, status, xhr) {
+				var blob = new Blob([data], {
+					type: xhr.getResponseHeader('Content-Type')
+				} );
+				var link = document.createElement('a');
+				link.href = window.URL.createObjectURL(blob);
+				var today = formatDateToRus(new Date());
+				var komplexName = $("#komplex option:selected").text();
+				link.download = 'Акт выдачи МЦ для ' + komplexName + ' от ' + today + '.xlsx';
+				link.click();
+				document.location.reload();
+			},
+			error: function(e) {
+				alert("Error!");
+				console.log("ERROR: ", e);
+			}
+		});
+	}
 
-    function formatDateToRus(dateTime){
-        var dd = String(dateTime.getDate()).padStart(2, '0');
-        var mm = String(dateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
-        var yyyy = dateTime.getFullYear();
+	function formatDateToRus( dateTime ) {
+		var dd = String(dateTime.getDate()).padStart(2, '0');
+		var mm = String( dateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
+		var yyyy = dateTime.getFullYear();
 
-        return dd + '.' + mm + '.' + yyyy;
-    }
+		return dd + '.' + mm + '.' + yyyy;
+	}
 }
 </script>
 <div th:insert="blocks/footer :: footer"></div>
