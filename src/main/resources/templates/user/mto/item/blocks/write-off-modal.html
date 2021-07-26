@@ -1,0 +1,91 @@
+<!-- Modal window for write off items for komplex -->
+<div th:fragment="write-off-for-komplex">
+    <div id="exampleModalLive2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel2"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLiveLabel2">Списание материальных ценностей</h5>
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                            onclick="closeModalWindow()">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-wo" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                         th:fragment="table-wo">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <select class="form-control custom-select d-block w-100" id="komplex2" name="komplex2"
+                                        required>
+                                    <option selected disabled value="">Выберите подразделение</option>
+                                    <option th:each="k : ${komplexs_wo}" th:value="${k.id}"
+                                            th:text="${k.shortName}"></option>
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="dateWriteOff" class="form-label">Дата списания</label>
+                                <input type="date" class="form-control" name="dateWriteOff" id="dateWriteOff"
+                                       th:attr="max=${now}" required>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="nameAct" class="form-label">Название акта</label>
+                                <input type="text" class="form-control" name="nameAct" id="nameAct" required>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="file" class="form-label">Выберите файл скана акта</label>
+                                <form method="post" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <input type="file" name="file" id="file" class="form-control-file">
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                        <table class="table table-hover" id="tb1">
+                            <thead>
+                            <tr>
+                                <th style="display:none;">ID</th>
+                                <th>Наименование</th>
+                                <th>Номенклатурный №</th>
+                                <th style="width: 7%">Ед. изм.</th>
+                                <th style="width: 7%">Кол-во</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item : ${items_wo}" style="cursor: pointer">
+                                <td data-type="id" th:text="${item.id}" style="display:none;"></td>
+                                <td data-type="name" th:text="${item.name}"></td>
+                                <td data-type="nomenclature" th:text="${item.nomenclature}"></td>
+                                <td data-type="unit" th:text="${item.unit}"></td>
+                                <td>
+                                    <div class="input-group" th:with="quantityInStock=${item.number}">
+                                        <!--                                <span class="input-group-btn">-->
+                                        <!--                                    <button type="button" class="btn btn-default btn-number" name="btn-number" data-type="minus" data-field="quant[1]">-</button>-->
+                                        <!--                                </span>-->
+                                        <input type="text" name="quant[1]" data-type="quantity" class="form-control input-number"
+                                               th:value="0"
+                                               min="0" th:max="${quantityInStock}">
+                                        <!--                                    <span class="input-group-btn">-->
+                                        <!--                                    <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="quant[1]">+</button>-->
+                                        <!--                                </span>-->
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary btn-sm" name="send_btn" id="send_btn"
+                            th:onclick="'javascript:writeOff();'">Списать
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                        Закрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->

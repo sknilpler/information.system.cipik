@@ -3,7 +3,7 @@ package com.information.system.cipik.controllers;
 
 import com.information.system.cipik.models.*;
 import com.information.system.cipik.repo.*;
-import org.apache.commons.io.FilenameUtils;
+import com.information.system.cipik.services.FileWriteOffActService;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -43,6 +43,8 @@ public class ItemController {
     public IssuanceItemsRepository issuanceItemsRepository;
     @Autowired
     public WriteOffActRepository writeOffActRepository;
+    @Autowired
+    public FileWriteOffActService fileWriteOffActService;
 
     @GetMapping("/userPage/item-all")
     public String allItem(Model model) {
@@ -82,7 +84,7 @@ public class ItemController {
      */
     @GetMapping("/userPage/article/{id}/edit")
     public String editArticle(@PathVariable(value = "id") long id, Model model) {
-        Article article = articleRepository.findById(id).orElseThrow();
+        Article article = articleRepository.findById(id).orElse(null);
         model.addAttribute("article", article);
         return "user/mto/item/article/article-edit";
     }
@@ -96,7 +98,7 @@ public class ItemController {
      */
     @PostMapping("/userPage/article/{id}/edit")
     public String updateArticle(@PathVariable(value = "id") long id, @RequestParam String name, @RequestParam String type, Model model) {
-        Article article = articleRepository.findById(id).orElseThrow();
+        Article article = articleRepository.findById(id).orElse(null);
         article.setName(name);
         article.setType(type);
         articleRepository.save(article);
@@ -163,7 +165,7 @@ public class ItemController {
      */
     @GetMapping("/userPage/add-coming-for-item/{id}")
     public String addComing(@PathVariable("id") long id, Model model){
-        Item item = itemsRepository.findById(id).orElseThrow();
+        Item item = itemsRepository.findById(id).orElse(null);
         model.addAttribute("items",itemsRepository.findAll());
         model.addAttribute("item",item);
     return "user/mto/item/coming/new-coming-item";
@@ -216,7 +218,7 @@ public class ItemController {
     public String getIssuedItemPage(@PathVariable("list") List<Long> ids, Model model){
         List<Item> items = new ArrayList<>();
         for (Long id: ids) {
-            Item item = itemsRepository.findById(id).orElseThrow();
+            Item item = itemsRepository.findById(id).orElse(null);
             items.add(item);
         }
         model.addAttribute("komplexes",komplexRepository.findAll());
@@ -233,7 +235,7 @@ public class ItemController {
                                @PathVariable(value ="dateIssued") String dateIssued,
                                @PathVariable(value ="invoiceNumber") String invoiceNumber,
                                @PathVariable(value = "id") long id){
-        Komplex komplex = komplexRepository.findById(id).orElseThrow();
+        Komplex komplex = komplexRepository.findById(id).orElse(null);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date dateI = new Date();
         try {
@@ -245,8 +247,7 @@ public class ItemController {
         System.out.println(listOfObjects.size());
         List<Item> items = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : listOfObjects.entrySet()) {
-            System.out.println(entry.getKey()+" "+entry.getValue().get(0));
-            Item item = itemsRepository.findById(Long.parseLong(entry.getKey())).orElseThrow();
+            Item item = itemsRepository.findById(Long.parseLong(entry.getKey())).orElse(null);
             double num_new = Double.parseDouble(entry.getValue().get(0));
             item.setNumber(item.getNumber()-num_new);
             itemsRepository.save(item);
@@ -287,7 +288,6 @@ public class ItemController {
                         sheet.getRow(row).getCell(i).setCellStyle(exampleRow.getCell(i).getCellStyle());
                     }
                     sheet.getRow(row).getCell(0).setCellValue(it.getBill());
-                   // sheet.addMergedRegion(new CellRangeAddress(row,row,2,3));
                     sheet.getRow(row).getCell(2).setCellValue(it.getName());
                     sheet.getRow(row).getCell(4).setCellValue(it.getNomenclature());
                     sheet.getRow(row).getCell(5).setCellValue(it.getCode());
@@ -326,36 +326,53 @@ public class ItemController {
     /*
      * Открытие страницы списания МЦ
      */
-    @GetMapping("/userPage/add-write-off-for-item/{list}")
+    @PostMapping("/userPage/add-write-off-for-item/{list}/send")
     public String getWriteOffItemPage(@PathVariable("list") List<Long> ids, Model model){
         List<Item> items = new ArrayList<>();
         for (Long id: ids) {
-            Item item = itemsRepository.findById(id).orElseThrow();
+            Item item = itemsRepository.findById(id).orElse(null);
             items.add(item);
         }
-        model.addAttribute("komplexs",komplexRepository.findAll());
-        model.addAttribute("items",items);
-        return "user/mto/item/coming/write-off-act-new";
+        System.out.println(items.size());
+        model.addAttribute("komplexs_wo",komplexRepository.findAll());
+        model.addAttribute("items_wo",items);
+        return "user/mto/item/blocks/write-off-modal :: table-wo";
     }
 
     /*
      * Сохранения акта списания выбранных МЦ
      */
-    @PostMapping("/userPage/add-write-off-for-item/send/{id}")
-    public void saveWriteOffItem(@RequestBody List<Item> objectList, @RequestParam("file") MultipartFile file, HttpServletResponse response, @RequestParam String nameAct,
-                                 @RequestParam String dateAct, @PathVariable(value = "id") long id) throws IOException {
-        Komplex komplex = komplexRepository.findById(id).orElseThrow();
+    @PostMapping("/userPage/write-off-for-item/send/{id}/{dateWriteOff}/{nameAct}")
+    public String saveWriteOffItem(@RequestParam MultipartFile file,
+                                 @RequestParam Map<String,List<String>> listOfObjects,
+                                 @PathVariable("nameAct") String nameAct,
+                                 @PathVariable("dateWriteOff") String dateAct,
+                                 @PathVariable(value = "id") long id) throws IOException {
+
+        Komplex komplex = komplexRepository.findById(id).orElse(null);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date dateWO = new Date();
+        Date dateI = new Date();
         try {
-            dateWO = format.parse(dateAct);
+            dateI = format.parse(dateAct);
         } catch (ParseException e) {
             // e.printStackTrace();
             System.out.println("Не удалось преобразовать дату полученную от клиента, будет установлена текущая дата");
         }
-        for (Item i:objectList) {
-            writeOffActRepository.save(new WriteOffAct(nameAct,dateWO,i.getNumber(),file.getName(), FilenameUtils.getExtension(file.getOriginalFilename()),file.getBytes(),i,komplex));
+        FileWriteOffAct fileWriteOffAct = null;
+        try{
+           fileWriteOffAct = fileWriteOffActService.store(file);
+            System.out.println("Файл успешно загружен!");
+        }catch (Exception e){
+            System.out.println("Не удалось загрузить файл");
         }
+
+        for (Map.Entry<String, List<String>> entry : listOfObjects.entrySet()) {
+            Item item = itemsRepository.findById(Long.parseLong(entry.getKey())).orElse(null);
+            double num_write_off = Double.parseDouble(entry.getValue().get(0));
+            writeOffActRepository.save(new WriteOffAct(nameAct,dateI,num_write_off,item,komplex,fileWriteOffAct));
+        }
+
+        return "redirect:/userPage/item-all";
     }
 
 

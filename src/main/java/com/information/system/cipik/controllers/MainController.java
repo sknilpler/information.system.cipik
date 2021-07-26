@@ -32,9 +32,12 @@ public class MainController {
     @GetMapping("/admin")
     public String admin(Model model){
         String[] s = adminService.getDBSettings();
+        String[] s2 = adminService.getPaths();
         model.addAttribute("user_name",s[0]);
         model.addAttribute("pass",s[1]);
         model.addAttribute("db_name",s[2]);
+        model.addAttribute("mysqlPath",s2[0]);
+        model.addAttribute("backupPath",s2[1]);
         model.addAttribute("title", "Администрирование основных данных");
         return "admin/admin";
     }

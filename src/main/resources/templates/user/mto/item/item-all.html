@@ -17,6 +17,8 @@
     <div th:insert="blocks/accept-delete :: accept-delete"></div>
     <!-- Modal window for issued items for komplex -->
     <div th:insert="user/mto/item/blocks/issued-modal :: issued-for-komplex"></div>
+    <!-- Modal window for write off items for komplex -->
+    <div th:insert="user/mto/item/blocks/write-off-modal :: write-off-for-komplex"></div>
     <!-- Side panel -->
     <div th:insert="user/mto/item/sidebar :: sidebar"></div>
     <!-- Side panel -->
@@ -50,7 +52,7 @@
                                 <img src="/images/bootstrap-icons/clipboard-check.svg" alt="Bootstrap" width="20"
                                      height="16" style="filter: invert (1);">
                             </button>
-                            <button sec:authorize="hasRole('ROLE_USER')" class="btn border-0 btn-sm" name="btn_do_some"  th:onclick="'javascript:showModalWindow2();'" title="Списать" disabled>
+                            <button sec:authorize="hasRole('ROLE_USER')" class="btn border-0 btn-sm" name="btn_do_some"  th:onclick="'javascript:sendListIdsToWriteOff();'" title="Списать" disabled>
                                 <img src="/images/bootstrap-icons/clipboard-x.svg" alt="Bootstrap" width="20"
                                      height="16" style="filter: invert (1);">
                             </button>
@@ -107,6 +109,7 @@
 function closeModalWindow() {
 	$("#deleteAccept").modal('hide');
 	$("#exampleModalLive").modal('hide');
+	$("#exampleModalLive2").modal('hide');
 };
 
 var id_del;
@@ -183,6 +186,18 @@ console.log(selRecs);
 		},
 	})
 }
+///////////////////////////////////////
+function sendListIdsToWriteOff(){
+console.log(selRecs);
+    $.ajax({
+		type: 'post',
+		url: '/userPage/add-write-off-for-item/'+selRecs+'/send',
+		success: function(data) {
+			$('.table-wo').html(data);
+			$("#exampleModalLive2").modal('show');
+		},
+	})
+}
 //////////////////////////////////////////////
 function loadClickListener(){
      const items = document.querySelectorAll('#tb tbody tr');
@@ -217,7 +232,7 @@ function sendToKomplex() {
 	var dateIssued = document.querySelector('#dateIssued' ).value;
 	var invoiceNumber = document.querySelector('#invoiceNumber').value;
 
-	if ( employeeAccepting == "" || mployeeGaveOut == "" || dateIssued == "" || invoiceNumber == "" ) {
+	if ( employeeAccepting == "" || employeeGaveOut == "" || dateIssued == "" || invoiceNumber == "" ) {
 		alert("Не все данные введены");
 	} else {
 		const items = document.querySelectorAll('#tb tbody tr');
@@ -259,6 +274,37 @@ function sendToKomplex() {
 		var yyyy = dateTime.getFullYear();
 
 		return dd + '.' + mm + '.' + yyyy;
+	}
+}
+////////////////collect data and send////////////
+function writeOff() {
+    var listOfObjects2 = {};
+    var dateWriteOff = document.querySelector('#dateWriteOff' ).value;
+	var nameAct = document.querySelector('#nameAct').value;
+	var $input = $('#file');
+	var fd = new FormData;
+
+	fd.append('file',$input.prop('files')[0]);
+
+	if (dateWriteOff == "" || nameAct == "") {
+		alert("Не все данные введены");
+	} else {
+		const items = document.querySelectorAll('#tb1 tbody tr');
+		Array.from(items).forEach((item) => {
+				listOfObjects2[ item.querySelector('[data-type="id"]').innerHTML ] = [ item.querySelector('input').value ]
+		});
+        fd.append('listOfObjects',listOfObjects2);
+		$.ajax({
+			type: "POST",
+			contentType: false,
+			url: '/userPage/write-off-for-item/send/' + document.querySelector('#komplex2').value + '/' + dateWriteOff + '/' + nameAct,
+			data: fd,
+			processData: false,
+			success: function(data) {
+				document.location.reload();
+			}
+		});
+
 	}
 }
 </script>

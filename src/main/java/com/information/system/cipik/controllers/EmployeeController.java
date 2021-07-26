@@ -58,7 +58,7 @@ public class EmployeeController {
 
     @PostMapping("/userPage/employee/{id}/remove")
     public String deleteEmployee(@PathVariable(value = "id") long id, Model model) {
-        Employee employee = employeeRepository.findById(id).orElseThrow();
+        Employee employee = employeeRepository.findById(id).orElse(null);
         employeeRepository.delete(employee);
         return "redirect:/userPage/employee/employees-all";
     }
@@ -92,7 +92,7 @@ public class EmployeeController {
         if (!employeeRepository.existsById(id)) {
             return "redirect:/userPage/employee/employees-all";
         }
-        Employee employee = employeeRepository.findById(id).orElseThrow();
+        Employee employee = employeeRepository.findById(id).orElse(null);
         model.addAttribute("posts", postRepository.findAll());
 //      model.addAttribute("otdels", otdelRepository.findAll());
         model.addAttribute("komplexes", komplexRepository.findAll());
@@ -134,14 +134,14 @@ public class EmployeeController {
         if (!postRepository.existsById(id)) {
             return "redirect:/userPage/posts/add";
         }
-        Post post = postRepository.findById(id).orElseThrow();
+        Post post = postRepository.findById(id).orElse(null);
         model.addAttribute("post", post);
         return "user/employee/post/post-edit";
     }
 
     @PostMapping("/userPage/posts/{id}/edit")
     public String postUpdate(@PathVariable(value = "id") long id, @RequestParam String postName, Model model) {
-        Post post = postRepository.findById(id).orElseThrow();
+        Post post = postRepository.findById(id).orElse(null);
         post.setPostName(postName);
         postRepository.save(post);
         return "redirect:/userPage/posts/add";
@@ -149,7 +149,7 @@ public class EmployeeController {
 
     @PostMapping("/userPage/posts/{id}/remove")
     public String postDelete(@PathVariable(value = "id") long id, Model model) {
-        Post post = postRepository.findById(id).orElseThrow();
+        Post post = postRepository.findById(id).orElse(null);
         postRepository.deleteById(id);
         return "redirect:/userPage/posts/add";
     }
@@ -176,7 +176,7 @@ public class EmployeeController {
             listEmployee = (List<Employee>) employeeRepository.findAll();
         }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            listEmployee = (List<Employee>) employeeRepository.findAllByKomplexId(komplex.getId());
+            listEmployee = employeeRepository.findAllByKomplexId(komplex.getId());
         }
 
         EmployeeExcelExporter excelExporter = new EmployeeExcelExporter(listEmployee);

@@ -49,6 +49,9 @@
     <button type="button" class="btn btn-primary mt-5"
             onclick="showModalWindow();">Настройки подключения к БД
     </button>
+    <button type="button" class="btn btn-primary mt-5"
+            onclick="showModalWindow2();">Настройки директорий
+    </button>
 </div>
 <div class="container mt-5">
 <h6>Загрузить список сотрудников из файла CSV</h6>
@@ -107,14 +110,60 @@
     </div>
 </div>
 <!-- Modal window -->
+<!-- Modal window for settings paths -->
+<div id="exampleModalLive2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel2"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" th:action="@{/admin/settings/save-path-data}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLiveLabel2">Директории</h5>
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                            onclick="closeModalWindow()">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <label class="md-2" for="user_name">Путь к папке 'bin' для MySQL сервера</label>
+                    <div class="md-7">
+                        <input type="text" th:value=${mysqlPath} id="mysqlPath" name="mysqlPath" class="form-control"
+                               placeholder="Введите путь" title="Необходим если сервер на ОС Windows" required/>
+                    </div>
+                    <label class="md-2" for="pass">Путь к папке для резервных копий БД</label>
+                    <div class="md-7">
+                        <input type="text" th:value=${backupPath} id="backupPath" name="backupPath" class="form-control"
+                               placeholder="Введите путь" required/>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                        Сохранить
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                            onclick="closeModalWindow()">
+                        Закрыть
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
 
 <script th:inline="javascript">
 function closeModalWindow() {
 	$("#exampleModalLive").modal('hide');
+	$("#exampleModalLive2").modal('hide');
 };
 
 function showModalWindow(){
     $("#exampleModalLive").modal('show');
+}
+
+function showModalWindow2(){
+    $("#exampleModalLive2").modal('show');
 }
 </script>
 <div th:insert="blocks/footer :: footer"></div>

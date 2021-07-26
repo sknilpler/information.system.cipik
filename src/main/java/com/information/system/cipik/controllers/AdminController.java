@@ -83,7 +83,7 @@ public class AdminController {
 
     @PostMapping("/admin/all-users/user-details/{id}/add_admin")
     public String add_admin(@PathVariable(value = "id") long id,Model model) {
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id).orElse(null);
         user.getRoles().add(new Role(2L, "ROLE_ADMIN"));
         userRepository.save(user);
         return "redirect:/admin/all-users";
@@ -91,7 +91,7 @@ public class AdminController {
 
     @PostMapping("/admin/all-users/user-details/{id}/remove")
     public String delete_user(@PathVariable(value = "id") long id,Model model) {
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id).orElse(null);
         userRepository.delete(user);
         return "redirect:/admin/all-users";
     }
@@ -105,7 +105,7 @@ public class AdminController {
 
     @PostMapping("/admin/all-users/add-user")
     public String save_user(@RequestParam String username, @RequestParam String password, @RequestParam Long dropRole, Model model) {
-        Role role = roleRepository.findById(dropRole).orElseThrow();
+        Role role = roleRepository.findById(dropRole).orElse(null);
         User user = new User(username, password, password);
         user.setRoles(Collections.singleton(role));
         userService.saveUser(user);
@@ -114,10 +114,10 @@ public class AdminController {
 
     @PostMapping("/admin/all-users/user-details/{user_id}/add_roles/{selRecs}")
     public String addRolesToUser(@PathVariable(value = "user_id") long id, @PathVariable(value = "selRecs") List<Long> ids, Model model) {
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id).orElse(null);
         Set<Role> roles = new HashSet<>();
         for (Long i: ids) {
-            roles.add(roleRepository.findById(i).orElseThrow());
+            roles.add(roleRepository.findById(i).orElse(null));
         }
         roles.addAll(user.getRoles());
         user.setRoles(roles);
@@ -130,8 +130,8 @@ public class AdminController {
 
     @PostMapping("/admin/all-users/user-details/{user_id}/remove-role/{role_id}")
     public String deleteRoleFromUser(@PathVariable(value = "user_id") long u_id, @PathVariable(value = "role_id") long r_id, Model model) {
-        User user = userRepository.findById(u_id).orElseThrow();
-        Role role = roleRepository.findById(r_id).orElseThrow();
+        User user = userRepository.findById(u_id).orElse(null);
+        Role role = roleRepository.findById(r_id).orElse(null);
         user.getRoles().remove(role);
         userRepository.save(user);
         ArrayList<User> res = new ArrayList<>();
@@ -160,14 +160,14 @@ public class AdminController {
         if (!centrRepository.existsById(id)) {
             return "redirect:/admin/centrs/add";
         }
-        Centr centr = centrRepository.findById(id).orElseThrow();
+        Centr centr = centrRepository.findById(id).orElse(null);
         model.addAttribute("centr", centr);
         return "admin/admin-centr-edit";
     }
 
     @PostMapping("/admin/centrs/{id}/edit")
     public String centrUpdate(@PathVariable(value = "id") long id, @RequestParam String name, @RequestParam String shortName, Model model) {
-        Centr centr = centrRepository.findById(id).orElseThrow();
+        Centr centr = centrRepository.findById(id).orElse(null);
         centr.setName(name);
         centr.setShortName(shortName);
         centrRepository.save(centr);
@@ -176,7 +176,7 @@ public class AdminController {
 
     @PostMapping("/admin/centrs/{id}/remove")
     public String centrDelete(@PathVariable(value = "id") long id, Model model) {
-        Centr centr = centrRepository.findById(id).orElseThrow();
+        Centr centr = centrRepository.findById(id).orElse(null);
         centrRepository.deleteById(id);
         return "redirect:/admin/centrs/add";
     }
@@ -193,7 +193,7 @@ public class AdminController {
 
     @PostMapping("/admin/komplexs/add")
     public String komplexAdd(@RequestParam String name, @RequestParam String shortName, @RequestParam String adres, @RequestParam Long dropCentr, Model model) {
-        Centr centr = centrRepository.findById(dropCentr).orElseThrow();
+        Centr centr = centrRepository.findById(dropCentr).orElse(null);
         Transliterator toLatinTrans = Transliterator.getInstance("Russian-Latin/BGN");
         Role role = new Role(toLatinTrans.transliterate("ROLE_"+shortName));
         roleRepository.save(role);
@@ -208,7 +208,7 @@ public class AdminController {
             return "redirect:/admin/komplexs/add";
         }
         Iterable<Centr> centrs = centrRepository.findAll();
-        Komplex komplex = komplexRepository.findById(id).orElseThrow();
+        Komplex komplex = komplexRepository.findById(id).orElse(null);
         model.addAttribute("centrs", centrs);
         model.addAttribute("komplex", komplex);
         return "admin/admin-komplex-edit";
@@ -216,7 +216,7 @@ public class AdminController {
 
     @PostMapping("/admin/komplexs/{id}/edit")
     public String komplexUpdate(@PathVariable(value = "id") long id, @RequestParam String name, @RequestParam String shortName, @RequestParam String adres, @RequestParam Centr centr, Model model) {
-        Komplex komplex = komplexRepository.findById(id).orElseThrow();
+        Komplex komplex = komplexRepository.findById(id).orElse(null);
 
         if (komplex.getRole() == null){
             Transliterator toLatinTrans = Transliterator.getInstance("Russian-Latin/BGN");
@@ -235,7 +235,7 @@ public class AdminController {
 
     @PostMapping("/admin/komplexs/{id}/remove")
     public String komplexDelete(@PathVariable(value = "id") long id, Model model) {
-        Komplex komplex = komplexRepository.findById(id).orElseThrow();
+        Komplex komplex = komplexRepository.findById(id).orElse(null);
         komplexRepository.deleteById(id);
         return "redirect:/admin/komplexs/add";
     }
@@ -252,7 +252,7 @@ public class AdminController {
 
     @PostMapping("/admin/otdels/add")
     public String otdelAdd(@RequestParam String name, @RequestParam Long dropKomplex, Model model) {
-        Komplex komplex = komplexRepository.findById(dropKomplex).orElseThrow();
+        Komplex komplex = komplexRepository.findById(dropKomplex).orElse(null);
         Otdel otdel = new Otdel(name, komplex);
         otdelRepository.save(otdel);
         return "redirect:/admin/otdels/add";
@@ -264,7 +264,7 @@ public class AdminController {
             return "redirect:/admin/otdels/add";
         }
         Iterable<Komplex> komplexs = komplexRepository.findAll();
-        Otdel otdel = otdelRepository.findById(id).orElseThrow();
+        Otdel otdel = otdelRepository.findById(id).orElse(null);
         model.addAttribute("komplexs", komplexs);
         model.addAttribute("otdel", otdel);
         return "admin/admin-otdel-edit";
@@ -272,7 +272,7 @@ public class AdminController {
 
     @PostMapping("/admin/otdels/{id}/edit")
     public String otdelUpdate(@PathVariable(value = "id") long id, @RequestParam String name, @RequestParam Komplex komplex, Model model) {
-        Otdel otdel = otdelRepository.findById(id).orElseThrow();
+        Otdel otdel = otdelRepository.findById(id).orElse(null);
         otdel.setName(name);
         otdel.setKomplex(komplex);
         otdelRepository.save(otdel);
@@ -281,7 +281,7 @@ public class AdminController {
 
     @PostMapping("/admin/otdels/{id}/remove")
     public String otdelDelete(@PathVariable(value = "id") long id, Model model) {
-        Otdel otdel = otdelRepository.findById(id).orElseThrow();
+        Otdel otdel = otdelRepository.findById(id).orElse(null);
         otdelRepository.deleteById(id);
         return "redirect:/admin/otdels/add";
     }
@@ -289,12 +289,18 @@ public class AdminController {
     /////////////////settings/////////////////////
 
     @PostMapping("/admin/settings/save-db-data")
-    public String saveDBSettings(@RequestParam String user_name, @RequestParam String pass, @RequestParam String db_name, Model model) {
+    public String saveDBSettings(@RequestParam String user_name, @RequestParam String pass, @RequestParam String db_name) {
         if (user_name.equals("") || pass.equals("") || db_name.equals("")) {
             System.out.println("Данные аутентификации к БД не должны быть пустыми");
         } else {
             adminService.saveDBSettings(user_name, pass, db_name);
         }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/admin/settings/save-path-data")
+    public String savePathsSettings(@RequestParam String mysqlPath, @RequestParam String backupPath){
+        adminService.savePathsSettings(mysqlPath,backupPath);
         return "redirect:/admin";
     }
 

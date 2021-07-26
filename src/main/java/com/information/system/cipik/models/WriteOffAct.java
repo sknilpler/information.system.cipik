@@ -23,17 +23,14 @@ public class WriteOffAct {
     private Date dateAct;   //дата акта
     private double numWriteOff; //количество списанного
 
-    private String fileName; //имя файла
-    private String fileType; //тип файла
-
-    @Lob
-    private byte[] file;  //скан акта
-
     @ManyToOne
     private Item item;  //МЦ со склада
 
     @ManyToOne
     private Komplex komplex;    //подразделение
+
+    @ManyToOne
+    private FileWriteOffAct fileWriteOffAct;
 
     /**
      * Конструктор сущности Акт-списания
@@ -41,20 +38,16 @@ public class WriteOffAct {
      * @param nameAct     название акта
      * @param dateAct     дата акта
      * @param numWriteOff количество списанного
-     * @param fileName    имя файла
-     * @param fileType    тип файла
-     * @param file        скан акта
      * @param item        МЦ со склада
      * @param komplex     подразделение
+     * @param fileWriteOffAct файл скана акта
      */
-    public WriteOffAct(String nameAct, Date dateAct, double numWriteOff, String fileName, String fileType, byte[] file, Item item, Komplex komplex) {
+    public WriteOffAct(String nameAct, Date dateAct, double numWriteOff, Item item, Komplex komplex, FileWriteOffAct fileWriteOffAct) {
         this.nameAct = nameAct;
         this.dateAct = dateAct;
         this.numWriteOff = numWriteOff;
-        this.fileName = fileName;
-        this.fileType = fileType;
-        this.file = file;
         this.item = item;
         this.komplex = komplex;
+        this.fileWriteOffAct = fileWriteOffAct;
     }
 }

@@ -77,7 +77,7 @@ public class SIZToKomplexActExcelExporter {
             createCell(row, columnCount++, o.getNomenclatureNumber(), style);
             createCell(row, columnCount++, o.getNamesiz(), style);
             createCell(row, columnCount++, o.getNumber(), style);
-            createCell(row, columnCount++, sizRepository.findById(o.getId()).orElseThrow().getEd_izm(), style);
+            createCell(row, columnCount++, sizRepository.findById(o.getId()).orElse(null).getEd_izm(), style);
             createCell(row, columnCount++, "", style);
         }
 

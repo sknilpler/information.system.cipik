@@ -75,7 +75,8 @@ public class FileController {
             String osName = System.getProperty("os.name");
 
             if (osName.charAt(0) == 'W') {
-                String pathToMysql = "C:" + File.separator + "OpenServer" + File.separator + "modules" + File.separator + "database" + File.separator + "MySQL-8.0" + File.separator + "bin";
+                String pathToMysql = adminService.getPaths()[0];
+               // String pathToMysql = "C:" + File.separator + "OpenServer" + File.separator + "modules" + File.separator + "database" + File.separator + "MySQL-8.0" + File.separator + "bin";
                 runtimeProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", pathToMysql + File.separator + executeCmd});  //for Windows
             } else {
                 runtimeProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", executeCmd});   //for Linux
@@ -180,7 +181,7 @@ public class FileController {
      */
     @GetMapping("/userPage/employee-siz/print-personal-card/{id}")
     public void printEmployeePersonalCard (@PathVariable(value = "id") long id, HttpServletResponse response) throws IOException {
-        Employee employee = employeeRepository.findById(id).orElseThrow();
+        Employee employee = employeeRepository.findById(id).orElse(null);
         Transliterator toLatinTrans = Transliterator.getInstance(CYRILLIC_TO_LATIN);
         response.setContentType("application/octet-stream");
         String headerKey = "Content-Disposition";

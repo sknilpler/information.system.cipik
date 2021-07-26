@@ -5,7 +5,7 @@
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLiveLabel">Выдача </h5>
+                <h5 class="modal-title" id="exampleModalLiveLabel">Выдача материальных ценностей</h5>
                 <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
                         onclick="closeModalWindow()">
                     <span aria-hidden="true">×</span>
@@ -14,7 +14,6 @@
             <div class="modal-body">
                 <div class="table-mc" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
                      th:fragment="table-mc">
-<!--                    <h6 th:text="${employee.surname}+' '+${#strings.substring(employee.name,0,1)}+' '+${#strings.substring(employee.patronymic,0,1)}"></h6>-->
                     <div class="row">
                         <div class="col-sm-12">
                             <select class="form-control custom-select d-block w-100" id="komplex" name="komplex"
@@ -35,12 +34,12 @@
                                    placeholder="Введите ФИО" required/>
                         </div>
                         <div class="col-sm-3">
-                            <label for="dateIssued" class="form-label md-2">Дата выдачи</label>
+                            <label for="dateIssued" class="form-label">Дата выдачи</label>
                             <input type="date" class="form-control" name="dateIssued" id="dateIssued"
                                    th:attr="max=${now}" required>
                         </div>
                         <div class="col-sm-3">
-                            <label for="invoiceNumber" class="form-label md-2">№ накладной</label>
+                            <label for="invoiceNumber" class="form-label">№ накладной</label>
                             <input type="text" class="form-control" name="invoiceNumber" id="invoiceNumber" required>
                         </div>
                     </div>
@@ -50,8 +49,9 @@
                             <th style="display:none;">ID</th>
                             <th>Наименование</th>
                             <th>Номенклатурный №</th>
-                            <th style="width: 10%">Ед. изм.</th>
-                            <th style="width: 10%">Количество</th>
+                            <th style="width: 7%">Ед. изм.</th>
+                            <th style="width: 10%">На складе</th>
+                            <th style="width: 5%">Кол-во</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -60,6 +60,7 @@
                             <td data-type="name" th:text="${item.name}"></td>
                             <td data-type="nomenclature" th:text="${item.nomenclature}"></td>
                             <td data-type="unit" th:text="${item.unit}"></td>
+                            <td th:text="${item.number}"></td>
                             <td>
                                 <div class="input-group" th:with="quantityInStock=${item.number}">
 <!--                                <span class="input-group-btn">-->
@@ -80,7 +81,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" name="send_btn" id="send_btn"
+                <button class="btn btn-primary btn-sm" name="send_btn" id="send_btn"
                         th:onclick="'javascript:sendToKomplex();'">Выдать
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">

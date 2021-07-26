@@ -127,7 +127,7 @@ public class SIZController {
         if (!sizRepository.existsById(id)) {
             return "redirect:/userPage/siz-types";
         }
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElse(null);
         model.addAttribute("siz", individualProtectionMeans);
         return "user/mto/siz/types-of-siz-edit";
     }
@@ -145,7 +145,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/siz-types/{id}/edit")
     public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, @RequestParam String nomenclatureNumber, Model model) {
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElse(null);
         individualProtectionMeans.setNameSIZ(nameSIZ);
         individualProtectionMeans.setNomenclatureNumber(nomenclatureNumber);
         individualProtectionMeans.setEd_izm(ed_izm);
@@ -163,7 +163,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/siz-types/{id}/remove")
     public String deleteSIZ(@PathVariable(value = "id") long id, Model model) {
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElse(null);
         sizRepository.deleteById(id);
         return "redirect:/userPage/siz-types";
     }
@@ -177,7 +177,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/siz-types/sizes/{id}")
     public String openSizeSizPage(@PathVariable(value = "id") long id, Model model) {
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElse(null);
         model.addAttribute("siz", individualProtectionMeans);
         model.addAttribute("sizes", sizeSizRepository.findAllByIndividualProtectionMeansId(id));
         return "user/mto/siz/sizes";
@@ -194,7 +194,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/siz-types/sizes/{id}")
     public String addSizeToSIZ(@PathVariable(value = "id") long id, @RequestParam String height, @RequestParam String size, Model model) {
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow();
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElse(null);
         SizeSiz sizeSiz = new SizeSiz(individualProtectionMeans, size, height);
         sizeSizRepository.save(sizeSiz);
         model.addAttribute("siz", individualProtectionMeans);
@@ -211,7 +211,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/sizes/{id}/remove")
     public String deleteSizeFromSiz(@PathVariable(value = "id") long id, Model model) {
-        SizeSiz sizeSiz = sizeSizRepository.findById(id).orElseThrow();
+        SizeSiz sizeSiz = sizeSizRepository.findById(id).orElse(null);
         IndividualProtectionMeans individualProtectionMeans = sizeSiz.getIndividualProtectionMeans();
         sizeSizRepository.deleteById(id);
         model.addAttribute("siz", individualProtectionMeans);
@@ -337,7 +337,7 @@ public class SIZController {
     @GetMapping("/userPage/siz/norms/getNormsForPost/{id}")
     public String normsForPost(@PathVariable(value = "id") long id, Model model) {
         Iterable<IPMStandard> normas = ipmStandardRepository.findAllByPostId(id);
-        postAddToNorm = postRepository.findById(id).orElseThrow();
+        postAddToNorm = postRepository.findById(id).orElse(null);
         model.addAttribute("norms", normas);
         model.addAttribute("posts", listPosts);
         model.addAttribute("selected", postAddToNorm);
@@ -375,7 +375,7 @@ public class SIZController {
     public String normsAdding(@RequestParam Long dropSIZ, @RequestParam int issuanceRate,
                               @RequestParam int serviceLife, @RequestParam String regulatoryDocuments, Model model) {
         if (!postAddToNorm.getPostName().equals("")) {
-            IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElseThrow();
+            IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElse(null);
             IPMStandard norma = new IPMStandard(postAddToNorm, siz, issuanceRate, serviceLife, regulatoryDocuments);
             ipmStandardRepository.save(norma);
         }
@@ -394,7 +394,7 @@ public class SIZController {
         if (!ipmStandardRepository.existsById(id)) {
             return "redirect:/userPage/siz/norms";
         }
-        IPMStandard norma = ipmStandardRepository.findById(id).orElseThrow();
+        IPMStandard norma = ipmStandardRepository.findById(id).orElse(null);
         model.addAttribute("sizs", sizRepository.findAll());
         model.addAttribute("post", postAddToNorm);
         model.addAttribute("norma", norma);
@@ -415,13 +415,13 @@ public class SIZController {
     @PostMapping("/userPage/siz/norms/{id}/edit")
     public String normsUpdate(@PathVariable(value = "id") long id, @RequestParam Long dropSIZ, @RequestParam int issuanceRate,
                               @RequestParam int serviceLife, @RequestParam String regulatoryDocuments, Model model) {
-        IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElseThrow();
-        IPMStandard norma = ipmStandardRepository.findById(id).orElseThrow();
+        IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElse(null);
+        IPMStandard norma = ipmStandardRepository.findById(id).orElse(null);
         norma.setIndividualProtectionMeans(siz);
         norma.setIssuanceRate(issuanceRate);
         norma.setServiceLife(serviceLife);
         norma.setRegulatoryDocuments(regulatoryDocuments);
-        //norma.setRashodniki(rashodnikiRepository.findById(dropRash).orElseThrow());
+        //norma.setRashodniki(rashodnikiRepository.findById(dropRash).orElse(null));
         ipmStandardRepository.save(norma);
         return "redirect:/userPage/siz/norms";
     }
@@ -435,7 +435,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/siz/norms/{id}/remove")
     public String normsDelete(@PathVariable(value = "id") long id, Model model) {
-        IPMStandard norma = ipmStandardRepository.findById(id).orElseThrow();
+        IPMStandard norma = ipmStandardRepository.findById(id).orElse(null);
         ipmStandardRepository.deleteById(id);
         return "redirect:/userPage/siz/norms";
     }
@@ -500,7 +500,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/not-issued-siz")
     public String notIssuedSIZAdd(@RequestParam Long typeSIZ, @RequestParam String size, @RequestParam String height, @RequestParam int number, Model model) {
-        IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ).orElseThrow();
+        IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ).orElse(null);
         IssuedSIZ issuedSIZ;
         for (int i = 0; i < number; i++) {
             if (height.equals("non")) {
@@ -780,7 +780,7 @@ public class SIZController {
         if (!role.getName().equals("ROLE_USER")) {
             model.addAttribute("komplex", komplexRepository.findByRoleId(role.getId()));
         }
-        Post post = postRepository.findById(id).orElseThrow();
+        Post post = postRepository.findById(id).orElse(null);
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(id);
         model.addAttribute("siz", ipmStandards);
         model.addAttribute("selected", post);
@@ -798,7 +798,7 @@ public class SIZController {
     @GetMapping("/userPage/issued-siz/getIssuedSizForEmployee/{id}")
     public String getIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
         List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Выдано");
-        Employee employee = employeeRepository.findById(id).orElseThrow();
+        Employee employee = employeeRepository.findById(id).orElse(null);
         employeeForIssuedSIZ = employee;
         model.addAttribute("selectedEmployee", employee);
         model.addAttribute("vidanSIZ", issuedSIZS);
@@ -819,7 +819,7 @@ public class SIZController {
         listErrors.clear();
         List<IssuedSIZ> issuedSIZS = null;
         Date dateIssued = new Date();
-        IPMStandard ipmStandard = ipmStandardRepository.findById(id).orElseThrow();
+        IPMStandard ipmStandard = ipmStandardRepository.findById(id).orElse(null);
         int serviceLife = ipmStandard.getServiceLife();  //срок носки
         int number = ipmStandard.getIssuanceRate(); //норма выдачи
         Calendar c = Calendar.getInstance();
@@ -831,25 +831,34 @@ public class SIZController {
 
         for (Long employee_id : list) {
             message = "";
-            Employee employee = employeeRepository.findById(employee_id).orElseThrow();
+            Employee employee = employeeRepository.findById(employee_id).orElse(null);
             List<IssuedSIZ> employeesSIZ = issuedSIZRepository.findByEmployeeIdAndIPMStandart(id, employee_id);
             if (employeesSIZ.size() < number) {        //проверка выдано ли все СИЗ сотруднику
-                if (typeSIZ.equals("Одежда")) {
-                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForClothing(id, employee_id);
-                } else if (typeSIZ.equals("Головной убор")) {
-                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForHead(id, employee_id);
-                } else if (typeSIZ.equals("Обувь")) {
-                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForShoe(id, employee_id);
-                } else if (typeSIZ.equals("Противогаз")) {
-                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGasMask(id, employee_id);
-                } else if (typeSIZ.equals("Респиратор")) {
-                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForRespirator(id, employee_id);
-                } else if (typeSIZ.equals("Перчатки")) {
-                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGlove(id, employee_id);
-                } else if (typeSIZ.equals("Рукавицы")) {
-                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForMittens(id, employee_id);
-                } else {
-                    message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() + " выбран несуществующий тип СИЗ";
+                switch (typeSIZ) {
+                    case "Одежда":
+                        issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForClothing(id, employee_id);
+                        break;
+                    case "Головной убор":
+                        issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForHead(id, employee_id);
+                        break;
+                    case "Обувь":
+                        issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForShoe(id, employee_id);
+                        break;
+                    case "Противогаз":
+                        issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGasMask(id, employee_id);
+                        break;
+                    case "Респиратор":
+                        issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForRespirator(id, employee_id);
+                        break;
+                    case "Перчатки":
+                        issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGlove(id, employee_id);
+                        break;
+                    case "Рукавицы":
+                        issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForMittens(id, employee_id);
+                        break;
+                    default:
+                        message = "Для " + employee.getSurname() + " " + employee.getName() + " " + employee.getPatronymic() + " выбран несуществующий тип СИЗ";
+                        break;
                 }
                 int issued_number = number - employeesSIZ.size();
                 if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
@@ -967,7 +976,7 @@ public class SIZController {
     @GetMapping("/userPage/issued-siz/{id}/extend/{dateExtending}")
     public String extendIssuedSiz(@PathVariable(value = "id") long id, @PathVariable(value = "dateExtending") String dateExtending, Model model) {
         String message = "";
-        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date exDate = issuedSIZ.getDateEndWear();
         try {
@@ -994,7 +1003,7 @@ public class SIZController {
     @GetMapping("/userPage/issued-siz/{id}/cancel")
     public String cancelIssuedSiz(@PathVariable(value = "id") long id, Model model) {
         String message = "";
-        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         issuedSIZ.setKomplex(issuedSIZ.getEmployee().getKomplex());
         issuedSIZ.setDateIssued(null);
         issuedSIZ.setDateEndWear(null);
@@ -1018,7 +1027,7 @@ public class SIZController {
     @GetMapping("/userPage/issued-siz/{id}/writeoff/{actName}")
     public String writeOfIssuedSiz(@PathVariable(value = "id") long id, @PathVariable(value = "actName") String actName, Model model) {
         String message = "";
-        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         issuedSIZ.setStatus("Списано");
         issuedSIZ.setEmployee(null);
         issuedSIZ.setWriteOffAct(actName);
@@ -1548,7 +1557,7 @@ public class SIZController {
     @GetMapping("/userPage/employee-siz/info-siz/employee/{id_e}/{id_p}")
     public String getInfoStaffingOfEmployee(@PathVariable(value = "id_e") long id_e, @PathVariable(value = "id_p") long id_p, Model model) {
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(id_p);
-        Employee employee = employeeRepository.findById(id_e).orElseThrow();
+        Employee employee = employeeRepository.findById(id_e).orElse(null);
         model.addAttribute("siz", ipmStandards);
         model.addAttribute("employee", employee);
         model.addAttribute("issuedSIZRepository", issuedSIZRepository);
@@ -1565,7 +1574,7 @@ public class SIZController {
     @GetMapping("/userPage/employee-siz/info-issued-siz/employee/{id}")
     public String getInfoIssuedSizOfEmployee(@PathVariable(value = "id") long id, Model model) {
         List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Выдано");
-        Employee employee = employeeRepository.findById(id).orElseThrow();
+        Employee employee = employeeRepository.findById(id).orElse(null);
         model.addAttribute("employee", employee);
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all :: table-issued-siz";
@@ -1581,7 +1590,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/{id}")
     public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id, Authentication authentication, Model model) {
-        Employee employee = employeeRepository.findById(id).orElseThrow();
+        Employee employee = employeeRepository.findById(id).orElse(null);
         employeeForIssuedSIZ = employee;
         List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Выдано");
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(employee.getPost().getId());
@@ -1609,7 +1618,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/extend/{dateExtending}")
     public String extendIssuedSizForEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "dateExtending") String dateExtending, Model model) {
-        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date exDate = issuedSIZ.getDateEndWear();
         try {
@@ -1634,7 +1643,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/cancel")
     public String cancelIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model) {
-        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         issuedSIZ.setKomplex(issuedSIZ.getEmployee().getKomplex());
         issuedSIZ.setDateIssued(null);
         issuedSIZ.setDateEndWear(null);
@@ -1657,7 +1666,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/writeoff/{actName}")
     public String writeOfIssuedSizForEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "actName") String actName, Model model) {
-        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow();
+        IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         issuedSIZ.setStatus("Списано");
         issuedSIZ.setWriteOffAct(actName);
         issuedSIZRepository.save(issuedSIZ);
@@ -1679,7 +1688,7 @@ public class SIZController {
         String message = "";
         List<IssuedSIZ> issuedSIZS = null;
         Date dateIssued = new Date();
-        IPMStandard ipmStandard = ipmStandardRepository.findById(id).orElseThrow();
+        IPMStandard ipmStandard = ipmStandardRepository.findById(id).orElse(null);
         int serviceLife = ipmStandard.getServiceLife();  //срок носки
         int number = ipmStandard.getIssuanceRate(); //норма выдачи
         Calendar c = Calendar.getInstance();
@@ -1690,25 +1699,34 @@ public class SIZController {
 
         Long employee_id = employeeForIssuedSIZ.getId();
         message = "";
-        Employee employee = employeeRepository.findById(employee_id).orElseThrow();
+        Employee employee = employeeRepository.findById(employee_id).orElse(null);
         List<IssuedSIZ> employeesSIZ = issuedSIZRepository.findByEmployeeIdAndIPMStandart(id, employee_id);
         if (employeesSIZ.size() < number) {        //проверка выдано ли все СИЗ сотруднику
-            if (typeSIZ.equals("Одежда")) {
-                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForClothing(id, employee_id);
-            } else if (typeSIZ.equals("Головной убор")) {
-                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForHead(id, employee_id);
-            } else if (typeSIZ.equals("Обувь")) {
-                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForShoe(id, employee_id);
-            } else if (typeSIZ.equals("Противогаз")) {
-                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGasMask(id, employee_id);
-            } else if (typeSIZ.equals("Респиратор")) {
-                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForRespirator(id, employee_id);
-            } else if (typeSIZ.equals("Перчатки")) {
-                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGlove(id, employee_id);
-            } else if (typeSIZ.equals("Рукавицы")) {
-                issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForMittens(id, employee_id);
-            } else {
-                message = "Выбран несуществующий тип СИЗ";
+            switch (typeSIZ) {
+                case "Одежда":
+                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForClothing(id, employee_id);
+                    break;
+                case "Головной убор":
+                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForHead(id, employee_id);
+                    break;
+                case "Обувь":
+                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForShoe(id, employee_id);
+                    break;
+                case "Противогаз":
+                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGasMask(id, employee_id);
+                    break;
+                case "Респиратор":
+                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForRespirator(id, employee_id);
+                    break;
+                case "Перчатки":
+                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForGlove(id, employee_id);
+                    break;
+                case "Рукавицы":
+                    issuedSIZS = issuedSIZRepository.findNotIssuedByIPMStandartForMittens(id, employee_id);
+                    break;
+                default:
+                    message = "Выбран несуществующий тип СИЗ";
+                    break;
             }
             if ((issuedSIZS != null) && (issuedSIZS.size() > 0)) {
                 int issued_number = number - employeesSIZ.size();
@@ -1885,7 +1903,7 @@ public class SIZController {
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/history-issued-siz/{id}")
     public String getHistoryInfoIssuedSizOfEmployee(@PathVariable(value = "id") long id, Model model) {
         List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Списано");
-        Employee employee = employeeRepository.findById(id).orElseThrow();
+        Employee employee = employeeRepository.findById(id).orElse(null);
         model.addAttribute("employee", employee);
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-edit :: table-history-issued-siz";
@@ -1931,8 +1949,8 @@ public class SIZController {
      */
     @PostMapping("/userPage/issued-for-komplex/send/{id}")
     public void sendSIZToKomplex(@RequestBody List<SIZForKomplex> objectList, HttpServletResponse response, @PathVariable(value = "id") long id) throws IOException {
-        Komplex komplex = komplexRepository.findById(id).orElseThrow();
-        String message = "";
+        Komplex komplex = komplexRepository.findById(id).orElse(null);
+        StringBuilder message = new StringBuilder();
         for (SIZForKomplex obj : objectList) {
             List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findBySizeAndHeightAndSizIdAndStatusAndKomplexIdAndEmployeeId(obj.getSize(), obj.getHeight(), obj.getId(), "На складе", null, null);
             if (issuedSIZS.size() >= obj.getNumber()) {
@@ -1944,8 +1962,7 @@ public class SIZController {
                 }
             } else {
                 int size = issuedSIZS.size();
-                message = message + "На складе " + obj.getNomenclatureNumber() + " " + obj.getNamesiz() + " рост: " + obj.getHeight() + " размер: " + obj.getSize() + " не достаточно\n" +
-                        "в подазделение отправлено " + size + " из запрошеных " + obj.getNumber() + "\n";
+                message.append("На складе ").append(obj.getNomenclatureNumber()).append(" ").append(obj.getNamesiz()).append(" рост: ").append(obj.getHeight()).append(" размер: ").append(obj.getSize()).append(" не достаточно\n").append("в подазделение отправлено ").append(size).append(" из запрошеных ").append(obj.getNumber()).append("\n");
                 for (int i = 0; i < size; i++) {
                     IssuedSIZ siz = issuedSIZS.get(0);
                     siz.setKomplex(komplex);
@@ -1987,7 +2004,7 @@ public class SIZController {
                     sheet.getRow(row).getCell(3).setCellValue(s.getSize());
                     sheet.getRow(row).getCell(4).setCellValue(s.getHeight());
                     sheet.getRow(row).getCell(5).setCellValue(s.getNumber());
-                    sheet.getRow(row).getCell(6).setCellValue(sizRepository.findById(s.getId()).orElseThrow().getEd_izm());
+                    sheet.getRow(row).getCell(6).setCellValue(sizRepository.findById(s.getId()).orElse(null).getEd_izm());
                     sheet.getRow(row).getCell(7).setCellValue(" ");
                     row++;
                     count++;

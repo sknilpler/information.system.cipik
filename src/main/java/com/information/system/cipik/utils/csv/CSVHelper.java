@@ -57,7 +57,7 @@ public class CSVHelper {
                 Post p = postRepository.findByPostName(csvRecord.get("Post"));
                 String surname = csvRecord.get("S");
                 String sex = "Мужской";
-                if (surname.substring(surname.length()-1).equals("а")){
+                if (surname.endsWith("а")){
                     sex = "Женский";
                     System.out.println("Фамилия: "+surname+" женская");
                 }
