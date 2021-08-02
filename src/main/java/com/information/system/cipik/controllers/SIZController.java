@@ -104,13 +104,13 @@ public class SIZController {
      * @param nameSIZ            наименование СИЗ
      * @param ed_izm             единицы измерения
      * @param typeIPM            тип СИЗ
-     * @param nomenclatureNumber номенклатурный номер
+    // * @param nomenclatureNumber номенклатурный номер
      * @param model              модель аттрибутов страницы
      * @return перенаправление на /userPage/siz-types
      */
     @PostMapping("/userPage/siz-types")
-    public String addSIZ(@RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, @RequestParam String nomenclatureNumber, Model model) {
-        IndividualProtectionMeans individualProtectionMeans = new IndividualProtectionMeans(nameSIZ, ed_izm, typeIPM, nomenclatureNumber);
+    public String addSIZ(@RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, /*@RequestParam String nomenclatureNumber,*/ Model model) {
+        IndividualProtectionMeans individualProtectionMeans = new IndividualProtectionMeans(nameSIZ, ed_izm, typeIPM);
         sizRepository.save(individualProtectionMeans);
         return "redirect:/userPage/siz-types";
     }
@@ -139,15 +139,15 @@ public class SIZController {
      * @param nameSIZ            наименование СИЗ
      * @param ed_izm             единицы измерения
      * @param typeIPM            тип СИЗ
-     * @param nomenclatureNumber номенклатурный номер
+    // * @param nomenclatureNumber номенклатурный номер
      * @param model              модель аттрибутов страницы
      * @return перенаправление на /userPage/siz-types
      */
     @PostMapping("/userPage/siz-types/{id}/edit")
-    public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, @RequestParam String nomenclatureNumber, Model model) {
+    public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, /*@RequestParam String nomenclatureNumber,*/ Model model) {
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElse(null);
         individualProtectionMeans.setNameSIZ(nameSIZ);
-        individualProtectionMeans.setNomenclatureNumber(nomenclatureNumber);
+      //  individualProtectionMeans.setNomenclatureNumber(nomenclatureNumber);
         individualProtectionMeans.setEd_izm(ed_izm);
         individualProtectionMeans.setTypeIPM(typeIPM);
         sizRepository.save(individualProtectionMeans);
@@ -499,14 +499,14 @@ public class SIZController {
      * @return веб страница
      */
     @PostMapping("/userPage/not-issued-siz")
-    public String notIssuedSIZAdd(@RequestParam Long typeSIZ, @RequestParam String size, @RequestParam String height, @RequestParam int number, Model model) {
+    public String notIssuedSIZAdd(@RequestParam Long typeSIZ, @RequestParam String size, @RequestParam String height, @RequestParam String nomenclatureNumber, @RequestParam int number, Model model) {
         IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ).orElse(null);
         IssuedSIZ issuedSIZ;
         for (int i = 0; i < number; i++) {
             if (height.equals("non")) {
-                issuedSIZ = new IssuedSIZ(ipm, size);
+                issuedSIZ = new IssuedSIZ(ipm, size, nomenclatureNumber);
             } else {
-                issuedSIZ = new IssuedSIZ(ipm, size, height);
+                issuedSIZ = new IssuedSIZ(ipm, size, height, nomenclatureNumber);
             }
             issuedSIZRepository.save(issuedSIZ);
         }
@@ -520,13 +520,13 @@ public class SIZController {
      * @param model model from page
      * @return page
      */
-    @GetMapping("/userPage/not-issued-siz/{id}/{size}/{height}/{number}/edit")
-    public String notIssuedSIZEdit(@PathVariable(value = "id") long id, @PathVariable(value = "height") String height, @PathVariable(value = "size") String size, @PathVariable(value = "number") int number, Model model) {
+    @GetMapping("/userPage/not-issued-siz/{id}/{size}/{height}/{number}/{nomenclatureNumber}/edit")
+    public String notIssuedSIZEdit(@PathVariable(value = "id") long id, @PathVariable(value = "nomenclatureNumber") String nomenclatureNumber, @PathVariable(value = "height") String height, @PathVariable(value = "size") String size, @PathVariable(value = "number") int number, Model model) {
         IssuedSIZ siz;
         if ((height == null) || (height.equals("")) || (height.equals("non"))) {
-            siz = issuedSIZRepository.findByStock(size, id, "На складе").get(0);
+            siz = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, "На складе").get(0);
         } else {
-            siz = issuedSIZRepository.findByStock(size, height, id, "На складе").get(0);
+            siz = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, "На складе").get(0);
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("typeSIZS", individualProtectionMeans);
@@ -546,23 +546,30 @@ public class SIZController {
      * @return веб страница
      */
     @PostMapping("/userPage/not-issued-siz/{id}/edit")
-    public String notIssuedSIZUpdate(@PathVariable(value = "id") long id, @RequestParam IndividualProtectionMeans siz, @RequestParam String size, @RequestParam String height, @RequestParam int number, Model model) {
+    public String notIssuedSIZUpdate(@PathVariable(value = "id") long id, @RequestParam IndividualProtectionMeans siz, @RequestParam String size, @RequestParam String height, @RequestParam String nomenclatureNumber, @RequestParam int number, Model model) {
         List<IssuedSIZ> list;
-
-        if ((height == null) || (height.equals("")) || (height.equals("non"))) {
-            list = issuedSIZRepository.findByStock(size, siz.getId(), "На складе");
-        } else {
-            list = issuedSIZRepository.findByStock(size, height, siz.getId(), "На складе");
+        IssuedSIZ old_siz = issuedSIZRepository.findById(id).orElse(null);
+        if (old_siz != null) {
+            if ((old_siz.getHeight() == null) || old_siz.getHeight().equals("") || old_siz.getHeight().equals("non") || old_siz.getHeight().equals("null")) {
+                list = issuedSIZRepository.findByStock(old_siz.getSize(), siz.getId(), old_siz.getNomenclatureNumber(), old_siz.getStatus());
+                for (IssuedSIZ s : list) {
+                   // System.out.println("Updating (deleting): " + s.toString());
+                    issuedSIZRepository.delete(s);
+                }
+                for (int i = 0; i < number; i++) {
+                    issuedSIZRepository.save(new IssuedSIZ(siz, size, nomenclatureNumber));
+                }
+            } else {
+                list = issuedSIZRepository.findByStock(old_siz.getSize(), old_siz.getHeight(), siz.getId(), old_siz.getNomenclatureNumber(), old_siz.getStatus());
+                for (IssuedSIZ s : list) {
+                  //  System.out.println("Updating (deleting): " + s.toString());
+                    issuedSIZRepository.delete(s);
+                }
+                for (int i = 0; i < number; i++) {
+                    issuedSIZRepository.save(new IssuedSIZ(siz, size, height, nomenclatureNumber));
+                }
+            }
         }
-
-        for (IssuedSIZ s : list) {
-            issuedSIZRepository.delete(s);
-        }
-
-        for (int i = 0; i < number; i++) {
-            issuedSIZRepository.save(new IssuedSIZ(siz, size, height));
-        }
-
         return "redirect:/userPage/not-issued-siz";
     }
 
@@ -585,13 +592,16 @@ public class SIZController {
                 long id = Long.parseLong(arrData[0]);
                 String size = arrData[1];
                 String height = arrData[2];
+                String nomenclatureNumber = arrData[3];
                 List<IssuedSIZ> sizs;
                 if ((height == null) || (height.equals("")) || (height.equals("null"))) {
-                    sizs = issuedSIZRepository.findByStock(size, id, "На складе");
+                    sizs = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, "На складе");
                 } else {
-                    sizs = issuedSIZRepository.findByStock(size, height, id, "На складе");
+                    sizs = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, "На складе");
+                    System.out.println("is not null");
                 }
                 for (IssuedSIZ s : sizs) {
+                    System.out.println("Deleting: "+s.toString());
                     issuedSIZRepository.deleteById(s.getId());
                 }
             }
@@ -599,18 +609,20 @@ public class SIZController {
         } else {      //иначе возвращаем СИЗ на главный склад центра
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             for (String str : list) {
-                String[] arrData = str.split("#");
+                String[] arrData = str.split("_");
                 long id = Long.parseLong(arrData[0]);
                 String size = arrData[1];
                 String height = arrData[2];
+                String nomenclatureNumber = arrData[3];
                 List<IssuedSIZ> sizs;
                 if ((height == null) || (height.equals("")) || (height.equals("null"))) {
-                    sizs = issuedSIZRepository.findByStockAndKomplex(size, id, "На складе", komplex.getId());
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, id, "На складе", nomenclatureNumber, komplex.getId());
                 } else {
-                    sizs = issuedSIZRepository.findByStockAndKomplex(size, height, id, "На складе", komplex.getId());
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, height, id, "На складе", nomenclatureNumber, komplex.getId());
                 }
                 for (IssuedSIZ s : sizs) {
                     s.setKomplex(null);
+                    System.out.println("Return to storage: "+s.toString());
                     issuedSIZRepository.save(s);
                 }
             }
@@ -813,12 +825,13 @@ public class SIZController {
      * @param model модель аттрибутов страницы
      * @return фрагмент
      */
-    @GetMapping("/userPage/issued-siz/{list}/add/{id}")
-    public String addIssuedSiz(@PathVariable(value = "list") List<Long> list, @PathVariable(value = "id") long id, Model model) {
+    @GetMapping("/userPage/issued-siz/{list}/add/{id}/{dateissued}")
+    public String addIssuedSiz(@PathVariable(value = "list") List<Long> list, @PathVariable(value = "id") long id,@PathVariable(value = "dateissued") String datei, Model model) throws ParseException {
         String message = "";
         listErrors.clear();
         List<IssuedSIZ> issuedSIZS = null;
-        Date dateIssued = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date dateIssued = format.parse(datei);
         IPMStandard ipmStandard = ipmStandardRepository.findById(id).orElse(null);
         int serviceLife = ipmStandard.getServiceLife();  //срок носки
         int number = ipmStandard.getIssuanceRate(); //норма выдачи
@@ -928,7 +941,7 @@ public class SIZController {
                         sheet.getRow(row).getCell(i).setCellStyle(exampleRow.getCell(i).getCellStyle());
                     }
                     sheet.getRow(row).getCell(0).setCellValue(count);
-                    sheet.getRow(row).getCell(1).setCellValue(s.getSiz().getNomenclatureNumber());
+                    sheet.getRow(row).getCell(1).setCellValue(s.getNomenclatureNumber());
                     sheet.getRow(row).getCell(2).setCellValue(s.getSiz().getNameSIZ());
                     sheet.getRow(row).getCell(3).setCellValue(s.getSize());
                     sheet.getRow(row).getCell(4).setCellValue(s.getHeight());
@@ -1933,7 +1946,7 @@ public class SIZController {
         List<SIZForPurchase> sizesForKomplex = new ArrayList<>();
         List<Object[]> objectList = issuedSIZRepository.getIssuedSIZForKomplex(id);
         for (Object[] obj : objectList) {
-            sizesForKomplex.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
+            sizesForKomplex.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], Integer.parseInt(obj[4].toString())));
         }
         model.addAttribute("siz", sizesForKomplex);
         model.addAttribute("issuedSIZRepository", issuedSIZRepository);
@@ -1995,17 +2008,16 @@ public class SIZController {
                     sheet.getRow(row).setRowStyle(exampleRow.getRowStyle());
                     sheet.getRow(row).setHeight(exampleRow.getHeight());
 
-                    for (int i = 0; i < 8; i++) {
+                    for (int i = 0; i < 7; i++) {
                         sheet.getRow(row).getCell(i).setCellStyle(exampleRow.getCell(i).getCellStyle());
                     }
                     sheet.getRow(row).getCell(0).setCellValue(count);
-                    sheet.getRow(row).getCell(1).setCellValue(s.getNomenclatureNumber());
-                    sheet.getRow(row).getCell(2).setCellValue(s.getNamesiz());
-                    sheet.getRow(row).getCell(3).setCellValue(s.getSize());
-                    sheet.getRow(row).getCell(4).setCellValue(s.getHeight());
-                    sheet.getRow(row).getCell(5).setCellValue(s.getNumber());
-                    sheet.getRow(row).getCell(6).setCellValue(sizRepository.findById(s.getId()).orElse(null).getEd_izm());
-                    sheet.getRow(row).getCell(7).setCellValue(" ");
+                    sheet.getRow(row).getCell(1).setCellValue(s.getNamesiz());
+                    sheet.getRow(row).getCell(2).setCellValue(s.getSize());
+                    sheet.getRow(row).getCell(3).setCellValue(s.getHeight());
+                    sheet.getRow(row).getCell(4).setCellValue(s.getNumber());
+                    sheet.getRow(row).getCell(5).setCellValue(sizRepository.findById(s.getId()).orElse(null).getEd_izm());
+                    sheet.getRow(row).getCell(6).setCellValue(" ");
                     row++;
                     count++;
                 }

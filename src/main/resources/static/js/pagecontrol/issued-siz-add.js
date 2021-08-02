@@ -1,5 +1,6 @@
 var extendingSIZId;
 var writeoffSIZId;
+var backdateissued = false;
 //// modal functions///////
 function showModalWindow(value) {
 	extendingSIZId = value;
@@ -129,21 +130,43 @@ function loadIssuedSiz(value) {
 };
 //////////////////////////////////////////
 function updateIssuedSiz(value) {
-
-    $.ajax({
-	    type: 'get',
-	    url: '/userPage/issued-siz/' + selRecs + '/add/'+value,
-	    success: function(data) {
-		    $('.table-issuedSiz').html(data);
-		    document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
-            $('body input:checkbox').prop('checked',false);
-            loadErrors();
-		    updateSizForEmployee(employee_id);
-		    printIssuedSIZ();
-	},
-})
+    var dateissued = document.getElementById("backdate").value;
+    if (dateissued == ""){
+        dateissued = formatDateToRus(new Date());
+    }
+//    if (backdate === false){
+        $.ajax({
+    	    type: 'get',
+    	    url: '/userPage/issued-siz/' + selRecs + '/add/'+value+'/'+dateissued,
+    	    success: function(data) {
+    		    $('.table-issuedSiz').html(data);
+    		    document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
+                $('body input:checkbox').prop('checked',false);
+                loadErrors();
+    		    updateSizForEmployee(employee_id);
+    		    printIssuedSIZ();
+    	    },
+        })
+//    } else {
+//         $.ajax({
+//             type: 'get',
+//             url: '/userPage/issued-siz/' + selRecs + '/add/backdate-issue/'+value+'/'+dateissued,
+//             success: function(data) {
+//         	    $('.table-issuedSiz').html(data);
+//         	    document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
+//                $('body input:checkbox').prop('checked',false);
+//                loadErrors();
+//         	    updateSizForEmployee(employee_id);
+//         	    printIssuedSIZ();
+//             },
+//         })
+//    }
 //$('body input:checkbox').prop('checked',false);
 };
+//////////////////////////////////////////
+function selectBackDateIssued(value){
+        backdateissued = value.checked;
+}
 //////////////////////////////////////////
 function printIssuedSIZ(){
     $.ajax({
@@ -175,6 +198,13 @@ function formatDateToRus(dateTime){
         var yyyy = dateTime.getFullYear();
 
         return dd + '.' + mm + '.' + yyyy;
+    }
+function formatDateToEng(dateTime){
+        var dd = String(dateTime.getDate()).padStart(2, '0');
+        var mm = String(dateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = dateTime.getFullYear();
+
+        return yyyy + '-' + mm + '-' + dd;
     }
 //////////////////////////////////////////
 function loadErrors(){

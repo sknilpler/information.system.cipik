@@ -2,7 +2,6 @@ package com.information.system.cipik.utils;
 
 public class SIZForPurchase {
     private Long id;
-    private String nomenclatureNumber;
     private String namesiz;
     private String height;
     private String size;
@@ -13,10 +12,9 @@ public class SIZForPurchase {
     public SIZForPurchase() {
     }
 
-    public SIZForPurchase(Long id, String nomenclatureNumber, String namesiz, String height, String size, int numAll, int numIssued) {
+    public SIZForPurchase(Long id, String namesiz, String height, String size, int numAll, int numIssued) {
         this.id = id;
         this.namesiz = namesiz;
-        this.nomenclatureNumber = nomenclatureNumber;
         this.height = height;
         this.size = size;
         this.numAll = numAll;
@@ -24,10 +22,9 @@ public class SIZForPurchase {
         this.numPurchase = numAll-numIssued;
     }
 
-    public SIZForPurchase(Long id, String nomenclatureNumber, String namesiz, String height, String size, int num) {
+    public SIZForPurchase(Long id, String namesiz, String height, String size, int num) {
         this.id = id;
         this.namesiz = namesiz;
-        this.nomenclatureNumber = nomenclatureNumber;
         this.height = height;
         this.size = size;
         this.numAll = num;
@@ -47,14 +44,6 @@ public class SIZForPurchase {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getNomenclatureNumber() {
-        return nomenclatureNumber;
-    }
-
-    public void setNomenclatureNumber(String nomenclatureNumber) {
-        this.nomenclatureNumber = nomenclatureNumber;
     }
 
     public String getHeight() {
@@ -101,7 +90,6 @@ public class SIZForPurchase {
     public String toString() {
         return "SIZForPurchase{" +
                 "id=" + id +
-                ", nomenclatureNumber='" + nomenclatureNumber + '\'' +
                 ", namesiz='" + namesiz + '\'' +
                 ", height='" + height + '\'' +
                 ", size='" + size + '\'' +

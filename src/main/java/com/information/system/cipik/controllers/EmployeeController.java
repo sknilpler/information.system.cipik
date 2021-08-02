@@ -159,8 +159,8 @@ public class EmployeeController {
      * @param response
      * @throws IOException
      */
-    @GetMapping("/userPage/employee/export/excel")
-    public void exportEmployeeToExcel(HttpServletResponse response, Authentication authentication) throws IOException {
+    @PostMapping("/userPage/employee/export/excel/{keyword}")
+    public void exportEmployeeToExcel(@PathVariable(value = "keyword") String keyword,HttpServletResponse response, Authentication authentication) throws IOException {
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -172,14 +172,53 @@ public class EmployeeController {
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         List<Employee> listEmployee;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
-            listEmployee = (List<Employee>) employeeRepository.findAll();
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        if (role.getName().equals("ROLE_USER")) {
+            if (keyword.equals("0")) {
+                listEmployee = (List<Employee>) employeeRepository.findAll();
+            } else {
+                listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexAndKeyword(keyword);
+            }
+        } else {
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
-            listEmployee = employeeRepository.findAllByKomplexId(komplex.getId());
+            if (keyword.equals("0")) {
+                listEmployee = employeeRepository.findAllByKomplexId(komplex.getId());
+            } else {
+                listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexIdAndKeyword(keyword, komplex.getId());
+            }
         }
 
         EmployeeExcelExporter excelExporter = new EmployeeExcelExporter(listEmployee);
         excelExporter.export(response);
+    }
+
+    /**
+     * Поиск и фильтрация списка сотрудников
+     *
+     * @param keyword ключевое слово для поиска и фильтрации
+     * @param authentication параметры аутентификации
+     * @param model модель аттрибутов страницы
+     * @return список сотрудников
+     */
+    @GetMapping("/userPage/employee/search/{keyword}")
+    public String searchEmployee(@PathVariable(value = "keyword") String keyword, Authentication authentication, Model model) {
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        if (role.getName().equals("ROLE_USER")) {
+            if (keyword.equals("0")) {
+                employees = employeeRepository.findAll();
+            } else {
+                employees = employeeRepository.findAllByPostAndKomplexAndKeyword(keyword);
+            }
+        } else {
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            if (keyword.equals("0")) {
+                employees = employeeRepository.findAllByKomplexId(komplex.getId());
+            } else {
+                employees = employeeRepository.findAllByPostAndKomplexIdAndKeyword(keyword, komplex.getId());
+            }
+        }
+        model.addAttribute("employees", employees);
+        return "user/employee/employes-managment-page :: bd-example";
     }
 }

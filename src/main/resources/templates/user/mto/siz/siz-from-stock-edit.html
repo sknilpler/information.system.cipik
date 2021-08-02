@@ -51,6 +51,14 @@
                                placeholder="Введите количество"/>
                     </div>
 
+                    <div class="col-sm-2">
+                        <label class="md-2" for="nomenclatureNumber">Номенклатурный номер</label>
+                        <div class="md-7">
+                            <input type="text" id="nomenclatureNumber" name="nomenclatureNumber" th:value="${nomenclatureNumber}" class="form-control"
+                                   placeholder="Введите Номенклатурный номер" required/>
+                        </div>
+                    </div>
+
                     <div class="container mt-1 form-actions floatRight">
                         <button type="submit" class="btn btn-success">Сохранить</button>
                         <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Сбросить

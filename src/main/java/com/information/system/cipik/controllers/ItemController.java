@@ -24,10 +24,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class ItemController {
@@ -342,12 +339,21 @@ public class ItemController {
     /*
      * Сохранения акта списания выбранных МЦ
      */
-    @PostMapping("/userPage/write-off-for-item/send/{id}/{dateWriteOff}/{nameAct}")
-    public String saveWriteOffItem(@RequestParam MultipartFile file,
-                                 @RequestParam Map<String,List<String>> listOfObjects,
-                                 @PathVariable("nameAct") String nameAct,
-                                 @PathVariable("dateWriteOff") String dateAct,
-                                 @PathVariable(value = "id") long id) throws IOException {
+    @PostMapping("/userPage/write-off-for-item/send/{id}/{dateWriteOff}")
+    public String saveWriteOffItem(@RequestParam("file") MultipartFile file,
+                                   @RequestParam("listOfObjects") String s,
+                                   @RequestParam("nameAct") String nameAct,
+                                   @PathVariable("dateWriteOff") String dateAct,
+                                   @PathVariable(value = "id") long id) throws IOException {
+
+        Map<Long, Double> map = new HashMap<>();
+        s = s.substring(1, s.length() - 2);
+        s = s.replace("\"", "");
+        String[] ss = s.split(",");
+        for (String el : ss) {
+            String[] els = el.split(":");
+            map.put(Long.parseLong(els[0]), Double.parseDouble(els[1]));
+        }
 
         Komplex komplex = komplexRepository.findById(id).orElse(null);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -366,10 +372,9 @@ public class ItemController {
             System.out.println("Не удалось загрузить файл");
         }
 
-        for (Map.Entry<String, List<String>> entry : listOfObjects.entrySet()) {
-            Item item = itemsRepository.findById(Long.parseLong(entry.getKey())).orElse(null);
-            double num_write_off = Double.parseDouble(entry.getValue().get(0));
-            writeOffActRepository.save(new WriteOffAct(nameAct,dateI,num_write_off,item,komplex,fileWriteOffAct));
+        for (Map.Entry<Long, Double> entry: map.entrySet()) {
+            Item item = itemsRepository.findById(entry.getKey()).orElse(null);
+            writeOffActRepository.save(new WriteOffAct(nameAct,dateI,entry.getValue(),item,komplex,fileWriteOffAct));
         }
 
         return "redirect:/userPage/item-all";

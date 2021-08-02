@@ -36,11 +36,10 @@ public class PurchasingSIZExcelExporter {
         style.setFont(font);
 
         createCell(row, 0, "№ п/п", style);
-        createCell(row, 1, "Номенклатурный №", style);
-        createCell(row, 2, "Наименование СИЗ", style);
-        createCell(row, 3, "Рост", style);
-        createCell(row, 4, "Размер", style);
-        createCell(row, 5, "Кол-во", style);
+        createCell(row, 1, "Наименование СИЗ", style);
+        createCell(row, 2, "Рост", style);
+        createCell(row, 3, "Размер", style);
+        createCell(row, 4, "Кол-во", style);
 
     }
 
@@ -70,7 +69,6 @@ public class PurchasingSIZExcelExporter {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
             createCell(row, columnCount++, rowCount-1, style);
-            createCell(row, columnCount++, e.getNomenclatureNumber(), style);
             createCell(row, columnCount++, e.getNamesiz(), style);
             createCell(row, columnCount++, e.getHeight(), style);
             createCell(row, columnCount++, e.getSize(), style);

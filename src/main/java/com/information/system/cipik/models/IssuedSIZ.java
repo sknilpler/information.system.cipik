@@ -23,7 +23,6 @@ public class IssuedSIZ {
     private Employee employee;
 
     @ManyToOne
-
     private IndividualProtectionMeans siz;
 
     //дата выдачи и окончания носки
@@ -32,21 +31,24 @@ public class IssuedSIZ {
     private String size;
     private String height;
     private String writeOffAct;
+    private String nomenclatureNumber;
 
     @ManyToOne
     private Komplex komplex;
 
-    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size) {
+    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size,String nomenclatureNumber) {
         this.siz = individualProtectionMeans;
         this.status = "На складе";
         this.size = size;
+        this.nomenclatureNumber = nomenclatureNumber;
     }
 
-    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size, String height) {
+    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size, String height,String nomenclatureNumber) {
         this.siz = individualProtectionMeans;
         this.status = "На складе";
         this.size = size;
         this.height = height;
+        this.nomenclatureNumber = nomenclatureNumber;
     }
 
     @Override
@@ -61,6 +63,7 @@ public class IssuedSIZ {
                 ", size='" + size + '\'' +
                 ", height='" + height + '\'' +
                 ", writeOffAct='" + writeOffAct + '\'' +
+                ", nomenclatureNumber='" + nomenclatureNumber + '\'' +
                 ", komplex=" + komplex +
                 '}';
     }

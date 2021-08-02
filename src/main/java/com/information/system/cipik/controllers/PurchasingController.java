@@ -40,8 +40,8 @@ public class PurchasingController {
         List<SIZForPurchase> sizesForPurchase = new ArrayList<>();
         List<Object[]> objectList = issuedSIZRepository.getAllSIZForPurchaseByNow();
         for (Object[] obj : objectList) {
-            if ((Integer.parseInt(obj[5].toString()) - Integer.parseInt(obj[6].toString())) != 0) {
-                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString()), Integer.parseInt(obj[6].toString())));
+            if ((Integer.parseInt(obj[4].toString()) - Integer.parseInt(obj[5].toString())) != 0) {
+                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], Integer.parseInt(obj[4].toString()), Integer.parseInt(obj[5].toString())));
             }
         }
         Iterable<Komplex> komplexes = komplexRepository.findAll();
@@ -69,8 +69,8 @@ public class PurchasingController {
             objectList = issuedSIZRepository.getAllSIZForPurchaseByNow();
         }
         for (Object[] obj : objectList) {
-            if ((Integer.parseInt(obj[5].toString()) - Integer.parseInt(obj[6].toString())) != 0) {
-                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString()), Integer.parseInt(obj[6].toString())));
+            if ((Integer.parseInt(obj[4].toString()) - Integer.parseInt(obj[5].toString())) != 0) {
+                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], Integer.parseInt(obj[4].toString()), Integer.parseInt(obj[5].toString())));
             }
         }
         model.addAttribute("ipms", sizesForPurchase);
@@ -98,8 +98,8 @@ public class PurchasingController {
             objectList = issuedSIZRepository.getAllSIZForPurchaseByNowAndKomplex(id);
         }
         for (Object[] obj : objectList) {
-            if ((Integer.parseInt(obj[5].toString()) - Integer.parseInt(obj[6].toString())) != 0) {
-                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString()), Integer.parseInt(obj[6].toString())));
+            if ((Integer.parseInt(obj[4].toString()) - Integer.parseInt(obj[5].toString())) != 0) {
+                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], Integer.parseInt(obj[4].toString()), Integer.parseInt(obj[5].toString())));
             }
         }
         model.addAttribute("ipms", sizesForPurchase);
@@ -145,8 +145,8 @@ public class PurchasingController {
             }
         }
         for (Object[] obj : objectList) {
-            if ((Integer.parseInt(obj[5].toString()) - Integer.parseInt(obj[6].toString())) != 0) {
-                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString()), Integer.parseInt(obj[6].toString())));
+            if ((Integer.parseInt(obj[4].toString()) - Integer.parseInt(obj[5].toString())) != 0) {
+                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], Integer.parseInt(obj[4].toString()), Integer.parseInt(obj[5].toString())));
             }
         }
 

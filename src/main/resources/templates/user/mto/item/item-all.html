@@ -283,21 +283,20 @@ function writeOff() {
 	var nameAct = document.querySelector('#nameAct').value;
 	var $input = $('#file');
 	var fd = new FormData;
-
 	fd.append('file',$input.prop('files')[0]);
-
+    fd.append('nameAct',nameAct);
 	if (dateWriteOff == "" || nameAct == "") {
 		alert("Не все данные введены");
 	} else {
 		const items = document.querySelectorAll('#tb1 tbody tr');
 		Array.from(items).forEach((item) => {
-				listOfObjects2[ item.querySelector('[data-type="id"]').innerHTML ] = [ item.querySelector('input').value ]
+				listOfObjects2[ item.querySelector('[data-type="id"]').innerHTML ] =  item.querySelector('input').value;
 		});
-        fd.append('listOfObjects',listOfObjects2);
+        fd.append('listOfObjects',JSON.stringify(listOfObjects2));
 		$.ajax({
 			type: "POST",
 			contentType: false,
-			url: '/userPage/write-off-for-item/send/' + document.querySelector('#komplex2').value + '/' + dateWriteOff + '/' + nameAct,
+			url: '/userPage/write-off-for-item/send/' + document.querySelector('#komplex2').value + '/' + dateWriteOff,
 			data: fd,
 			processData: false,
 			success: function(data) {

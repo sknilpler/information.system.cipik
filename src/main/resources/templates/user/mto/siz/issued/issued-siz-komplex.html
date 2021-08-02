@@ -50,7 +50,6 @@
                     <thead>
                     <tr>
                         <th style="display:none;">ID</th>
-                        <th>Номенклатурный №</th>
                         <th>Наименование СИЗ</th>
                         <th>Рост</th>
                         <th>Размер</th>
@@ -60,7 +59,6 @@
                     <tbody>
                     <tr th:each="s : ${siz}">
                         <td data-type="id" th:text="${s.id}" style="display:none;"></td>
-                        <td data-type="nomen-nom" th:text="${s.nomenclatureNumber}"></td>
                         <td data-type="namesiz" th:text="${s.namesiz}"></td>
                         <td data-type="height" th:text="${s.height}"></td>
                         <td data-type="size" th:text="${s.size}"></td>

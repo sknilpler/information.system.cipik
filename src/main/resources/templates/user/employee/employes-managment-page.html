@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Сотрудники</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -24,12 +24,10 @@
                     <h1>Список всех сотрудников</h1>
                 </div>
                 <div class="col-sm-1">
-                    <form th:action="'/userPage/employee/export/excel'" method="get">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
+                        <button class="btn btn-outline-secondary btn-sm float-right" onclick="printTable()"
                                 aria-label="Распечатать" title="Печать таблицы">
                             <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
                         </button>
-                    </form>
                 </div>
             </div>
             <div class="pagination justify-content-start">
@@ -40,15 +38,21 @@
                 <div class="d-flex justify-content-start flex-wrap">
                     <a th:href="'/userPage/posts/add'" class="btn btn-info mx-1">Должности</a>
                 </div>
+                <div>
+                    <label for="textSearch" class="form-label">Поиск</label>
+                    <input id="textSearch" type="text" name="keyword" oninput="searching(this.value)">
+                </div>
             </div>
+
             <br>
-            <div class="bd-example">
-                <table class="table table-bordered">
+            <div class="bd-example" th:fragment="bd-example">
+                <table class="table table-bordered" >
                     <thead>
                     <tr align="center">
                         <th scope="col" rowspan="2">№</th>
                         <th scope="col" rowspan="2">ФИО</th>
                         <th scope="col" rowspan="2">Должность</th>
+                        <th scope="col" rowspan="2" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">Подразделение</th>
                         <th scope="col" rowspan="2">Табельный №</th>
                         <th scope="col" rowspan="2">Дата трудоустройства</th>
                         <th scope="col" rowspan="2">Пол</th>
@@ -67,6 +71,7 @@
                         <th scope="row" th:text="${stat.count}"></th>
                         <td th:text="${el.surname}+' '+${el.name}+' '+${el.patronymic}"></td>
                         <td align="center" th:text="${el.post.postName}"></td>
+                        <td align="center" th:text="${el.komplex.shortName}" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')"></td>
                         <td align="center" th:text="${el.tabNomer}"></td>
                         <td align="center" th:text="${#dates.format(el.dataStartWork, 'dd.MM.yyyy')}"></td>
                         <td align="center" th:text="${el.sex}"></td>
@@ -94,6 +99,7 @@
     </div>
 </div>
 <script th:inline="javascript">
+var search_keyword = '0';
     ///////////////open sidebar///////////////////
 
       var menu_btn = document.querySelector("#menu-btn");
@@ -105,6 +111,7 @@
       });
 
 /////////////////////////////////
+
 function closeModalWindow() {
 	$("#deleteAccept").modal('hide');
 };
@@ -121,6 +128,10 @@ function deleteObject(){
     post('/userPage/employee/'+id_del+'/remove');
 }
 
+function printTable(){
+     post('/userPage/employee/export/excel/'+search_keyword);
+}
+
 function post(path, method='post') {
   const form = document.createElement('form');
   form.method = method;
@@ -131,6 +142,22 @@ function post(path, method='post') {
   document.body.appendChild(form);
   form.submit();
 }
+/////////////////////////////////
+    function searching(value) {
+        search_keyword = value;
+    	if (value.length === 0) {
+    	    search_keyword = '0'
+    		value = 0;
+    	}
+    	$.ajax({
+    		type: 'get',
+    		url: '/userPage/employee/search/' + value,
+    		success: function(data) {
+    			$('.bd-example').html(data);
+    		},
+    	});
+    };
+//////////////////////////////////////
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

@@ -170,11 +170,24 @@
                                     th:text="${post.postName}"></option>
                         </select>
                         <hr>
+                        <div class="row">
+<!--                            <div class="col-sm-6">-->
+<!--                                <label class="md-2">Выдача задним числом</label>-->
+<!--                                <input type="checkbox" id="issued-back" name="issued-back"-->
+<!--                                       th:onchange="'javascript:selectBackDateIssued(this);'" disabled>-->
+<!--                            </div>-->
+                            <div class="col-sm-6">
+                                <label class="md-2">Дата выдачи</label>
+                                <input type="date" id="backdate" name="backdate">
+                            </div>
+                        </div>
+                        <hr>
                         <div class="table-siz" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;"
                              th:fragment="table-siz">
-                            <div class="col-sm-6">
+                            <div class="col-sm-12">
                                 <span class="lead" th:text="'Список СИЗ для должности '+${selected.postName}"></span>
                             </div>
+
                             <table class="table table-hover">
                                 <thead>
                                 <tr>

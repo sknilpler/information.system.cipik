@@ -32,13 +32,13 @@
                     </div>
                 </div>
 
-            <div class="container mt-1 md-12">
-                <label class="md-2" for="nomenclatureNumber">Номенклатурный номер</label>
-                <div class="md-7">
-                    <input type="text" id="nomenclatureNumber" name="nomenclatureNumber" class="form-control"
-                           placeholder="Введите Номенклатурный номер" required/>
-                </div>
-            </div>
+<!--            <div class="container mt-1 md-12">-->
+<!--                <label class="md-2" for="nomenclatureNumber">Номенклатурный номер</label>-->
+<!--                <div class="md-7">-->
+<!--                    <input type="text" id="nomenclatureNumber" name="nomenclatureNumber" class="form-control"-->
+<!--                           placeholder="Введите Номенклатурный номер" required/>-->
+<!--                </div>-->
+<!--            </div>-->
 
                 <div class="container mt-1 col-md-12">
                     <label class="md-2" for="ed_izm">Единицы измерения</label>
@@ -79,7 +79,7 @@
                         <table class="table table-hover">
                             <thead>
                             <tr>
-                                <th>Номенклатурный №</th>
+<!--                                <th>Номенклатурный №</th>-->
                                 <th>Наименование</th>
                                 <th>Ед. изм.</th>
                                 <th style="width: 135px;"></th>
@@ -87,7 +87,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="ipm : ${ipms}">
-                                <td th:text="${ipm.nomenclatureNumber}"></td>
+<!--                                <td th:text="${ipm.nomenclatureNumber}"></td>-->
                                 <td th:text="${ipm.nameSIZ}"></td>
                                 <td th:text="${ipm.ed_izm}"></td>
                                 <td>

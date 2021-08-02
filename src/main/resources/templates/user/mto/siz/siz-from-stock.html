@@ -65,6 +65,14 @@
                                placeholder="Введите количество"/>
                     </div>
 
+                    <div class="col-sm-3">
+                        <label class="md-2" for="nomenclatureNumber">Номенклатурный номер</label>
+                        <div class="md-7">
+                            <input type="text" id="nomenclatureNumber" name="nomenclatureNumber" class="form-control"
+                                   placeholder="Введите Номенклатурный номер" required/>
+                        </div>
+                    </div>
+
                     <div class="container mt-1 form-actions floatRight">
                         <button type="submit" class="btn btn-success">Добавить</button>
                         <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить
@@ -93,7 +101,7 @@
                                     <input type="checkbox" name="all-checkbox"  th:onchange="'javascript:selectAllRecord(this);'" >
                                 </th>
                                 <th style="5%">№ п/п</th>
-                                <th>Табельный №</th>
+                                <th>Номенклатурный №</th>
                                 <th>Наименование</th>
                                 <th style="width: 5%">Размер</th>
                                 <th style="width: 5%">Рост</th>
@@ -113,7 +121,7 @@
                             <tbody>
                             <tr th:each="n,iter : ${notIssuedSIZ}">
                                 <td>
-                                        <input type="checkbox" name="record-checkbox" th:data-size="${n.size}" th:data-height="${n.height}" th:data-id="${n.id}" onchange="selectRecord(this,this.getAttribute('data-id'),this.getAttribute('data-size'),this.getAttribute('data-height'));">
+                                        <input type="checkbox" name="record-checkbox" th:data-size="${n.size}" th:data-height="${n.height}" th:data-id="${n.id}" th:data-nomenclatureNumber="${n.nomenclatureNumber}" onchange="selectRecord(this,this.getAttribute('data-id'),this.getAttribute('data-size'),this.getAttribute('data-height'),this.getAttribute('data-nomenclatureNumber'));">
                                 </td>
                                 <td th:text="${iter.index+1}"></td>
                                 <td th:text="${n.nomenclatureNumber}"></td>
@@ -122,7 +130,7 @@
                                 <td th:text="${n.height}"></td>
                                 <td th:text="${n.number}"></td>
                                 <td>
-                                        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/not-issued-siz/'+${n.id}+'/'+${n.size}+'/'+${#strings.defaultString(n.height,'non')}+'/'+${n.number}+'/edit'"
+                                        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/not-issued-siz/'+${n.id}+'/'+${n.size}+'/'+${#strings.defaultString(n.height,'non')}+'/'+${n.number}+'/'+${n.nomenclatureNumber}+'/edit'"
                                            class="btn btn-primary btn-sm" title="Редактировать">
                                             <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"
                                                  height="16" style="filter: invert (100%);">
@@ -214,8 +222,8 @@ function U2A(str) {
 //////////////////////////////////////
 var selRecs = [];
 
-function selectRecord(value, id,size,height) {
-    var str = id+'_'+size+'_'+height;
+function selectRecord(value, id,size,height,nomenclatureNumber) {
+    var str = id+'_'+size+'_'+height+'_'+nomenclatureNumber;
 
 	if (value.checked) {
 		selRecs.push(str);
@@ -241,7 +249,7 @@ function selectAllRecord(value){
 		/*<![CDATA[*/
  	    var list = [];
  	    /*[# th:each="elVar : ${notIssuedSIZ}"]*/
- 	        list.push(/*[[${elVar.id}+'_'+${elVar.size}+'_'+${elVar.height}]]*/);
+ 	        list.push(/*[[${elVar.id}+'_'+${elVar.size}+'_'+${elVar.height}+'_'+${elVar.nomenclatureNumber}]]*/);
  		/*[/]*/
  		/*]]>*/
         selRecs = list;

@@ -63,10 +63,15 @@ public interface EmployeeRepository extends CrudRepository<Employee, Long> {
             "        e.name,\n" +
             "        e.surname,\n" +
             "        e.patronymic,\n" +
+            "        e.height,\n" +
+            "        e.clothing_size,\n" +
+            "        e.headgear_size,\n" +
+            "        e.shoe_size, \n" +
             "        p.post_name,\n" +
             "        k.short_name\n" +
             "    ) LIKE %:keyword% AND e.post_id = p.id AND e.komplex_id = k.id", nativeQuery = true)
     Iterable<Employee> findAllByPostAndKomplexAndKeyword(@Param("keyword") String keyword);
+
 
     /**
      * Найти всех сотрудников по подразделению и по ключевому слову
@@ -86,6 +91,10 @@ public interface EmployeeRepository extends CrudRepository<Employee, Long> {
             "        e.name,\n" +
             "        e.surname,\n" +
             "        e.patronymic,\n" +
+            "        e.height,\n" +
+            "        e.clothing_size,\n" +
+            "        e.headgear_size,\n" +
+            "        e.shoe_size, \n" +
             "        p.post_name\n" +
             "    ) LIKE %:keyword% AND e.post_id = p.id AND e.komplex_id =:id", nativeQuery = true)
     Iterable<Employee> findAllByPostAndKomplexIdAndKeyword(@Param("keyword") String keyword, @Param("id") Long id);

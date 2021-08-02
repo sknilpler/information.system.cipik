@@ -54,7 +54,6 @@ function sendToKomplex(){
     Array.from(items).forEach((item) => {
        var SIZForPurchase = {
             id: Number(item.querySelector('[data-type="id"]').innerHTML),
-            nomenclatureNumber: item.querySelector('[data-type="nomen-nom"]').innerHTML,
             namesiz: item.querySelector('[data-type="namesiz"]').innerHTML,
             height: item.querySelector('[data-type="height"]').innerHTML,
             size: item.querySelector('[data-type="size"]').innerHTML,
