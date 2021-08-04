@@ -28,4 +28,10 @@ public class SizeSiz {
         this.size = size;
         this.height = height;
     }
+
+    public SizeSiz(IndividualProtectionMeans individualProtectionMeans, String size) {
+        this.individualProtectionMeans = individualProtectionMeans;
+        this.size = size;
+        this.height = null;
+    }
 }

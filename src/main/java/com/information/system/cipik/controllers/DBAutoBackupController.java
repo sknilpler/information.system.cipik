@@ -54,18 +54,22 @@ public class DBAutoBackupController {
         String saveFileName = fileName + "_" + backupDateStr + ".sql";
         String savePath = folderPath + File.separator + saveFileName;
 
-        String executeCmd = "mysqldump -u " + dbUserName + " -p" + dbUserPassword + " " + dbNameList
-                + " | gzip > \"" + savePath + ".gz\"";
+//        String executeCmd = "mysqldump -u " + dbUserName + " -p" + dbUserPassword + " " + dbNameList
+//                + " | gzip > \"" + savePath + ".gz\"";
 
         Process runtimeProcess = null;
         try {
             String osName = System.getProperty("os.name");
             if (osName.charAt(0) == 'W') {
-                String pathToMysql = adminService.getPaths()[0];
+                String pathToMysql = "\""+adminService.getPaths()[0];
+                String executeCmd = "mysqldump\" -u " + dbUserName + " -p" + dbUserPassword + " " + dbNameList
+                + " | gzip > \"" + savePath + ".gz\"";
                // String pathToMysql = "C:" + File.separator + "OpenServer" + File.separator + "modules" + File.separator + "database" + File.separator + "MySQL-8.0" + File.separator + "bin";
                 runtimeProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", pathToMysql + File.separator + executeCmd});//for Windows
             }
             else{
+                String executeCmd = "mysqldump -u " + dbUserName + " -p" + dbUserPassword + " " + dbNameList
+                        + " | gzip > \"" + savePath + ".gz\"";
                 runtimeProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", executeCmd}); //for Linux
             }
         } catch (IOException e) {
