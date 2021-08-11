@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Приходы</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+
+<div class="d-flex">
+    <!-- Modal windows for accepting delete -->
+    <div th:insert="blocks/accept-delete :: accept-delete"></div>
+    <!-- Side panel -->
+    <div th:insert="user/mto/item/sidebar :: sidebar"></div>
+    <!-- Side panel -->
+    <div class="my-container active-cont container-fluid">
+        <div class="container-fluid">
+            <h1>Приходы</h1>
+            <br>
+            <div class="bd-example" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+<!--                        <th style="5%">-->
+<!--                            <input type="checkbox" name="all-checkbox"  th:onchange="'javascript:selectAllRecord(this);'" >-->
+<!--                        </th>-->
+                        <th scope="col">№</th>
+                        <th scope="col">Счет</th>
+                        <th scope="col">Наименование</th>
+                        <th scope="col">Номенклатурный №</th>
+                        <th scope="col">Цена</th>
+                        <th scope="col">Ед. изм.</th>
+                        <th scope="col">Кол-во</th>
+                        <th scope="col">Дата прихода</th>
+<!--                        <th scope="col" style="width: 310px;">-->
+<!--                            <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-outline-primary btn-sm" name="btn_do_some"  th:onclick="'javascript:sendListIdsToIssued();'" title="Выдать подразделению" disabled>-->
+<!--                                <img src="/images/bootstrap-icons/clipboard-check.svg" alt="Bootstrap" width="20"-->
+<!--                                     height="20" style="filter: invert (1);">-->
+<!--                            </button>-->
+<!--                            <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-outline-danger btn-sm" name="btn_do_some"  th:onclick="'javascript:sendListIdsToWriteOff();'" title="Списать" disabled>-->
+<!--                                <img src="/images/bootstrap-icons/clipboard-x.svg" alt="Bootstrap" width="20"-->
+<!--                                     height="20" style="filter: invert (1);">-->
+<!--                            </button>-->
+<!--                        </th>-->
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="el, iter : ${comings}">
+<!--                        <td>-->
+<!--                            <input type="checkbox" name="record-checkbox"  th:onchange="'javascript:selectRecord(this,\'' +${el.id}+ '\');'">-->
+<!--                        </td>-->
+                        <th scope="row" th:text="${iter.index+1}"></th>
+                        <td th:text="${el.bill}"></td>
+                        <td th:text="${el.name}"></td>
+                        <td th:text="${el.nomenclature}"></td>
+                        <td th:text="${el.price}"></td>
+                        <td th:text="${el.unit}"></td>
+                        <td th:text="${el.number}"></td>
+                        <td th:text="${#dates.format(el.dateOfReceive, 'dd.MM.yyyy')}"></td>
+                        <td>
+                            <button class="btn btn-outline-danger btn-sm" th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'" title="Удалить">
+                                <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="18"
+                                     height="18" style="filter: invert (1);">
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    ///////////////open sidebar///////////////////
+
+      var menu_btn = document.querySelector("#menu-btn");
+      var sidebar = document.querySelector("#sidebar");
+      var container = document.querySelector(".my-container");
+      menu_btn.addEventListener("click", () => {
+        sidebar.classList.toggle("active-nav");
+        container.classList.toggle("active-cont");
+      });
+
+/////////////////////////////////
+</script>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

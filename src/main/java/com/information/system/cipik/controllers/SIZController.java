@@ -258,13 +258,134 @@ public class SIZController {
      * @return перенаправление на /userPage/siz-types
      */
     @PostMapping("/userPage/siz-types/{id}/edit")
-    public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, /*@RequestParam String nomenclatureNumber,*/ Model model) {
+    public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, Model model) {
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElse(null);
         individualProtectionMeans.setNameSIZ(nameSIZ);
-      //  individualProtectionMeans.setNomenclatureNumber(nomenclatureNumber);
         individualProtectionMeans.setEd_izm(ed_izm);
         individualProtectionMeans.setTypeIPM(typeIPM);
         sizRepository.save(individualProtectionMeans);
+
+        List<SizeSiz> sizeSizs = sizeSizRepository.findAllByIndividualProtectionMeansId(individualProtectionMeans.getId());
+
+        sizeSizs.forEach(sizeSiz -> sizeSizRepository.deleteById(sizeSiz.getId()));
+
+        List<String> sizes = new ArrayList<>();
+        if (typeIPM.equals("Одежда")) {
+            List<String> heights = new ArrayList<>();
+            File file1 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + "settings" + File.separator + "clothing-size.dat");
+            File file2 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + "settings" + File.separator + "height.dat");
+            try (BufferedReader reader1 = new BufferedReader(new FileReader(file1));
+                 BufferedReader reader2 = new BufferedReader(new FileReader(file2))) {
+                String size = reader1.readLine();
+                while (size != null) {
+                    sizes.add(size);
+                    size = reader1.readLine();
+                }
+                String height = reader2.readLine();
+                while (height != null) {
+                    heights.add(height);
+                    height = reader2.readLine();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            for (String s : sizes) {
+                for (String h : heights) {
+                    sizeSizRepository.save(new SizeSiz(individualProtectionMeans, s, h));
+                }
+            }
+        }
+        if (typeIPM.equals("Обувь")) {
+            File file1 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + "settings" + File.separator + "shoe-size.dat");
+            try (BufferedReader reader1 = new BufferedReader(new FileReader(file1))) {
+                String size = reader1.readLine();
+                while (size != null) {
+                    sizes.add(size);
+                    size = reader1.readLine();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            for (String s : sizes) {
+                sizeSizRepository.save(new SizeSiz(individualProtectionMeans, s));
+            }
+        }
+        if (typeIPM.equals("Головной убор")) {
+            File file1 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + "settings" + File.separator + "head-size.dat");
+            try (BufferedReader reader1 = new BufferedReader(new FileReader(file1))) {
+                String size = reader1.readLine();
+                while (size != null) {
+                    sizes.add(size);
+                    size = reader1.readLine();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            for (String s : sizes) {
+                sizeSizRepository.save(new SizeSiz(individualProtectionMeans, s));
+            }
+        }
+        if (typeIPM.equals("Перчатки")) {
+            File file1 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + "settings" + File.separator + "hand-size.dat");
+            try (BufferedReader reader1 = new BufferedReader(new FileReader(file1))) {
+                String size = reader1.readLine();
+                while (size != null) {
+                    sizes.add(size);
+                    size = reader1.readLine();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            for (String s : sizes) {
+                sizeSizRepository.save(new SizeSiz(individualProtectionMeans, s));
+            }
+        }
+        if (typeIPM.equals("Рукавицы")) {
+            File file1 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + "settings" + File.separator + "hand-size.dat");
+            try (BufferedReader reader1 = new BufferedReader(new FileReader(file1))) {
+                String size = reader1.readLine();
+                while (size != null) {
+                    sizes.add(size);
+                    size = reader1.readLine();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            for (String s : sizes) {
+                sizeSizRepository.save(new SizeSiz(individualProtectionMeans, s));
+            }
+        }
+        if (typeIPM.equals("Респиратор")) {
+            File file1 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + "settings" + File.separator + "respirator-size.dat");
+            try (BufferedReader reader1 = new BufferedReader(new FileReader(file1))) {
+                String size = reader1.readLine();
+                while (size != null) {
+                    sizes.add(size);
+                    size = reader1.readLine();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            for (String s : sizes) {
+                sizeSizRepository.save(new SizeSiz(individualProtectionMeans, s));
+            }
+        }
+        if (typeIPM.equals("Противогаз")) {
+            File file1 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + "settings" + File.separator + "gas-mask-size.dat");
+            try (BufferedReader reader1 = new BufferedReader(new FileReader(file1))) {
+                String size = reader1.readLine();
+                while (size != null) {
+                    sizes.add(size);
+                    size = reader1.readLine();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            for (String s : sizes) {
+                sizeSizRepository.save(new SizeSiz(individualProtectionMeans, s));
+            }
+        }
+
         return "redirect:/userPage/siz-types";
     }
 

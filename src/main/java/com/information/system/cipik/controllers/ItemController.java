@@ -11,6 +11,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -142,16 +147,16 @@ public class ItemController {
            // e.printStackTrace();
             System.out.println("Не удалось преобразовать дату полученную от клиента, будет установлена текущая дата");
         }
-        Item itemOnStorage = itemsRepository.findByNameAndUnitAndCodeAndArticleId(name, unit, code, article.getId());
+        Item itemOnStorage = itemsRepository.findByNameAndUnitAndNomenclatureAndArticleId(name, unit, code, article.getId());
         if (itemOnStorage != null){
             double num = itemOnStorage.getNumber();
             itemOnStorage.setNumber(num+Double.parseDouble(number));
             itemOnStorage.setPrice(price);
             itemsRepository.save(itemOnStorage);
-            comingRepository.save(new Coming(name,bill,number,price,unit,code,dateReceive,itemOnStorage));
+            comingRepository.save(new Coming(name,bill,number,price,unit,nomenclature,dateReceive,itemOnStorage));
         }else{
             Item item = new Item(bill,name,Double.parseDouble(number),unit,code,nomenclature,article,price);
-            comingRepository.save(new Coming(name,bill,number,price,unit,code,dateReceive,itemsRepository.save(item)));
+            comingRepository.save(new Coming(name,bill,number,price,unit,nomenclature,dateReceive,itemsRepository.save(item)));
         }
 
         return "redirect:/userPage/item-all";
@@ -174,7 +179,7 @@ public class ItemController {
     @PostMapping("/userPage/add-coming-for-item/{id}")
     public String saveComing(@PathVariable("id") long id,@RequestParam Article article, @RequestParam String name,
                              @RequestParam String number, @RequestParam String price, @RequestParam String unit,
-                             @RequestParam String code, @RequestParam String date, @RequestParam String bill,
+                             @RequestParam String date, @RequestParam String bill,
                              @RequestParam String nomenclature, Model model){
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date dateReceive = new Date();
@@ -185,12 +190,12 @@ public class ItemController {
             System.out.println("Не удалось преобразовать дату полученную от клиента, будет установлена текущая дата");
         }
 
-        Item itemOnStorage = itemsRepository.findByNameAndUnitAndCodeAndArticleId(name, unit, code, article.getId());
+        Item itemOnStorage = itemsRepository.findByNameAndUnitAndNomenclatureAndArticleId(name, unit, nomenclature, article.getId());
         if (itemOnStorage != null){
             double num = itemOnStorage.getNumber();
             itemOnStorage.setNumber(num+Double.parseDouble(number));
             itemsRepository.save(itemOnStorage);
-            comingRepository.save(new Coming(name,bill,number,price,unit,code,dateReceive,itemOnStorage));
+            comingRepository.save(new Coming(name,bill,number,price,unit,nomenclature,dateReceive,itemOnStorage));
         }else{
             System.out.println("Не найден МЦ на складе");
         }
@@ -204,6 +209,50 @@ public class ItemController {
     public String deleteItem(@PathVariable("id") Long id, Model model) {
         itemsRepository.deleteById(id);
         return "redirect:/userPage/item-all";
+    }
+
+    /*
+     * Открытие страницы просмотра всех приходов
+     */
+    @GetMapping("/userPage/item/all-coming")
+    public String getAllComings(Model model){
+        model.addAttribute("comings",comingRepository.findAllByOrderByDateOfReceive());
+        return "user/mto/item/coming/all-coming";
+    }
+
+    /*
+     * Открытие страницы просмотра всех выдач МЦ
+     */
+    @GetMapping("/userPage/item/all-issued")
+    public String getAllIssuedItems(Model model){
+        model.addAttribute("issued",issuanceItemsRepository.findAllByOrderByDateIssued());
+        return "user/mto/item/issuance-items/issuance-items-new";
+    }
+
+    /*
+     * Открыть страницу со списком всех актов списаний МЦ
+     */
+    @GetMapping("/userPage/item/all-write-off-acts")
+    public String getAllWriteOffActs(Model model){
+        model.addAttribute("writeOff",writeOffActRepository.findAllByOrderByDateAct());
+        return "user/mto/item/write-off-act/write-off-act-new";
+    }
+    /*
+     * Скачивание с сервера файла акта списания
+     */
+    @GetMapping("/userPage/item/write-off-act/get/{id}")
+    public ResponseEntity<Object> serveFileOfAct(@PathVariable("id") long id){
+        FileWriteOffAct file = fileWriteOffActService.getFile(id);
+        InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(file.getData()));
+        HttpHeaders headers = new HttpHeaders();
+
+        String nameFileDownload = file.getName();
+        headers.add("Content-Disposition", String.format("attachment; filename=\"%s\"", nameFileDownload));
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+        return ResponseEntity.ok().headers(headers).contentLength(file.getData().length).contentType(
+        MediaType.parseMediaType(file.getType())).body(resource);
     }
 
 ///////////выдачи МЦ///////////////////

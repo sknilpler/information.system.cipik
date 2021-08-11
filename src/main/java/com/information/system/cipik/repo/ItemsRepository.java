@@ -15,11 +15,10 @@ public interface ItemsRepository extends CrudRepository<Item, Long> {
      *
      * @param name наименование МЦ
      * @param unit единицы измерения
-     * @param code номенклатурный номер
      * @param id   ID статьи
      * @return МЦ (Item)
      */
-    Item findByNameAndUnitAndCodeAndArticleId(String name, String unit, String code, long id);
+    Item findByNameAndUnitAndNomenclatureAndArticleId(String name, String unit, String nomenclature, long id);
 
     /**
      * Поиск на складе МЦ по количеству

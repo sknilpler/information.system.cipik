@@ -9,4 +9,6 @@ public interface IssuanceItemsRepository extends CrudRepository<IssuanceItems,Lo
 
     List<IssuanceItems> findAllByItemId(Long id);
 
+    List<IssuanceItems> findAllByOrderByDateIssued();
+
 }

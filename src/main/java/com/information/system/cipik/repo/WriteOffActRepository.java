@@ -9,4 +9,6 @@ public interface WriteOffActRepository extends JpaRepository<WriteOffAct, Long> 
 
     List<WriteOffAct> findAllByItemId(Long id);
 
+    List<WriteOffAct> findAllByOrderByDateAct();
+
 }

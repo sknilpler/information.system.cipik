@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Администрирование</title>
+    <title>Склад</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/sidebar.css">
@@ -28,9 +28,10 @@
             <div class="pagination justify-content-start">
                 <div class="d-flex justify-content-start flex-wrap">
                     <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
-                    <a th:href="'/userPage/coming-add'" class="btn btn-success mx-1">Добавить</a>
+                    <a th:href="'/userPage/coming-add'" class="btn btn-success mx-1">Новый приход</a>
                 </div>
             </div>
+            <br>
             <div class="bd-example" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;">
                 <table class="table table-bordered">
                     <thead>
@@ -48,13 +49,13 @@
                         <th scope="col">Код</th>
                         <th scope="col">Кол-во</th>
                         <th scope="col" style="width: 310px;">
-                            <button sec:authorize="hasRole('ROLE_USER')" class="btn border-0 btn-sm" name="btn_do_some"  th:onclick="'javascript:sendListIdsToIssued();'" title="Выдать подразделению" disabled>
+                            <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-outline-primary btn-sm" name="btn_do_some"  th:onclick="'javascript:sendListIdsToIssued();'" title="Выдать подразделению" disabled>
                                 <img src="/images/bootstrap-icons/clipboard-check.svg" alt="Bootstrap" width="20"
-                                     height="16" style="filter: invert (1);">
+                                     height="20" style="filter: invert (1);">
                             </button>
-                            <button sec:authorize="hasRole('ROLE_USER')" class="btn border-0 btn-sm" name="btn_do_some"  th:onclick="'javascript:sendListIdsToWriteOff();'" title="Списать" disabled>
+                            <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-outline-danger btn-sm" name="btn_do_some"  th:onclick="'javascript:sendListIdsToWriteOff();'" title="Списать" disabled>
                                 <img src="/images/bootstrap-icons/clipboard-x.svg" alt="Bootstrap" width="20"
-                                     height="16" style="filter: invert (1);">
+                                     height="20" style="filter: invert (1);">
                             </button>
                         </th>
                     </tr>
@@ -74,15 +75,9 @@
                         <td th:text="${el.code}"></td>
                         <td th:text="${el.number}"></td>
                         <td>
-<!--                            <form th:action="'/userPage/item/'+${el.id}+'/remove'" method="post">-->
-<!--                                <button class="btn btn-danger btn-sm" type="submit" title="Удалить">-->
-<!--                                    <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"-->
-<!--                                                                                  height="16" style="filter: invert (1);">-->
-<!--                                </button>-->
-<!--                            </form>-->
-                            <button class="btn btn-danger btn-sm" th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'" title="Удалить">
-                                <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"
-                                     height="16" style="filter: invert (1);">
+                            <button class="btn btn-outline-danger btn-sm" th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'" title="Удалить">
+                                <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="18"
+                                     height="18" style="filter: invert (1);">
                             </button>
                         </td>
                     </tr>

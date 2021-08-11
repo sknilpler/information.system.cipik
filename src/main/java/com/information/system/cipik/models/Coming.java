@@ -24,7 +24,7 @@ public class Coming {
     private String number;      //количество
     private String price;       //стоимость за единицу
     private String unit;        //единицы измерения
-    private String code;        //номенклатурный номер
+    private String nomenclature;        //номенклатурный номер
     private Date dateOfReceive; //дата прихода
 
     @ManyToOne
@@ -37,16 +37,16 @@ public class Coming {
      * @param number        количество
      * @param price         стоимость за единицу
      * @param unit          единицы измерения
-     * @param code          номенклатурный номер
+     * @param nomenclature          номенклатурный номер
      * @param dateOfReceive дата прихода
      */
-    public Coming(String name,String bill, String number, String price, String unit, String code, Date dateOfReceive, Item item) {
+    public Coming(String name,String bill, String number, String price, String unit, String nomenclature, Date dateOfReceive, Item item) {
         this.name = name;
         this.bill = bill;
         this.number = number;
         this.price = price;
         this.unit = unit;
-        this.code = code;
+        this.nomenclature = nomenclature;
         this.dateOfReceive = dateOfReceive;
         this.item= item;
     }

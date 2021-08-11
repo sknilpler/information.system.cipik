@@ -9,5 +9,9 @@ public interface ComingRepository extends CrudRepository<Coming,Long> {
 
     List<Coming> findAllByItemId(Long id);
 
+    List<Coming> findAllByOrderByDateOfReceive();
+
+  //  List<Coming> findAllByItemIdByOrderByDateOfReceive(Long id);
+
 
 }
