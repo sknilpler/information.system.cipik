@@ -30,9 +30,13 @@
                     <a th:href="'/'" class="btn btn-secondary mx-auto">Назад</a>
                     <a th:href="'/userPage/coming-add'" class="btn btn-success mx-1">Новый приход</a>
                 </div>
+                <div>
+                    <label for="textSearch" class="form-label">Поиск</label>
+                    <input id="textSearch" type="text" name="keyword" oninput="searching(this.value)">
+                </div>
             </div>
             <br>
-            <div class="bd-example" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;">
+            <div class="item-table" th:fragment="item-table" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;">
                 <table class="table table-bordered">
                     <thead>
                     <tr>
@@ -301,6 +305,22 @@ function writeOff() {
 
 	}
 }
+/////////////////////////////////
+    function searching(value) {
+        search_keyword = value;
+    	if (value.length === 0) {
+    	    search_keyword = '0'
+    		value = 0;
+    	}
+    	$.ajax({
+    		type: 'get',
+    		url: '/userPage/item-all/search/' + value,
+    		success: function(data) {
+    			$('.item-table').html(data);
+    		},
+    	});
+    };
+//////////////////////////////////////
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

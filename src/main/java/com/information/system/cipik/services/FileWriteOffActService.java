@@ -25,4 +25,8 @@ public class FileWriteOffActService {
         return fileWriteOffActRepository.findById(id).orElse(null);
     }
 
+    public void deleteFile(Long id){
+        fileWriteOffActRepository.deleteById(id);
+    }
+
 }

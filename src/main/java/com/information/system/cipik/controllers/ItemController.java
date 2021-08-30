@@ -4,6 +4,9 @@ package com.information.system.cipik.controllers;
 import com.information.system.cipik.models.*;
 import com.information.system.cipik.repo.*;
 import com.information.system.cipik.services.FileWriteOffActService;
+import com.information.system.cipik.utils.ComingItemsExcelExporter;
+import com.information.system.cipik.utils.IssuanceItemsExcelExporter;
+import com.information.system.cipik.utils.WriteOffActExcelExporter;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -48,11 +51,27 @@ public class ItemController {
     @Autowired
     public FileWriteOffActService fileWriteOffActService;
 
+
     @GetMapping("/userPage/item-all")
     public String allItem(Model model) {
         List<Item> items = itemsRepository.findAllNotEmpty();
         model.addAttribute("allItems", items);
         return "user/mto/item/item-all";
+    }
+
+    /*
+     * Поиск по таблице склада МЦ
+     */
+    @GetMapping("/userPage/item-all/search/{keyword}")
+    public String searchItemsByKeyword(@PathVariable("keyword") String keyword, Model model){
+        List<Item> items = new ArrayList<>();
+        if (keyword.equals("0")) {
+            items = itemsRepository.findAllNotEmpty();
+        } else {
+            items = itemsRepository.searchingItemsByKeyword(keyword);
+        }
+        model.addAttribute("allItems", items);
+        return "user/mto/item/item-all :: item-table";
     }
 
     ////////////////////статьи расхода//////////////////////////
@@ -91,7 +110,7 @@ public class ItemController {
         return "user/mto/item/article/article-edit";
     }
 
-    /*
+    /**
      * Сохранение статьи после редактирования
      *
      * @param id   ID статьи
@@ -216,8 +235,119 @@ public class ItemController {
      */
     @GetMapping("/userPage/item/all-coming")
     public String getAllComings(Model model){
-        model.addAttribute("comings",comingRepository.findAllByOrderByDateOfReceive());
+        model.addAttribute("comings",comingRepository.findAllByOrderByDateOfReceiveDesc());
         return "user/mto/item/coming/all-coming";
+    }
+    /*
+     * Удаление прихода из базы
+     */
+    @PostMapping("/userPage/item/del-coming/{id}/remove")
+    public String deleteComing(@PathVariable("id") long id,Model model){
+        comingRepository.deleteById(id);
+        model.addAttribute("comings",comingRepository.findAllByOrderByDateOfReceiveDesc());
+        return "user/mto/item/coming/all-coming";
+    }
+
+    /*
+     * Поиск по таблице прихода
+     */
+    @GetMapping("/userPage/item/coming/search/{keyword}")
+    public String searchComingItemsByKeyword(@PathVariable("keyword") String keyword, Model model){
+        Iterable<Coming> comings;
+        if (keyword.equals("0")) {
+            comings = comingRepository.findAllByOrderByDateOfReceiveDesc();
+        } else {
+            comings = comingRepository.searchComingsByKeyword(keyword);
+        }
+        model.addAttribute("comings", comings);
+        return "user/mto/item/coming/all-coming :: coming-table";
+    }
+
+    /*
+     * Поиск по таблице прихода с фильтрацией по дате
+     */
+    @GetMapping("/userPage/item/coming/search/{keyword}/filter/{date1}/{date2}")
+    public String searchComingItemsByKeywordAndDate(@PathVariable("keyword") String keyword,
+                                                    @PathVariable("date1") String date1,
+                                                    @PathVariable("date2") String date2, Model model){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d1 = new Date();
+        Date d2 = new Date();
+        try {
+            d1 = format.parse(date1);
+            d2 = format.parse(date2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Iterable<Coming> comings;
+        if (keyword.equals("0")) {
+            comings = comingRepository.findAllBetweenDates(d1,d2);
+        } else {
+            comings = comingRepository.searchComingsByKeywordAndDate(keyword,d1,d2);
+        }
+        model.addAttribute("comings", comings);
+        return "user/mto/item/coming/all-coming :: coming-table";
+    }
+
+    /*
+     * Фильтрация таблицы приходов по дате
+     */
+    @GetMapping("/userPage/item/coming/filter/{date1}/{date2}")
+    public String filterComingItemsByDate(@PathVariable("date1") String date1,
+                                          @PathVariable("date2") String date2, Model model){
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d1 = new Date();
+        Date d2 = new Date();
+        try {
+            d1 = format.parse(date1);
+            d2 = format.parse(date2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        model.addAttribute("comings", comingRepository.findAllBetweenDates(d1,d2));
+        return "user/mto/item/coming/all-coming :: coming-table";
+    }
+
+    /*
+     * Печать списка приходов
+     */
+    @GetMapping("/userPage/item/coming/print/{search}/{date1}/{date2}")
+    public void printComingItems(HttpServletResponse response, @PathVariable(value = "search") String search,
+                                 @PathVariable(value = "date1") String date1,
+                                 @PathVariable(value = "date2") String date2) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=spisok_prihodov.xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        Iterable<Coming> comings;
+        if (!date1.equals("0") && !date2.equals("0")){
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            Date d1 = new Date();
+            Date d2 = new Date();
+            try {
+                d1 = format.parse(date1);
+                d2 = format.parse(date2);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            if (search.equals("0")) {
+                comings = comingRepository.findAllBetweenDates(d1,d2);
+            } else {
+                comings = comingRepository.searchComingsByKeywordAndDate(search,d1,d2);
+            }
+        } else {
+            if (search.equals("0")) {
+                comings = comingRepository.findAllByOrderByDateOfReceiveDesc();
+            } else {
+                comings = comingRepository.searchComingsByKeyword(search);
+            }
+        }
+
+        ComingItemsExcelExporter excelExporter = new ComingItemsExcelExporter((List<Coming>) comings);
+        excelExporter.export(response);
     }
 
     /*
@@ -225,8 +355,122 @@ public class ItemController {
      */
     @GetMapping("/userPage/item/all-issued")
     public String getAllIssuedItems(Model model){
-        model.addAttribute("issued",issuanceItemsRepository.findAllByOrderByDateIssued());
+        model.addAttribute("issued",issuanceItemsRepository.findAllByOrderByDateIssuedDesc());
+        model.addAttribute("komplexs", komplexRepository.findAll());
         return "user/mto/item/issuance-items/issuance-items-new";
+    }
+
+    /*
+     * Удаление выдачи МЦ из базы
+     */
+    @PostMapping("/userPage/item/del-issued/{id}/remove")
+    public String deleteIssuedItem(@PathVariable("id") long id, Model model){
+        issuanceItemsRepository.deleteById(id);
+        model.addAttribute("issued",issuanceItemsRepository.findAllByOrderByDateIssuedDesc());
+        return "user/mto/item/issuance-items/issuance-items-new";
+    }
+
+    /*
+     * Поиск по таблице выдачи МЦ
+     */
+    @GetMapping("/userPage/item/issuance-items/search/{keyword}")
+    public String searchIssuanceItemsByKeyword(@PathVariable("keyword") String keyword, Model model){
+        Iterable<IssuanceItems> items;
+        if (keyword.equals("0")) {
+            items = issuanceItemsRepository.findAllByOrderByDateIssuedDesc();
+        } else {
+            items = issuanceItemsRepository.searchByKeyword(keyword);
+        }
+        model.addAttribute("issued", items);
+        return "user/mto/item/issuance-items/issuance-items-new :: table-issued-items";
+    }
+
+
+    /*
+     * Поиск по таблице выдачи МЦ с фильтрацией по дате
+     */
+    @GetMapping("/userPage/item/issuance-items/search/{keyword}/filter/{date1}/{date2}")
+    public String searchIssuanceItemsByKeywordAndDate(@PathVariable("keyword") String keyword,
+                                                    @PathVariable("date1") String date1,
+                                                    @PathVariable("date2") String date2, Model model){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d1 = new Date();
+        Date d2 = new Date();
+        try {
+            d1 = format.parse(date1);
+            d2 = format.parse(date2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Iterable<IssuanceItems> items;
+        if (keyword.equals("0")) {
+            items = issuanceItemsRepository.findAllBetweenDates(d1,d2);
+        } else {
+            items = issuanceItemsRepository.searchByKeywordAndBetweenDates(keyword,d1,d2);
+        }
+        model.addAttribute("issued", items);
+        return "user/mto/item/issuance-items/issuance-items-new :: table-issued-items";
+    }
+
+    /*
+     * Фильтрация таблицы выдачи МЦ по дате
+     */
+    @GetMapping("/userPage/item/issuance-items/filter/{date1}/{date2}")
+    public String filterIssuanceItemsByDate(@PathVariable("date1") String date1,
+                                          @PathVariable("date2") String date2, Model model){
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d1 = new Date();
+        Date d2 = new Date();
+        try {
+            d1 = format.parse(date1);
+            d2 = format.parse(date2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        model.addAttribute("issued", issuanceItemsRepository.findAllBetweenDates(d1,d2));
+        return "user/mto/item/issuance-items/issuance-items-new :: table-issued-items";
+    }
+
+    /*
+     * Печать списка выданного МЦ
+     */
+    @GetMapping("/userPage/item/issuance-items/print/{search}/{date1}/{date2}")
+    public void printIssuanceItems(HttpServletResponse response, @PathVariable(value = "search") String search,
+                                 @PathVariable(value = "date1") String date1,
+                                 @PathVariable(value = "date2") String date2) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=spisok_vidannogo_mc.xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        Iterable<IssuanceItems> items;
+        if (!date1.equals("0") && !date2.equals("0")){
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            Date d1 = new Date();
+            Date d2 = new Date();
+            try {
+                d1 = format.parse(date1);
+                d2 = format.parse(date2);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            if (search.equals("0")) {
+                items = issuanceItemsRepository.findAllBetweenDates(d1,d2);
+            } else {
+                items = issuanceItemsRepository.searchByKeywordAndBetweenDates(search,d1,d2);
+            }
+        } else {
+            if (search.equals("0")) {
+                items = issuanceItemsRepository.findAllByOrderByDateIssuedDesc();
+            } else {
+                items = issuanceItemsRepository.searchByKeyword(search);
+            }
+        }
+
+        IssuanceItemsExcelExporter excelExporter = new IssuanceItemsExcelExporter((List<IssuanceItems>) items);
+        excelExporter.export(response);
     }
 
     /*
@@ -234,9 +478,10 @@ public class ItemController {
      */
     @GetMapping("/userPage/item/all-write-off-acts")
     public String getAllWriteOffActs(Model model){
-        model.addAttribute("writeOff",writeOffActRepository.findAllByOrderByDateAct());
+        model.addAttribute("writeOff",writeOffActRepository.findAllByOrderByDateActDesc());
         return "user/mto/item/write-off-act/write-off-act-new";
     }
+
     /*
      * Скачивание с сервера файла акта списания
      */
@@ -255,6 +500,121 @@ public class ItemController {
         MediaType.parseMediaType(file.getType())).body(resource);
     }
 
+   /*
+    * Удаление акта списания
+    */
+    @PostMapping("/userPage/item/write-off-act/{id}/remove")
+    public String deleteWriteOffAct(@PathVariable("id") long id, Model model){
+        WriteOffAct writeOffAct = writeOffActRepository.findById(id).orElse(null);
+        fileWriteOffActService.deleteFile(writeOffAct.getFileWriteOffAct().getId());
+        writeOffActRepository.delete(writeOffAct);
+        model.addAttribute("writeOff",writeOffActRepository.findAllByOrderByDateActDesc());
+        return "user/mto/item/write-off-act/write-off-act-new";
+    }
+
+    /*
+     * Поиск по таблице актов списания
+     */
+    @GetMapping("/userPage/item/write-off-act/search/{keyword}")
+    public String searchWriteOffActByKeyword(@PathVariable("keyword") String keyword, Model model){
+        Iterable<WriteOffAct> woa;
+        if (keyword.equals("0")) {
+            woa = writeOffActRepository.findAllByOrderByDateActDesc();
+        } else {
+            woa = writeOffActRepository.searchByKeyword(keyword);
+        }
+        model.addAttribute("writeOff", woa);
+        return "user/mto/item/write-off-act/write-off-act-new :: table-write-off-act";
+    }
+
+
+    /*
+     * Поиск по таблице актов списания с фильтрацией по дате
+     */
+    @GetMapping("/userPage/item/write-off-act/search/{keyword}/filter/{date1}/{date2}")
+    public String searchWriteOffActByKeywordAndDate(@PathVariable("keyword") String keyword,
+                                                      @PathVariable("date1") String date1,
+                                                      @PathVariable("date2") String date2, Model model){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d1 = new Date();
+        Date d2 = new Date();
+        try {
+            d1 = format.parse(date1);
+            d2 = format.parse(date2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Iterable<WriteOffAct> woa;
+        if (keyword.equals("0")) {
+            woa = writeOffActRepository.findAllBetweenDates(d1,d2);
+        } else {
+            woa = writeOffActRepository.searchByKeywordAndBetweenDates(keyword,d1,d2);
+        }
+        model.addAttribute("writeOff", woa);
+        return "user/mto/item/write-off-act/write-off-act-new :: table-write-off-act";
+    }
+
+    /*
+     * Фильтрация таблицы актов списания по дате
+     */
+    @GetMapping("/userPage/item/write-off-act/filter/{date1}/{date2}")
+    public String filterWriteOffActByDate(@PathVariable("date1") String date1,
+                                            @PathVariable("date2") String date2, Model model){
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d1 = new Date();
+        Date d2 = new Date();
+        try {
+            d1 = format.parse(date1);
+            d2 = format.parse(date2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        model.addAttribute("writeOff", writeOffActRepository.findAllBetweenDates(d1,d2));
+        return "user/mto/item/write-off-act/write-off-act-new :: table-write-off-act";
+    }
+
+    /*
+     * Печать списка актов списания
+     */
+    @GetMapping("/userPage/item/write-off-act/print/{search}/{date1}/{date2}")
+    public void printWriteOffActs(HttpServletResponse response, @PathVariable(value = "search") String search,
+                                   @PathVariable(value = "date1") String date1,
+                                   @PathVariable(value = "date2") String date2) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=spisok_aktov_spisaniya.xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        Iterable<WriteOffAct> woa;
+        if (!date1.equals("0") && !date2.equals("0")){
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            Date d1 = new Date();
+            Date d2 = new Date();
+            try {
+                d1 = format.parse(date1);
+                d2 = format.parse(date2);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            if (search.equals("0")) {
+                woa = writeOffActRepository.findAllBetweenDates(d1,d2);
+            } else {
+                woa = writeOffActRepository.searchByKeywordAndBetweenDates(search,d1,d2);
+            }
+        } else {
+            if (search.equals("0")) {
+                woa = writeOffActRepository.findAllByOrderByDateActDesc();
+            } else {
+                woa = writeOffActRepository.searchByKeyword(search);
+            }
+        }
+
+        WriteOffActExcelExporter excelExporter = new WriteOffActExcelExporter((List<WriteOffAct>) woa);
+        excelExporter.export(response);
+    }
+
 ///////////выдачи МЦ///////////////////
 
     /*
@@ -271,6 +631,7 @@ public class ItemController {
         model.addAttribute("items_issued",items);
         return "user/mto/item/blocks/issued-modal :: table-mc";
     }
+
     /*
      * Сохранение и печать выданных МЦ
      */

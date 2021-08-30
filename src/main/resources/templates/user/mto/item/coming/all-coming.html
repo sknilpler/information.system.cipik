@@ -22,7 +22,39 @@
         <div class="container-fluid">
             <h1>Приходы</h1>
             <br>
-            <div class="bd-example" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;">
+            <div class="row">
+                <div class="col-sm-3">
+                    <label for="textSearch" class="form-label">Поиск</label>
+                    <input id="textSearch" type="text" name="keyword" oninput="searching(this.value)">
+                </div>
+                <div class="row col-sm-4">
+                    <div class="col-sm-4">
+                        <input type="date" name="date1" id="date1" th:attr="max=${now}" placeholder="Выберите начальную дату">
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="date" name="date2" id="date2" th:attr="max=${now}" placeholder="Выберите конечную дату">
+                    </div>
+                    <div class="col-sm-4 row">
+                        <div class="col-sm-6">
+                            <button class="btn btn-primary btn-sm" th:onclick="'javascript:filterByDate()'">Применить</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="/userPage/item/all-coming" class="btn btn-secondary btn-sm">Сбросить</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+
+                </div>
+                <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button class="btn btn-outline-secondary btn-sm float-right"
+                            th:onclick="'javascript:print();'"
+                            aria-label="Распечатать" title="Печать таблицы">
+                        <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                    </button>
+                </div>
+            </div>
+            <div class="coming-table" th:fragment="coming-table" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;">
                 <table class="table table-bordered">
                     <thead>
                     <tr>
@@ -78,8 +110,7 @@
     </div>
 </div>
 <script th:inline="javascript">
-    ///////////////open sidebar///////////////////
-
+///////////////open sidebar///////////////////
       var menu_btn = document.querySelector("#menu-btn");
       var sidebar = document.querySelector("#sidebar");
       var container = document.querySelector(".my-container");
@@ -87,8 +118,130 @@
         sidebar.classList.toggle("active-nav");
         container.classList.toggle("active-cont");
       });
-
 /////////////////////////////////
+function closeModalWindow() {
+	$("#deleteAccept").modal('hide');
+};
+
+var id_del;
+
+function showDeleteModalWindow(id){
+    id_del = id;
+    document.getElementById("delete-object").innerHTML = "Вы точно хотите удалить?";
+    $("#deleteAccept").modal('show');
+}
+
+function deleteObject(){
+    post('/userPage/item/del-coming/'+id_del+'/remove');
+}
+
+function post(path, method='post') {
+  const form = document.createElement('form');
+  form.method = method;
+  form.action = path;
+  const hiddenField = document.createElement('input');
+  hiddenField.type = 'hidden';
+  form.appendChild(hiddenField);
+  document.body.appendChild(form);
+  form.submit();
+}
+//////////////////////////////////////
+ function searching(value) {
+         search_keyword = value;
+    	 if (value.length === 0) {
+    	    search_keyword = '0'
+    		value = 0;
+    	 }
+    	 var date1 = document.getElementById("date1").value;
+         var date2 = document.getElementById("date2").value;
+         if (date1 != '') {
+            if (date2 != '') {
+                date2 = formatDateToEng(new Date());
+            }
+            $.ajax({
+    		    type: 'get',
+    		    url: '/userPage/item/coming/search/' + value + '/filter/' + date1 + '/' + date2,
+    		    success: function(data) {
+    			    $('.coming-table').html(data);
+    		    },
+    	    });
+         } else {
+            $.ajax({
+    		    type: 'get',
+    		    url: '/userPage/item/coming/search/' + value,
+    		    success: function(data) {
+    			    $('.coming-table').html(data);
+    		    },
+    	    });
+         }
+ };
+//////////////////////////////////////
+function filterByDate(){
+    var date1 = document.getElementById("date1").value;
+    var date2 = document.getElementById("date2").value;
+    if ((date1 === '') || (date1 === ' ') || (date1 === null)){
+       location.reload();
+    } else {
+        if ((date2 === '') || (date2 === ' ') || (date2 === null)){
+            date2 = formatDateToEng(new Date());
+            document.getElementById("date2").value = date2;
+        }
+        $.ajax({
+    		type: 'get',
+    		url: '/userPage/item/coming/filter/' + date1 + '/' + date2,
+    		success: function(data) {
+    			$('.coming-table').html(data);
+    		},
+    	});
+    }
+}
+/////////////////////////////////////////
+function formatDateToEng(dateTime){
+        var dd = String(dateTime.getDate()).padStart(2, '0');
+        var mm = String(dateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = dateTime.getFullYear();
+
+        return yyyy + '-' + mm + '-' + dd;
+}
+//////////////////////////////////////////
+function print(){
+
+    var date1 = document.getElementById("date1").value;
+    var date2 = document.getElementById("date2").value;
+    var textSearch = document.getElementById("textSearch").value;
+
+    if (date1.length === 0){
+        date1 = '0';
+    }
+    if (date2.length === 0){
+        date2 = '0';
+    }
+    if (textSearch.length === 0){
+        textSearch = '0';
+    }
+
+    $.ajax({
+        type : "GET",
+        contentType : "application/json",
+        accept: 'text/plain',
+        url: '/userPage/item/coming/print/' + textSearch + '/' + date1 + '/' + date2,
+        dataType: 'binary',
+        xhrFields: {
+             'responseType':'blob'
+        },
+        success: function(data,status,xhr) {
+                 var blob = new Blob([data],{type: xhr.getResponseHeader('Content-Type')});
+                 var link = document.createElement('a');
+                 link.href = window.URL.createObjectURL(blob);
+                 link.download = 'Список приходов.xlsx';
+                 link.click();
+        },
+        error : function(e) {
+                 alert("Error!")
+                 console.log("ERROR: ", e);
+        }
+    });
+}
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>
