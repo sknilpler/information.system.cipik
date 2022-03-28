@@ -1,0 +1,352 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <title>Выдача СИЗ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <script type="text/javascript" src="/js/jquery.min.js"></script>
+  <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+  <style>
+            #tb tr:hover {background:#E2EEFF;}
+            #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+    </style>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<!-- Modal window for extend SIZ -->
+<div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
+     aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLiveLabel">Продление ресурса</h5>
+        <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                onclick="closeModalWindow()">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="md-2" for="extendDate">Выберите дату продления ресурса</label>
+        <input type="date" id="extendDate" name="extendDate" class="form-control"
+               placeholder="Выберите дату" onchange="setDateExtending(this.value)"
+               th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
+          Закрыть
+        </button>
+        <button type="button" class="btn btn-primary" onclick="extendSIZ()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal window -->
+
+<!-- Modal window for writeoff SIZ -->
+<div id="exampleModalLive2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel2"
+     aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLiveLabel2">Списание</h5>
+        <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                onclick="closeModalWindow()">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="md-2" for="act">Акт списания</label>
+        <input type="text" id="act" name="act" class="form-control"
+               placeholder="Введите наименование акта списания" onchange="setActWriteoff(this.value)"/>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
+          Закрыть
+        </button>
+        <button type="button" class="btn btn-primary" onclick="writeoffSIZ()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal window -->
+<!-- Modal window for error issued SIZ -->
+<div id="exampleModalLive3" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLive3Label"
+     aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLive3Label">Проблемы при выдаче СИЗ сотрудникам</h5>
+        <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                onclick="closeModalWindow()">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="table-errors" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;"
+             th:fragment="table-errors">
+          <table class="table table-hover" id="tb_err">
+            <thead>
+            <tr>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${errors}">
+              <td th:text="${e}"></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
+          Закрыть
+        </button>
+        <!--                <button type="button" class="btn btn-primary" onclick="extendSIZ()">Сохранить</button>-->
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal window -->
+<!-- Side panel -->
+<div class="d-flex">
+  <div th:insert="user/mto/sidebar :: sidebar"></div>
+  <!-- Side panel -->
+  <div class="my-container active-cont container-fluid">
+    <div class="panel-body">
+      <div class="row align-items-md-stretch mb-4">
+        <div class="col-sm-6">
+          <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+            <select  sec:authorize="hasAnyRole('ROLE_USER')" class="form-control" id="komplex" name="komplex"
+                     th:onchange="'javascript:loadEmployeesForSelectedKomplex();'" required>
+              <option selected disabled value="">Выберите подразделение</option>
+              <option th:each="k : ${komplexs}" th:value="${k.id}"
+                      th:text="${k.shortName}"></option>
+            </select>
+            <hr>
+            <div>
+              <label for="textSearch" class="form-label">Поиск по сотрудникам</label>
+              <input id="textSearch" type="text" name="keyword" oninput="searchingByEmployee(this.value)">
+            </div>
+            <hr>
+            <span class="lead">Список сотрудников</span>
+            <div class="table-employees" style="max-height: 50vh; min-height: 30vh; overflow-y: auto;"
+                 th:fragment="table-employees">
+              <table class="table table-hover" id="tb">
+                <thead>
+                <tr>
+                  <th style="display:none;"></th>
+                  <th style="5%">
+                    <input type="checkbox" name="all-checkbox"  th:onchange="'javascript:selectAllRecord(this);'" disabled>
+                  </th>
+                  <th style="width: 40%">ФИО</th>
+                  <th>Должность</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="e : ${employees}">
+                  <td style="display:none;" name="id-empl" th:text="${e.id}"></td>
+                  <td>
+                    <input type="checkbox" name="record-checkbox" th:onchange="'javascript:selectRecord(this,\'' + ${e.id} + '\');'" disabled>
+                  </td>
+                  <td th:text="${e.surname}+' '+${#strings.substring(e.name,0,1)}+' '+${#strings.substring(e.patronymic,0,1)}"
+                      th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                  <td th:text="${e.post.postName}"
+                      th:onclick="'javascript:rowClicked(\'' + ${e.id} + '\');'"></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <br>
+        <div class="col-sm-6">
+          <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
+            <select class="form-control" id="post" name="post"
+                    th:onchange="'javascript:loadEmployeesForSelectedPost();'">
+              <option selected disabled value="">Выберите должность</option>
+              <option th:each="post : ${posts}" th:value="${post.id}"
+                      th:text="${post.postName}"></option>
+            </select>
+            <hr>
+            <div class="row">
+              <div class="col-sm-12">
+                <label for="typeSIZ" class="md-2">Типы СИЗ для работников</label>
+                <select class="form-control" id="typeSIZ" name="typeSIZ" th:onchange="'javascript:selectTypeSiz(this);'" required>
+                  <option value="">Выберите СИЗ</option>
+                  <option th:each="t : ${typeSIZS}" th:value="${t.id}"
+                          th:text="${t.nameSIZ}"></option>
+                </select>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="list-sizes"
+                     th:fragment="list-sizes">
+                  <label class="md-2" for="size">Размеры СИЗ</label>
+                  <select class="form-control" id="size" name="size" required disabled>
+                    <option value="">Выберите размер</option>
+                    <option th:each="s : ${sizes}" th:value="${s}"
+                            th:text="${s}"></option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="md-2" for="height">Рост (для одежды)</label>
+                <select class="form-select" aria-label="example" name="height" id="height" disabled>
+                  <option selected value="non">Выберите рост</option>
+                  <option value="1-2">1-2 (150-160)</option>
+                  <option value="3-4">3-4 (160-170)</option>
+                  <option value="5-6">5-6 (170-180)</option>
+                  <option value="7-8">7-8 (180-190)</option>
+                </select>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="md-2" for="number">Количество подобного СИЗ</label>
+                <input type="text" id="number" name="number" class="form-control"
+                       placeholder="Введите количество"/>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="md-2" for="nomenclatureNumber">Номенклатурный номер</label>
+                <div class="md-7">
+                  <input type="text" id="nomenclatureNumber" name="nomenclatureNumber" class="form-control"
+                         placeholder="Введите Номенклатурный номер" required/>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="md-2">Дата выдачи</label>
+                <div class="md-7">
+                  <input type="date" id="backdate" name="backdate" required>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="md-2" for="serviceLife">Срок носки</label>
+                <input type="text" id="serviceLife" name="serviceLife" class="form-control"
+                       placeholder="Введите количество месяцев"/>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="md-2"> </label>
+                <div class="container mt-1 form-actions floatRight">
+                  <button class="btn btn-danger btn-sm" name="iss-btn"
+                          th:onclick="'javascript:saveIssuedSIZToEmployee();'" disabled>Выдать</button>
+                </div>
+              </div>
+
+            </div>
+            <hr>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="h-100 p-2 bg-light border rounded-3 shadow-sm">
+          <div class="table-issuedSiz" th:fragment="table-issuedSiz">
+            <div class="row align-items-md-stretch mb-4">
+              <div class="col-sm-11">
+                            <span class="lead"
+                                  th:text="'Список выданного СИЗ сотруднику '+${selectedEmployee.surname}+' '+${selectedEmployee.name}+' '+${selectedEmployee.patronymic}"></span>
+              </div>
+              <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
+                <button class="btn btn-outline-danger btn-sm float-right"
+                        aria-label="Распечатать" title="Имеются проблемы с выдачей СИЗ"
+                        th:onclick="'javascript:showModalWindow3();'"
+                        th:if="${not #lists.isEmpty(errors)}">
+                  <img src="/images/bootstrap-icons/clipboard-x.svg" alt="Bootstrap" width="24"
+                       height="24">
+                </button>
+                <form th:action="'/userPage/employee-siz/print-personal-card/'+${selectedEmployee.id}"
+                      method="get">
+                  <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
+                          aria-label="Распечатать" title="Печать личной карточки">
+                    <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24"
+                         height="24">
+                  </button>
+                </form>
+              </div>
+            </div>
+            <!--                        <p class="fs-6 text-danger" th:text="${issuedError}"></p>-->
+            <div class="table-responsive" style="max-height: 40vh; min-height: 30vh; overflow-y: auto;">
+              <table class="table table-hover">
+                <thead>
+                <tr>
+                  <th>Наименование</th>
+                  <th align="center">Дата выдачи</th>
+                  <th align="center">Дата окончания носки</th>
+                  <th style="width: 320px;"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
+                  <td th:text="${s.siz.nameSIZ}"></td>
+                  <td align="center" th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
+                  <td align="center" th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
+                  <td>
+                    <button class="btn btn-danger btn-sm" type="button"
+                            th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'">Списать
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm"
+                            th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить
+                    </button>
+                    <button class="btn btn-warning btn-sm" type="button"
+                            th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить
+                      выдачу
+                    </button>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript" src="/js/pagecontrol/issued-siz-add.js"></script>
+<script th:inline="javascript">
+  var id_typeSiz;
+  function selectTypeSiz(elem){
+    id_typeSiz = parseInt(elem.value);
+    /*<![CDATA[*/
+        var list1 =[];
+        var list2 =[];
+ 	/*[# th:each="elVar : ${typeSIZS}"]*/
+ 	    list1.push(/*[[${elVar.id}]]*/);
+ 	    list2.push(/*[[${elVar.typeIPM}]]*/);
+    /*[/]*/
+    /*]]>*/
+    var type = "";
+    for (var i = 0; i < list1.length; i++) {
+        if (id_typeSiz === list1[i]){
+            type = list2[i];
+            break;
+        }
+    }
+    if ("Одежда" === type) {
+ 	    document.getElementsByName('height').forEach(el => el.disabled = false);
+
+ 	} else{
+ 	    document.getElementsByName('height').forEach(el => el.disabled = true);
+ 	}
+
+ 	$.ajax({
+    		type: 'get',
+    		url: '/userPage/not-issued-siz/get-sizes/' + id_typeSiz,
+    		success: function(data) {
+    			$('.list-sizes').html(data);
+    			document.getElementsByName('size').forEach(el => el.disabled = false);
+    		},
+    	});
+}
+
+//////////////////////setting current date
+document.getElementById('backdate').valueAsDate = new Date();
+//////////////////////////////////////////////
+</script>
+<div th:insert="blocks/footer :: footer"></div>
+</body>

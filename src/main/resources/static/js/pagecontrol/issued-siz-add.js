@@ -132,7 +132,8 @@ function loadIssuedSiz(value) {
 function updateIssuedSiz(value) {
     var dateissued = document.getElementById("backdate").value;
     if (dateissued == ""){
-        dateissued = formatDateToRus(new Date());
+       // dateissued = formatDateToRus(new Date());
+        dateissued = new Date();
     }
 //    if (backdate === false){
         $.ajax({
@@ -163,6 +164,35 @@ function updateIssuedSiz(value) {
 //    }
 //$('body input:checkbox').prop('checked',false);
 };
+//////////////////////adding manual siz to employee
+
+function saveIssuedSIZToEmployee(){
+    var dateissued = document.getElementById("backdate").value;
+    var numberSiz = document.getElementById("number").value;
+    var nomenklatureSiz = document.getElementById("nomenclatureNumber").value;
+    var sizeSiz = document.getElementById("size").value;
+    var heightSiz = document.getElementById("height").value;
+    var serviceLife = document.getElementById("serviceLife").value;
+    if (dateissued == ""){
+        dateissued = new Date();
+    }
+
+    $.ajax({
+        	    type: 'get',
+        	    url: '/userPage/issued-siz/' + selRecs + '/add/'+id_typeSiz+'/'+sizeSiz+'/'+heightSiz+'/'+numberSiz+'/'+nomenklatureSiz+'/'+serviceLife+'/'+dateissued,
+        	    success: function(data) {
+        		    $('.table-issuedSiz').html(data);
+        		    document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
+                    $('body input:checkbox').prop('checked',false);
+                    loadErrors();
+        		    updateSizForEmployee(employee_id);
+
+                    document.getElementById("number").value = "";
+                    document.getElementById("nomenclatureNumber").value = "";
+                    document.getElementById("serviceLife").value = "";
+        	    },
+            })
+}
 //////////////////////////////////////////
 function selectBackDateIssued(value){
         backdateissued = value.checked;

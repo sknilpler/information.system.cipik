@@ -18,6 +18,14 @@ public interface IPMStandardRepository extends CrudRepository<IPMStandard, Long>
     List<IPMStandard> findAllByPostId(Long id);
 
     /**
+     * Получить список норм выдачи по выбранному СИЗу
+     *
+     * @param id ID выбранного СИЗ
+     * @return список норм выдачи
+     */
+    List<IPMStandard> findAllByIndividualProtectionMeansId(Long id);
+
+    /**
      * Получить количество не выданного СИЗ на складе предприятия
      *
      * @param id ID типа СИЗ
@@ -44,4 +52,6 @@ public interface IPMStandardRepository extends CrudRepository<IPMStandard, Long>
             "issuedsiz.komplex_id = :id_komplex", nativeQuery = true)
     int notIssuanceRateForKomplex(@Param("id_ipm") Long id_ipm,
                                   @Param("id_komplex") Long id_komplex);
+
+
 }

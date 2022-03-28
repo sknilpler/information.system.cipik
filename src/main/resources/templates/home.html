@@ -61,12 +61,26 @@
                 <div class="card mb-4 box-shadow">
                     <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
                         <div style="position: relative; text-align: center; color: white; height: 100%;">
+                            <div class="centered"><h4>Автоматическая выдача СИЗ сотрудникам</h4></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Выдача сотрудникам средств индивидуальной защиты согласно указанным нормам</font></font></p>
+                        <a href="/userPage/issued-siz" class="btn btn-primary stretched-link">Перейти</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
+                        <div style="position: relative; text-align: center; color: white; height: 100%;">
                             <div class="centered"><h4>Выдача СИЗ сотрудникам</h4></div>
                         </div>
                     </div>
                     <div class="card-body">
-                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Выдача сотрудникам средств индивидуальной защиты</font></font></p>
-                        <a href="/userPage/issued-siz" class="btn btn-primary stretched-link">Перейти</a>
+                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Выдача сотрудникам средств индивидуальной защиты с ручным указанием размеров и даты выдачи не учитывая нормы</font></font></p>
+                        <a href="/userPage/issued-siz-manual" class="btn btn-primary stretched-link">Перейти</a>
                     </div>
                 </div>
             </div>
@@ -99,19 +113,19 @@
                 </div>
             </div>
 
-            <div class="col-md-4" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
-                <div class="card mb-4 box-shadow">
-                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
-                        <div style="position: relative; text-align: center; color: white; height: 100%;">
-                            <div class="centered"><h4>Выдача СИЗ подразделениям</h4></div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Выдача необходимых средств индивидуальной защиты подразделениям для дальнейшего распределения между сотрудниками</font></font></p>
-                        <a href="/userPage/issued-for-komplex" class="btn btn-primary stretched-link">Перейти</a>
-                    </div>
-                </div>
-            </div>
+<!--            <div class="col-md-4" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">-->
+<!--                <div class="card mb-4 box-shadow">-->
+<!--                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">-->
+<!--                        <div style="position: relative; text-align: center; color: white; height: 100%;">-->
+<!--                            <div class="centered"><h4>Выдача СИЗ подразделениям</h4></div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="card-body">-->
+<!--                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Выдача необходимых средств индивидуальной защиты подразделениям для дальнейшего распределения между сотрудниками</font></font></p>-->
+<!--                        <a href="/userPage/issued-for-komplex" class="btn btn-primary stretched-link">Перейти</a>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
 
             <div class="col-md-4" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
                 <div class="card mb-4 box-shadow">
@@ -155,19 +169,21 @@
                 </div>
             </div>
 
-            <div sec:authorize="hasRole('ROLE_USER')" class="col-md-4">
-                <div class="card mb-4 box-shadow">
-                    <div class="card-img-top text-center" style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">
-                        <div style="position: relative; text-align: center; color: white; height: 100%;">
-                            <div class="centered"><h4>CКЛАД</h4></div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Склад материальных ценностей</font></font></p>
-                        <a href="/userPage/item-all" class="btn btn-primary stretched-link">Перейти</a>
-                    </div>
-                </div>
-            </div>
+<!--           <div sec:authorize="hasRole('ROLE_USER')" class="col-md-4">&ndash;&gt;-->
+<!--                <div class="card mb-4 box-shadow">-->
+<!--                    <div class="card-img-top text-center"-->
+<!--                         style="background-image: url('/images/chapter-background.jpg'); height: 225px; width: 100%;">-->
+<!--                        <div style="position: relative; text-align: center; color: white; height: 100%;">-->
+<!--                            <div class="centered"><h4>CКЛАД</h4></div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="card-body">-->
+<!--                        <p class="card-text"><font style="vertical-align: inherit;"><font-->
+<!--                                style="vertical-align: inherit;">Склад материальных ценностей</font></font></p>-->
+<!--                        <a href="/userPage/item-all" class="btn btn-primary stretched-link">Перейти</a>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
 
         </div>
     </div>

@@ -944,6 +944,38 @@ public class SIZController {
         return "user/mto/siz/issued/issued-siz-add";
     }
 
+
+    /**
+     * Первоначальная загрузка страницы выдачи СИЗ
+     *
+     * @param model модель аттрибутов страницы
+     * @return веб страница
+     */
+    @GetMapping("/userPage/issued-siz-manual")
+    public String issuedSIZToEach(Model model, Authentication authentication) {
+        Post post = new Post("");
+        Employee employee = new Employee("", "", "", "", "", null, null);
+        Iterable<Post> posts = postRepository.findAll();
+        model.addAttribute("posts", posts);
+        model.addAttribute("komplexs", komplexRepository.findAll());
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        if (role.getName().equals("ROLE_USER")) {
+            employees = employeeRepository.findAll();
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            employees = employeeRepository.findAllByKomplexId(komplex.getId());
+            model.addAttribute("komplex", komplex);
+        }
+        Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
+        model.addAttribute("typeSIZS", individualProtectionMeans);
+        model.addAttribute("employees", employees);
+        model.addAttribute("selectedEmployee", employee);
+        model.addAttribute("selected", post);
+        return "user/mto/siz/issued/issued-siz-manual";
+    }
+
     /**
      * Обновление таблицы сотрудников по выбранному подразделению
      *
@@ -1059,6 +1091,69 @@ public class SIZController {
     }
 
     /**
+     * Функция ручной выдачи СИЗ сотрудникам
+     *
+     * @param list  список ID сотрудников которым выдается СИЗ
+     * @param typeSIZ_id ID типа выдаваемого СИЗ
+     * @param size размер
+     * @param height рост
+     * @param number кол-во выдаваемого СИЗ
+     * @param nomenclature номенклатурный номер
+     * @param serviceLife срок носки СИЗ
+     * @param datei дата выдачи СИЗ
+     * @param model модель аттрибутов страницы
+     * @return фрагмент
+     */
+    @GetMapping("/userPage/issued-siz/{list}/add/{id}/{size}/{height}/{number}/{nomenclature}/{serviceLife}/{dateissued}")
+    public String addIssuedSizManual(@PathVariable(value = "list") List<Long> list,
+                                     @PathVariable(value = "id") long typeSIZ_id,
+                                     @PathVariable(value = "size") String size,
+                                     @PathVariable(value = "height") String height,
+                                     @PathVariable(value = "number") int number,
+                                     @PathVariable(value = "nomenclature") String nomenclature,
+                                     @PathVariable(value = "serviceLife") int serviceLife,
+                                     @PathVariable(value = "dateissued") String datei, Model model) throws ParseException {
+        IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ_id).orElse(null);
+
+        ArrayList<IssuedSIZ> listSIZs = new ArrayList<>();
+        for (int i = 0; i < number; i++) {
+            if (height.equals("non")) {
+                listSIZs.add(new IssuedSIZ(ipm, size, nomenclature));
+            } else {
+                listSIZs.add(new IssuedSIZ(ipm, size, height, nomenclature));
+            }
+        }
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date dateIssued = format.parse(datei);
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(dateIssued);
+        c.add(Calendar.MONTH, serviceLife);
+        Date dateEndWear = c.getTime();
+
+        for (Long employee_id : list) {
+            Employee employee = employeeRepository.findById(employee_id).orElse(null);
+            for (int i = 0; i < number; i++) {
+                IssuedSIZ siz = listSIZs.get(i);
+
+                siz.setEmployee(employee);
+                siz.setDateIssued(dateIssued);
+                siz.setDateEndWear(dateEndWear);
+                siz.setStatus("Выдано");
+                siz.setKomplex(null);
+                issuedSIZRepository.save(siz);
+            }
+        }
+
+        List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
+        model.addAttribute("errors", listErrors);
+        model.addAttribute("vidanSIZ", issuedSIZS2);
+        model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
+        return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
+    }
+
+    /**
      * Функция выдачи СИЗ сотрудникам
      *
      * @param list  список ID сотрудников которым выдается СИЗ
@@ -1067,7 +1162,9 @@ public class SIZController {
      * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/{list}/add/{id}/{dateissued}")
-    public String addIssuedSiz(@PathVariable(value = "list") List<Long> list, @PathVariable(value = "id") long id,@PathVariable(value = "dateissued") String datei, Model model) throws ParseException {
+    public String addIssuedSiz(@PathVariable(value = "list") List<Long> list,
+                               @PathVariable(value = "id") long id,
+                               @PathVariable(value = "dateissued") String datei, Model model) throws ParseException {
         String message = "";
         listErrors.clear();
         List<IssuedSIZ> issuedSIZS = null;
@@ -1258,7 +1355,7 @@ public class SIZController {
     public String cancelIssuedSiz(@PathVariable(value = "id") long id, Model model) {
         String message = "";
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
-        issuedSIZ.setKomplex(issuedSIZ.getEmployee().getKomplex());
+      //  issuedSIZ.setKomplex(issuedSIZ.getEmployee().getKomplex());
         issuedSIZ.setDateIssued(null);
         issuedSIZ.setDateEndWear(null);
         issuedSIZ.setEmployee(null);
