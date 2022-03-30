@@ -38,6 +38,24 @@ if (document.getElementById("post").value !==''){
 	}
 	selRecs = [];
 };
+
+function loadEmployeesForSelectedKomplexForManual() {
+if (document.getElementById("post").value !==''){
+    loadEmployeesForSelectedKomplexAndPost();
+} else {
+	var e = document.getElementById("komplex");
+	var komplexId = e.value;
+	$.ajax({
+		type: 'get',
+		url: '/userPage/issued-siz/getEmployeeForKomplex/' + komplexId,
+		success: function(data) {
+			$('.table-employees').html(data);
+			$('body input:checkbox').prop('disabled', false);
+		},
+	})
+	}
+	selRecs = [];
+};
 ///////////////////////////////////////////////
 function loadEmployeesForSelectedPost() {
 	var element = document.getElementById("komplex");
@@ -66,6 +84,38 @@ function loadEmployeesForSelectedPost() {
 			success: function (data) {
 				$('.table-employees').html(data);
 				$('body input:checkbox').prop('disabled', false);
+			},
+		})
+		updateSizForPost();
+	}
+	selRecs = [];
+};
+
+function loadEmployeesForSelectedPostForManual() {
+	var element = document.getElementById("komplex");
+	if (element !== null) {
+		if (document.getElementById("komplex").value !== '') {
+			loadEmployeesForSelectedKomplexAndPost();
+		} else {
+			var e = document.getElementById("post");
+			var postId = e.value;
+			$.ajax({
+				type: 'get',
+				url: '/userPage/issued-siz/getEmployeeForPost/' + postId,
+				success: function (data) {
+					$('.table-employees').html(data);
+				},
+			})
+			updateSizForPost();
+		}
+	} else {
+		var e = document.getElementById("post");
+		var postId = e.value;
+		$.ajax({
+			type: 'get',
+			url: '/userPage/issued-siz/getEmployeeForPost/' + postId,
+			success: function (data) {
+				$('.table-employees').html(data);
 			},
 		})
 		updateSizForPost();
@@ -182,14 +232,18 @@ function saveIssuedSIZToEmployee(){
         	    url: '/userPage/issued-siz/' + selRecs + '/add/'+id_typeSiz+'/'+sizeSiz+'/'+heightSiz+'/'+numberSiz+'/'+nomenklatureSiz+'/'+serviceLife+'/'+dateissued,
         	    success: function(data) {
         		    $('.table-issuedSiz').html(data);
-        		    document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
+        		    //document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
                     $('body input:checkbox').prop('checked',false);
                     loadErrors();
+                    selRecs = [];
         		    updateSizForEmployee(employee_id);
 
                     document.getElementById("number").value = "";
                     document.getElementById("nomenclatureNumber").value = "";
                     document.getElementById("serviceLife").value = "";
+                    var heightSel = document.getElementById('height');
+                    heightSel.selectedIndex = 0;
+                    document.getElementById('btn-issued').disabled = true;
         	    },
             })
 }

@@ -119,7 +119,7 @@
         <div class="col-sm-6">
           <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
             <select  sec:authorize="hasAnyRole('ROLE_USER')" class="form-control" id="komplex" name="komplex"
-                     th:onchange="'javascript:loadEmployeesForSelectedKomplex();'" required>
+                     th:onchange="'javascript:loadEmployeesForSelectedKomplexForManual();'" required>
               <option selected disabled value="">Выберите подразделение</option>
               <option th:each="k : ${komplexs}" th:value="${k.id}"
                       th:text="${k.shortName}"></option>
@@ -164,7 +164,7 @@
         <div class="col-sm-6">
           <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
             <select class="form-control" id="post" name="post"
-                    th:onchange="'javascript:loadEmployeesForSelectedPost();'">
+                    th:onchange="'javascript:loadEmployeesForSelectedPostForManual();'">
               <option selected disabled value="">Выберите должность</option>
               <option th:each="post : ${posts}" th:value="${post.id}"
                       th:text="${post.postName}"></option>
@@ -233,7 +233,7 @@
               <div class="col-sm-6">
                 <label class="md-2"> </label>
                 <div class="container mt-1 form-actions floatRight">
-                  <button class="btn btn-danger btn-sm" name="iss-btn"
+                  <button class="btn btn-danger btn-sm" name="iss-btn" id="btn-issued"
                           th:onclick="'javascript:saveIssuedSIZToEmployee();'" disabled>Выдать</button>
                 </div>
               </div>
