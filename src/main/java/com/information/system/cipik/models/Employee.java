@@ -46,6 +46,14 @@ public class Employee {
     @JsonIgnore
     private Komplex komplex;
 
+    public String getFIO(){
+        return this.surname + " "+ this.name + " " + this.patronymic;
+    }
+
+    public String getShortFIO(){
+        return this.surname + " "+ this.name.charAt(0) + " " + this.patronymic.charAt(0);
+    }
+
     public Employee(String surname, String name, String patronymic, String sex, String tabNomer,
                     Post post, Komplex komplex) {
         this.surname = surname;

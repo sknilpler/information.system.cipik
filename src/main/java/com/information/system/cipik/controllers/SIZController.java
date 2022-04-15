@@ -22,12 +22,14 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Month;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -99,11 +101,11 @@ public class SIZController {
     /**
      * Добавление нового типа СИЗ
      *
-     * @param nameSIZ            наименование СИЗ
-     * @param ed_izm             единицы измерения
-     * @param typeIPM            тип СИЗ
-    // * @param nomenclatureNumber номенклатурный номер
-     * @param model              модель аттрибутов страницы
+     * @param nameSIZ наименование СИЗ
+     * @param ed_izm  единицы измерения
+     * @param typeIPM тип СИЗ
+     *                // * @param nomenclatureNumber номенклатурный номер
+     * @param model   модель аттрибутов страницы
      * @return перенаправление на /userPage/siz-types
      */
     @PostMapping("/userPage/siz-types")
@@ -249,12 +251,12 @@ public class SIZController {
     /**
      * Сохранение отредактированного типа СИЗ
      *
-     * @param id                 ID типа СИЗ
-     * @param nameSIZ            наименование СИЗ
-     * @param ed_izm             единицы измерения
-     * @param typeIPM            тип СИЗ
-    // * @param nomenclatureNumber номенклатурный номер
-     * @param model              модель аттрибутов страницы
+     * @param id      ID типа СИЗ
+     * @param nameSIZ наименование СИЗ
+     * @param ed_izm  единицы измерения
+     * @param typeIPM тип СИЗ
+     *                // * @param nomenclatureNumber номенклатурный номер
+     * @param model   модель аттрибутов страницы
      * @return перенаправление на /userPage/siz-types
      */
     @PostMapping("/userPage/siz-types/{id}/edit")
@@ -431,7 +433,7 @@ public class SIZController {
     public String addSizeAndHeightToSIZ(@PathVariable(value = "id") long id, @RequestParam(required = false) String height, @RequestParam String size, Model model) {
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElse(null);
         SizeSiz sizeSiz;
-        if ((height == null)||(height.equals(""))) {
+        if ((height == null) || (height.equals(""))) {
             sizeSiz = new SizeSiz(individualProtectionMeans, size);
         } else {
             sizeSiz = new SizeSiz(individualProtectionMeans, size, height);
@@ -794,7 +796,7 @@ public class SIZController {
             if ((old_siz.getHeight() == null) || old_siz.getHeight().equals("") || old_siz.getHeight().equals("non") || old_siz.getHeight().equals("null")) {
                 list = issuedSIZRepository.findByStock(old_siz.getSize(), siz.getId(), old_siz.getNomenclatureNumber(), old_siz.getStatus());
                 for (IssuedSIZ s : list) {
-                   // System.out.println("Updating (deleting): " + s.toString());
+                    // System.out.println("Updating (deleting): " + s.toString());
                     issuedSIZRepository.delete(s);
                 }
                 for (int i = 0; i < number; i++) {
@@ -803,7 +805,7 @@ public class SIZController {
             } else {
                 list = issuedSIZRepository.findByStock(old_siz.getSize(), old_siz.getHeight(), siz.getId(), old_siz.getNomenclatureNumber(), old_siz.getStatus());
                 for (IssuedSIZ s : list) {
-                  //  System.out.println("Updating (deleting): " + s.toString());
+                    //  System.out.println("Updating (deleting): " + s.toString());
                     issuedSIZRepository.delete(s);
                 }
                 for (int i = 0; i < number; i++) {
@@ -842,7 +844,7 @@ public class SIZController {
                     System.out.println("is not null");
                 }
                 for (IssuedSIZ s : sizs) {
-                    System.out.println("Deleting: "+s.toString());
+                    System.out.println("Deleting: " + s.toString());
                     issuedSIZRepository.deleteById(s.getId());
                 }
             }
@@ -863,7 +865,7 @@ public class SIZController {
                 }
                 for (IssuedSIZ s : sizs) {
                     s.setKomplex(null);
-                    System.out.println("Return to storage: "+s.toString());
+                    System.out.println("Return to storage: " + s.toString());
                     issuedSIZRepository.save(s);
                 }
             }
@@ -1093,15 +1095,15 @@ public class SIZController {
     /**
      * Функция ручной выдачи СИЗ сотрудникам
      *
-     * @param list  список ID сотрудников которым выдается СИЗ
-     * @param typeSIZ_id ID типа выдаваемого СИЗ
-     * @param size размер
-     * @param height рост
-     * @param number кол-во выдаваемого СИЗ
+     * @param list         список ID сотрудников которым выдается СИЗ
+     * @param typeSIZ_id   ID типа выдаваемого СИЗ
+     * @param size         размер
+     * @param height       рост
+     * @param number       кол-во выдаваемого СИЗ
      * @param nomenclature номенклатурный номер
-     * @param serviceLife срок носки СИЗ
-     * @param datei дата выдачи СИЗ
-     * @param model модель аттрибутов страницы
+     * @param serviceLife  срок носки СИЗ
+     * @param datei        дата выдачи СИЗ
+     * @param model        модель аттрибутов страницы
      * @return фрагмент
      */
     @GetMapping("/userPage/issued-siz/{list}/add/{id}/{size}/{height}/{number}/{nomenclature}/{serviceLife}/{dateissued}")
@@ -1252,55 +1254,55 @@ public class SIZController {
     @PostMapping("/userPage/issued-siz/print-issued-siz")
     public void printPurchasingTable(HttpServletResponse response) throws IOException {
         //if (!SIZForPrint.isEmpty()) {
-            DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
-            response.setContentType("application/octet-stream");
-            String headerKey = "Content-Disposition";
-            String headerValue = "attachment; filename=act_vidachi_siz_ot_" + dateFormatter.format(new Date()) + ".xlsx";
-            response.setHeader(headerKey, headerValue);
+        DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=act_vidachi_siz_ot_" + dateFormatter.format(new Date()) + ".xlsx";
+        response.setHeader(headerKey, headerValue);
 
-            String excelFilePath = Paths.get("").toAbsolutePath().toString() + File.separator + "template" + File.separator + "akt-vidachi-siz.xlsx";
+        String excelFilePath = Paths.get("").toAbsolutePath().toString() + File.separator + "template" + File.separator + "akt-vidachi-siz.xlsx";
 
-            try {
-                FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
-                Workbook workbook = WorkbookFactory.create(inputStream);
+        try {
+            FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+            Workbook workbook = WorkbookFactory.create(inputStream);
 
-                Sheet sheet = workbook.getSheetAt(0);
+            Sheet sheet = workbook.getSheetAt(0);
 
-                int row = 12;
-                Row exampleRow = sheet.getRow(12);
-                int count = 1;
-                for (IssuedSIZ s : SIZForPrint) {
-                    sheet.createRow(row+2);
-                    sheet.getRow(row).setRowStyle(exampleRow.getRowStyle());
-                    sheet.getRow(row).setHeight(exampleRow.getHeight());
+            int row = 12;
+            Row exampleRow = sheet.getRow(12);
+            int count = 1;
+            for (IssuedSIZ s : SIZForPrint) {
+                sheet.createRow(row + 2);
+                sheet.getRow(row).setRowStyle(exampleRow.getRowStyle());
+                sheet.getRow(row).setHeight(exampleRow.getHeight());
 
-                    for (int i = 0; i < 8; i++) {
-                        sheet.getRow(row+1).createCell(i);
-                        sheet.getRow(row).getCell(i).setCellStyle(exampleRow.getCell(i).getCellStyle());
-                    }
-                    sheet.getRow(row).getCell(0).setCellValue(count);
-                    sheet.getRow(row).getCell(1).setCellValue(s.getNomenclatureNumber());
-                    sheet.getRow(row).getCell(2).setCellValue(s.getSiz().getNameSIZ());
-                    sheet.getRow(row).getCell(3).setCellValue(s.getSize());
-                    sheet.getRow(row).getCell(4).setCellValue(s.getHeight());
-                    sheet.getRow(row).getCell(5).setCellValue(s.getSiz().getEd_izm());
-                    sheet.getRow(row).getCell(6).setCellValue(s.getEmployee().getSurname() + " " + s.getEmployee().getName().charAt(0) + " " + s.getEmployee().getPatronymic().charAt(0));
-                    row++;
-                    count++;
-
+                for (int i = 0; i < 8; i++) {
+                    sheet.getRow(row + 1).createCell(i);
+                    sheet.getRow(row).getCell(i).setCellStyle(exampleRow.getCell(i).getCellStyle());
                 }
+                sheet.getRow(row).getCell(0).setCellValue(count);
+                sheet.getRow(row).getCell(1).setCellValue(s.getNomenclatureNumber());
+                sheet.getRow(row).getCell(2).setCellValue(s.getSiz().getNameSIZ());
+                sheet.getRow(row).getCell(3).setCellValue(s.getSize());
+                sheet.getRow(row).getCell(4).setCellValue(s.getHeight());
+                sheet.getRow(row).getCell(5).setCellValue(s.getSiz().getEd_izm());
+                sheet.getRow(row).getCell(6).setCellValue(s.getEmployee().getSurname() + " " + s.getEmployee().getName().charAt(0) + " " + s.getEmployee().getPatronymic().charAt(0));
+                row++;
+                count++;
 
-                inputStream.close();
-
-                ServletOutputStream outputStream = response.getOutputStream();
-                workbook.write(outputStream);
-                workbook.close();
-                outputStream.close();
-
-            } catch (IOException | EncryptedDocumentException
-                    ex) {
-                ex.printStackTrace();
             }
+
+            inputStream.close();
+
+            ServletOutputStream outputStream = response.getOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+            outputStream.close();
+
+        } catch (IOException | EncryptedDocumentException
+                ex) {
+            ex.printStackTrace();
+        }
         //}
     }
 
@@ -1355,7 +1357,7 @@ public class SIZController {
     public String cancelIssuedSiz(@PathVariable(value = "id") long id, Model model) {
         String message = "";
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
-      //  issuedSIZ.setKomplex(issuedSIZ.getEmployee().getKomplex());
+        //  issuedSIZ.setKomplex(issuedSIZ.getEmployee().getKomplex());
         issuedSIZ.setDateIssued(null);
         issuedSIZ.setDateEndWear(null);
         issuedSIZ.setEmployee(null);
@@ -1391,7 +1393,7 @@ public class SIZController {
     }
 
     /**
-     * Поиск сотрудников по ключевому слову
+     * <b>Поиск сотрудников по ключевому слову</b>
      *
      * @param keyword ключевое слово поиска
      * @param model   модель аттрибутов страницы
@@ -1420,15 +1422,232 @@ public class SIZController {
         model.addAttribute("employees", employees);
         return "user/mto/siz/issued/issued-siz-add :: table-employees";
     }
+    ///////////////////Весь выданный СИЗ//////////////////////////
 
+    /**
+     * <b>Первоначальное открытие страницы выданного СИЗ</b>
+     *
+     * @param model модель аттрибутов страницы
+     * @return список СИЗ
+     */
+    @GetMapping("/userPage/list-issued-siz")
+    public String staffingOfAllSIZ(Model model) {
+
+        String nextYearBegin = (Year.now().getValue() + 1) + "_01_01";
+        String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
+        String currYearBegin = (Year.now().getValue()) + "_" + ((new Date()).getMonth() + 1) + "_" + (new Date()).getDate();
+        String currYearEnd = (Year.now().getValue()) + "_12_31";
+
+        List<IssuedSIZ> issuedSIZS = StreamSupport.stream(issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано").spliterator(), false)
+                .collect(Collectors.toList());
+        List<IssuedSIZ> issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
+        List<IssuedSIZ> issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
+        List<IssuedSIZ> issuedSIZSEnding = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
+
+        StatisticsForListSIZ info = new StatisticsForListSIZ(issuedSIZS.size(), issuedSIZSEnding.size(), issuedSIZSEndingNextYear.size(), issuedSIZSEndingCurrYear.size());
+        model.addAttribute("info", info);
+        model.addAttribute("komplexes", komplexRepository.findAll());
+        model.addAttribute("vidanSIZ", issuedSIZS);
+
+        return "user/mto/siz/issued/issued-siz-all-list";
+    }
+
+    /**
+     * <b>Фильтрация выданного списка СИЗ по подразделениям</b>
+     */
+    @GetMapping("/userPage/list-issued-siz/filter-by-komplex/{id_komplex}")
+    public String staffingByKomplexOfAllSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        List<IssuedSIZ> issuedSIZSEndingNextYear;
+        List<IssuedSIZ> issuedSIZSEndingCurrYear;
+        List<IssuedSIZ> issuedSIZSEnding;
+
+        String nextYearBegin = (Year.now().getValue() + 1) + "_01_01";
+        String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
+        String currYearBegin = (Year.now().getValue()) + "_" + ((new Date()).getMonth() + 1) + "_" + (new Date()).getDate();
+        String currYearEnd = (Year.now().getValue()) + "_12_31";
+
+        if (id_komplex == 0) {
+            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
+            issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
+            issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
+            issuedSIZSEnding = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
+
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", id_komplex);
+            issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, id_komplex);
+            issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, id_komplex);
+            issuedSIZSEnding = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWear("Выдано", currYearBegin, id_komplex);
+        }
+        StatisticsForListSIZ info = new StatisticsForListSIZ(StreamSupport.stream(issuedSIZS.spliterator(), false)
+                .collect(Collectors.toList()).size(), issuedSIZSEnding.size(), issuedSIZSEndingNextYear.size(), issuedSIZSEndingCurrYear.size());
+        model.addAttribute("info", info);
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
+    }
+
+    @GetMapping("/userPage/list-issued-siz/info-update/{id_komplex}")
+    public String staffingByKomplexOfAllSIZInfoUpdate(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        List<IssuedSIZ> issuedSIZSEndingNextYear;
+        List<IssuedSIZ> issuedSIZSEndingCurrYear;
+        List<IssuedSIZ> issuedSIZSEnding;
+
+        String nextYearBegin = (Year.now().getValue() + 1) + "_01_01";
+        String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
+        String currYearBegin = (Year.now().getValue()) + "_" + ((new Date()).getMonth() + 1) + "_" + (new Date()).getDate();
+        String currYearEnd = (Year.now().getValue()) + "_12_31";
+
+        if (id_komplex == 0) {
+            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
+            issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
+            issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
+            issuedSIZSEnding = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
+
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", id_komplex);
+            issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, id_komplex);
+            issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, id_komplex);
+            issuedSIZSEnding = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWear("Выдано", currYearBegin, id_komplex);
+        }
+        StatisticsForListSIZ info = new StatisticsForListSIZ(StreamSupport.stream(issuedSIZS.spliterator(), false)
+                .collect(Collectors.toList()).size(), issuedSIZSEnding.size(), issuedSIZSEndingNextYear.size(), issuedSIZSEndingCurrYear.size());
+        model.addAttribute("info", info);
+        return "user/mto/siz/issued/issued-siz-all-list :: info-window";
+    }
+
+    /**
+     * <b>Сортировка таблицы выданного СИЗ по дате окончания носки</b>
+     */
+    @GetMapping("/userPage/list-issued-siz/sorting-date/{id_komplex}")
+    public String sortingByDateStaffingOfAllIssuedSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        if (id_komplex == 0) {
+            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByDateEndWear("Выдано");
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByDate("Выдано", id_komplex);
+        }
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
+    }
+
+    /**
+     * <b>Сортировка таблицы СИЗ по ФИО сотрудника</b>
+     */
+    @GetMapping("/userPage/list-issued-siz/sorting-fio/{id_komplex}")
+    public String sortingByFIOStaffingOfAllIssuedSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        if (id_komplex == 0) {
+            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeSurname("Выдано");
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByFIO("Выдано", id_komplex);
+        }
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
+    }
+
+    /**
+     * <b>Сортировка таблицы СИЗ по типу</b>
+     */
+    @GetMapping("/userPage/list-issued-siz/sorting-tip/{id_komplex}")
+    public String sortingByTypeStaffingOfAllIssuedSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        if (id_komplex == 0) {
+            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderBySizTypeIPM("Выдано");
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByType("Выдано", id_komplex);
+        }
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
+    }
+
+    /**
+     * <b>Сортировка таблицы СИЗ по подразделению и должности</b>
+     */
+    @GetMapping("/userPage/list-issued-siz/sorting_k_p/{id_komplex}")
+    public String sortingByKomplexAndPostStaffingOfAllIssuedSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        if (id_komplex == 0) {
+            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeKomplexShortNameAscEmployeePostPostNameAsc("Выдано");
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByKomplexAndPost("Выдано", id_komplex);
+        }
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
+    }
+
+    /**
+     * <b>Поиск по таблице выданного СИЗ</b>
+     */
+    @GetMapping("/userPage/list-issued-siz/filter/{keyword}/{id_komplex}")
+    public String searchStaffingOfAllIssuedSIZ(@PathVariable(value = "keyword") String keyword,
+                                               @PathVariable(value = "id_komplex") long id_komplex, Model model) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        if (id_komplex != 0) { // поиск по выбранному подразделению
+            if (keyword.equals("0")) {
+                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", id_komplex);
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndKeyword("Выдано", id_komplex, keyword);
+            }
+        } else {
+            if (keyword.equals("0")) {
+                issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndKeyword("Выдано", keyword);
+            }
+        }
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
+    }
+
+    @GetMapping("/userPage/list-issued-siz/show-issuedsiz-with-end-wear-date/{id_komplex}")
+    public String showIssuedSizWithEndWearDate(Model model,
+                                               @PathVariable(value = "id_komplex") long id_komplex) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        String currYearBegin = (Year.now().getValue()) + "_" + ((new Date()).getMonth() + 1) + "_" + (new Date()).getDate();
+        if (id_komplex == 0) {
+            issuedSIZS = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWear("Выдано", currYearBegin, id_komplex);
+        }
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
+    }
+
+    @GetMapping("/userPage/list-issued-siz/show-issuedsiz-with-end-wear-date-curr-year/{id_komplex}")
+    public String showIssuedSizWithEndWearDateThisYear(Model model,
+                                                       @PathVariable(value = "id_komplex") long id_komplex) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        String currYearBegin = (Year.now().getValue()) + "_" + ((new Date()).getMonth() + 1) + "_" + (new Date()).getDate();
+        String currYearEnd = (Year.now().getValue()) + "_12_31";
+        if (id_komplex == 0) {
+            issuedSIZS = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, id_komplex);
+        }
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
+    }
+
+    @GetMapping("/userPage/list-issued-siz/show-issuedsiz-with-end-wear-date-next-year/{id_komplex}")
+    public String showIssuedSizWithEndWearDateNextYear(Model model,
+                                                       @PathVariable(value = "id_komplex") long id_komplex) {
+        Iterable<IssuedSIZ> issuedSIZS;
+        String nextYearBegin = (Year.now().getValue() + 1) + "_01_01";
+        String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
+        if (id_komplex == 0) {
+            issuedSIZS = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
+        } else {
+            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, id_komplex);
+        }
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
+    }
 
     //////////////////////Укомплектованность сотрудников СИЗ//////////////////////
 
     /**
      * Первоначальное открытие страницы укомплектованности СИЗ
-     *
-     * @param model модель аттрибутов страницы
-     * @return веб страница
      */
     @GetMapping("/userPage/employee-siz")
     public String staffingOfAllEmployeesSIZ(Model model, Authentication authentication) {
@@ -1485,7 +1704,8 @@ public class SIZController {
      * @return фрагмент таблицы
      */
     @GetMapping("/userPage/employee-siz/filter-by-komplex/{id_komplex}")
-    public String staffingByKomplexOfAllEmployeesSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+    public String staffingByKomplexOfAllEmployeesSIZ(Model model,
+                                                     @PathVariable(value = "id_komplex") long id_komplex) {
         filerIssuedSizAll = "all";
         typeOfSortingEmployeeTable = new TypeOfSortingEmployeeTable();
         typeOfSortingEmployeeTable.setFilter("all");
@@ -1557,7 +1777,8 @@ public class SIZController {
      * @return фрагмент страницы
      */
     @GetMapping("/userPage/employee-siz/filter/employee/{keyword}/{id_komplex}")
-    public String filterStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication, Model model) {
+    public String filterStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword,
+                                                  @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication, Model model) {
         filerIssuedSizAll = keyword;
         sortedByEndIssuedDate = false;
         //определение текущей роли пользователя
@@ -1614,7 +1835,8 @@ public class SIZController {
      * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/show-employees-with-end-wear-date/{id_komplex}")
-    public String showEmployeesWithEndWearDate(Model model, @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication) {
+    public String showEmployeesWithEndWearDate(Model model,
+                                               @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication) {
         typeOfSortingEmployeeTable.setFilter("end_date");
         String nextYearBegin = (Year.now().getValue() + 1) + "_01_01";
         String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
@@ -1645,7 +1867,8 @@ public class SIZController {
      * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/sorting-date/employee/{id_komplex}")
-    public String sortingByDateStaffingOfAllEmployeesSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication) {
+    public String sortingByDateStaffingOfAllEmployeesSIZ(Model model,
+                                                         @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication) {
         sortedByEndIssuedDate = true;
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
@@ -1702,7 +1925,8 @@ public class SIZController {
      * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/search/employee/{keyword}/{id_komplex}")
-    public String searchStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword, @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication, Model model) {
+    public String searchStaffingOfAllEmployeesSIZ(@PathVariable(value = "keyword") String keyword,
+                                                  @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication, Model model) {
         //определение текущей роли пользователя
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
@@ -1906,7 +2130,8 @@ public class SIZController {
      * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/info-siz/employee/{id_e}/{id_p}")
-    public String getInfoStaffingOfEmployee(@PathVariable(value = "id_e") long id_e, @PathVariable(value = "id_p") long id_p, Model model) {
+    public String getInfoStaffingOfEmployee(@PathVariable(value = "id_e") long id_e,
+                                            @PathVariable(value = "id_p") long id_p, Model model) {
         List<IPMStandard> ipmStandards = ipmStandardRepository.findAllByPostId(id_p);
         Employee employee = employeeRepository.findById(id_e).orElse(null);
         model.addAttribute("siz", ipmStandards);
@@ -1940,7 +2165,8 @@ public class SIZController {
      * @return веб страница
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/{id}")
-    public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id, Authentication authentication, Model model) {
+    public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id, Authentication
+            authentication, Model model) {
         Employee employee = employeeRepository.findById(id).orElse(null);
         employeeForIssuedSIZ = employee;
         List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Выдано");
@@ -1968,7 +2194,8 @@ public class SIZController {
      * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/extend/{dateExtending}")
-    public String extendIssuedSizForEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "dateExtending") String dateExtending, Model model) {
+    public String extendIssuedSizForEmployee(@PathVariable(value = "id") long id,
+                                             @PathVariable(value = "dateExtending") String dateExtending, Model model) {
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date exDate = issuedSIZ.getDateEndWear();
@@ -2016,7 +2243,8 @@ public class SIZController {
      * @return фрагмент
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/writeoff/{actName}")
-    public String writeOfIssuedSizForEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "actName") String actName, Model model) {
+    public String writeOfIssuedSizForEmployee(@PathVariable(value = "id") long id,
+                                              @PathVariable(value = "actName") String actName, Model model) {
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         issuedSIZ.setStatus("Списано");
         issuedSIZ.setWriteOffAct(actName);
@@ -2128,12 +2356,13 @@ public class SIZController {
      * Печать списка укомплектованности сотрудников
      *
      * @param response       http данные со страницы
-     * @param id_komplex ID выбранного подразделения
+     * @param id_komplex     ID выбранного подразделения
      * @param authentication информация о пользователе
      * @throws IOException выброс исключения в случае невозможности отправки на страницу потока с данными
      */
     @GetMapping("/userPage/employee-siz/print-table/{id_komplex}")
-    public void printTableEmployee(HttpServletResponse response, @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication) throws IOException {
+    public void printTableEmployee(HttpServletResponse response,
+                                   @PathVariable(value = "id_komplex") long id_komplex, Authentication authentication) throws IOException {
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -2146,7 +2375,7 @@ public class SIZController {
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
         if (role.getName().equals("ROLE_USER")) {
-            if (id_komplex != 0){
+            if (id_komplex != 0) {
                 listEmployee = (List<Employee>) employeeRepository.findAllByKomplexId(id_komplex);
                 if (typeOfSortingEmployeeTable.getFilter().equals("all") && !typeOfSortingEmployeeTable.getSearching().equals("")) {
                     listEmployee = (List<Employee>) employeeRepository.findAllByPostAndKomplexIdAndKeyword(typeOfSortingEmployeeTable.getSearching(), id_komplex);
@@ -2299,7 +2528,8 @@ public class SIZController {
      * @param id         ID подразделения
      */
     @PostMapping("/userPage/issued-for-komplex/send/{id}")
-    public void sendSIZToKomplex(@RequestBody List<SIZForKomplex> objectList, HttpServletResponse response, @PathVariable(value = "id") long id) throws IOException {
+    public void sendSIZToKomplex(@RequestBody List<SIZForKomplex> objectList, HttpServletResponse response,
+                                 @PathVariable(value = "id") long id) throws IOException {
         Komplex komplex = komplexRepository.findById(id).orElse(null);
         StringBuilder message = new StringBuilder();
         for (SIZForKomplex obj : objectList) {

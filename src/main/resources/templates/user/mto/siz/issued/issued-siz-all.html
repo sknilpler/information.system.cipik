@@ -114,7 +114,7 @@
     <div class="my-container active-cont container-fluid">
         <div class="panel-body">
             <div class="row g-3">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <select sec:authorize="hasAnyRole('ROLE_USER')" class="form-select mb-2" aria-label="example" name="issued-by-komplex" id="issued-by-komplex"
                             th:onchange="'javascript:filterByKomplex(this.value);'">
                         <option selected disabled value="">Выберите подразделение</option>
@@ -130,7 +130,7 @@
                         <option value="not-issued">Не выдан весь СИЗ</option>
                     </select>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <select class="form-select mb-2" aria-label="example" name="issued-sort" id="issued-sort"
                             th:onchange="'javascript:sorting(this.value);'">
                         <option selected disabled value="">Выберите тип сортировки</option>
@@ -140,7 +140,7 @@
                     <input id="textSearch" class="form-control" type="text" name="keyword" placeholder="Поиск"
                            oninput="searching(this.value)">
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-6">
                     <div class="info-window" th:fragment="info-window">
                         <div class="alert alert-primary row g-1">
                             <div class="col-6">

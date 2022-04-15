@@ -56,7 +56,7 @@ public class IssuedSIZ {
         return "IssuedSIZ{" +
                 "id=" + id +
                 ", employee=" + employee +
-                ", siz=" + siz +
+                ", siz=" + siz+
                 ", dateIssued=" + dateIssued +
                 ", dateEndWear=" + dateEndWear +
                 ", status='" + status + '\'' +

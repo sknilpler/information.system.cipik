@@ -11,14 +11,179 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
 
     List<IssuedSIZ> findAllByEmployeeId(Long id);
 
+    /**
+     * <b>Поиск СИЗ по выбранному статусу</b>
+     *
+     * @param status статус СИЗ
+     * @return список СИЗ
+     */
     List<IssuedSIZ> findByStatus(String status);
 
-    List<IssuedSIZ> findByStatusAndKomplexId(String status, Long komplex_id);
+    Iterable<IssuedSIZ> findByStatusAndKomplexId(String status, Long komplex_id);
+
+    Iterable<IssuedSIZ> findByEmployeeIdNotNullAndStatusLike(String status);
+
+    Iterable<IssuedSIZ> findByEmployeeIdNotNullAndStatusLikeOrderByDateEndWear(String status);
+
+    Iterable<IssuedSIZ> findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeSurname(String status);
+
+    Iterable<IssuedSIZ> findByEmployeeIdNotNullAndStatusLikeOrderBySizTypeIPM(String status);
+
+    Iterable<IssuedSIZ> findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeKomplexShortNameAscEmployeePostPostNameAsc(String status);
+
+    /**
+     * <b>Фильтрация СИЗ по подразделениям и статусу</b>
+     *
+     * @param status     Статус СИЗ
+     * @param komplex_id ID подразделения
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT\n" +
+            "    issuedsiz.*\n" +
+            "FROM\n" +
+            "    issuedsiz\n" +
+            "LEFT JOIN employee ON issuedsiz.employee_id = employee.id\n" +
+            "LEFT JOIN komplex ON employee.otdel_id = komplex.id\n" +
+            "WHERE\n" +
+            "    issuedsiz.status = :status AND employee.komplex_id = :id\n", nativeQuery = true)
+    Iterable<IssuedSIZ> findByStatusAndEmployeeKomplexId(@Param("status") String status,
+                                                         @Param("id") Long komplex_id);
+
+    /**
+     * <b>Поиск выданного СИЗ по ключевому слову и подразделению</b>
+     *
+     * @param status     Статус СИЗ
+     * @param komplex_id ID подразделения
+     * @param keyword ключевое слово
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT\n" +
+            "    issuedsiz.*\n" +
+            "FROM\n" +
+            "    issuedsiz\n" +
+            "LEFT JOIN individual_protection_means ON issuedsiz.siz_id = individual_protection_means.id\n" +
+            "LEFT JOIN employee ON issuedsiz.employee_id = employee.id\n" +
+            "LEFT JOIN post ON employee.post_id = post.id\n" +
+            "LEFT JOIN komplex ON employee.otdel_id = komplex.id\n" +
+            "WHERE\n" +
+            "    issuedsiz.status = :status AND employee.komplex_id = :id AND \n" +
+            "    (individual_protection_means.namesiz LIKE %:keyword% OR\n" +
+            "    individual_protection_means.typeipm LIKE %:keyword% OR\n" +
+            "    employee.surname LIKE %:keyword% OR\n" +
+            "    post.post_name LIKE %:keyword% OR\n" +
+            "    komplex.short_name LIKE %:keyword%)", nativeQuery = true)
+    Iterable<IssuedSIZ> findByStatusAndEmployeeKomplexIdAndKeyword(@Param("status") String status,
+                                                                   @Param("id") Long komplex_id,
+                                                                   @Param("keyword") String keyword);
+
+    /**
+     * <b>Поиск выданного СИЗ по ключевому слову</b>
+     *
+     * @param status     Статус СИЗ
+     * @param keyword ключевое слово
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT\n" +
+            "    issuedsiz.*\n" +
+            "FROM\n" +
+            "    issuedsiz\n" +
+            "LEFT JOIN individual_protection_means ON issuedsiz.siz_id = individual_protection_means.id\n" +
+            "LEFT JOIN employee ON issuedsiz.employee_id = employee.id\n" +
+            "LEFT JOIN post ON employee.post_id = post.id\n" +
+            "LEFT JOIN komplex ON employee.otdel_id = komplex.id\n" +
+            "WHERE\n" +
+            "    issuedsiz.status = :status AND \n" +
+            "    (individual_protection_means.namesiz LIKE %:keyword% OR\n" +
+            "    individual_protection_means.typeipm LIKE %:keyword% OR\n" +
+            "    employee.surname LIKE %:keyword% OR\n" +
+            "    post.post_name LIKE %:keyword% OR\n" +
+            "    komplex.short_name LIKE %:keyword%)", nativeQuery = true)
+    Iterable<IssuedSIZ> findByStatusAndKeyword(@Param("status") String status, @Param("keyword") String keyword);
+
+    /**
+     * <b>Фильтрация СИЗ по подразделениям и статусу и сортировка по дате окончания носки</b>
+     *
+     * @param status     Статус СИЗ
+     * @param komplex_id ID подразделения
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT\n" +
+            "    issuedsiz.*\n" +
+            "FROM\n" +
+            "    issuedsiz\n" +
+            "LEFT JOIN employee ON issuedsiz.employee_id = employee.id\n" +
+            "LEFT JOIN komplex ON employee.otdel_id = komplex.id\n" +
+            "WHERE\n" +
+            "    issuedsiz.status = :status AND employee.komplex_id = :id\n" +
+            "ORDER BY issuedsiz.date_end_wear", nativeQuery = true)
+    Iterable<IssuedSIZ> findByStatusAndEmployeeKomplexIdAndSortingByDate(@Param("status") String status,
+                                                                         @Param("id") Long komplex_id);
+
+    /**
+     * <b>Фильтрация СИЗ по подразделениям и статусу и сортировка по ФИО сотрудника</b>
+     *
+     * @param status     Статус СИЗ
+     * @param komplex_id ID подразделения
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT\n" +
+            "    issuedsiz.*\n" +
+            "FROM\n" +
+            "    issuedsiz\n" +
+            "LEFT JOIN employee ON issuedsiz.employee_id = employee.id\n" +
+            "LEFT JOIN komplex ON employee.otdel_id = komplex.id\n" +
+            "WHERE\n" +
+            "    issuedsiz.status = :status AND employee.komplex_id = :id\n" +
+            "ORDER BY employee.surname", nativeQuery = true)
+    Iterable<IssuedSIZ> findByStatusAndEmployeeKomplexIdAndSortingByFIO(@Param("status") String status,
+                                                                         @Param("id") Long komplex_id);
+
+    /**
+     * <b>Фильтрация СИЗ по подразделениям и статусу и сортировка по типу СИЗ</b>
+     *
+     * @param status     Статус СИЗ
+     * @param komplex_id ID подразделения
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT\n" +
+            "    issuedsiz.*\n" +
+            "FROM\n" +
+            "    issuedsiz\n" +
+            "LEFT JOIN employee ON issuedsiz.employee_id = employee.id\n" +
+            "LEFT JOIN komplex ON employee.otdel_id = komplex.id\n" +
+            "LEFT JOIN individual_protection_means ON issuedsiz.siz_id = individual_protection_means.id\n" +
+            "WHERE\n" +
+            "    issuedsiz.status = :status AND employee.komplex_id = :id\n" +
+            "ORDER BY individual_protection_means.typeipm", nativeQuery = true)
+    Iterable<IssuedSIZ> findByStatusAndEmployeeKomplexIdAndSortingByType(@Param("status") String status,
+                                                                         @Param("id") Long komplex_id);
+
+    /**
+     * <b>Фильтрация СИЗ по подразделениям и статусу и сортировка по комплексу и должности</b>
+     *
+     * @param status     Статус СИЗ
+     * @param komplex_id ID подразделения
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT\n" +
+            "    issuedsiz.*\n" +
+            "FROM\n" +
+            "    issuedsiz\n" +
+            "LEFT JOIN employee ON issuedsiz.employee_id = employee.id\n" +
+            "LEFT JOIN komplex ON employee.otdel_id = komplex.id\n" +
+            "LEFT JOIN post ON employee.post_id = post.id\n" +
+            "WHERE\n" +
+            "    issuedsiz.status = :status AND employee.komplex_id = :id\n" +
+            "ORDER BY\n" +
+            "    komplex.short_name, post.post_name", nativeQuery = true)
+    Iterable<IssuedSIZ> findByStatusAndEmployeeKomplexIdAndSortingByKomplexAndPost(@Param("status") String status,
+                                                                        @Param("id") Long komplex_id);
 
     List<IssuedSIZ> findByStatusAndSizeLikeOrHeightLikeOrSizNameSIZLike(String status, String size, String height, String nameSIZ);
 
+
     /**
-     * Получить сгруппированный список не выданного СИЗ на складе предприятия
+     * <b>Получить сгруппированный список не выданного СИЗ на складе предприятия</b>
      *
      * @return сгруппированный по типу, размеру и росту список СИЗ на складе
      */
@@ -32,7 +197,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
     List<Object[]> findGroupbySizeAndHeight();
 
     /**
-     * Поиск по сгруппированному списку не выданного СИЗ на складе предприятия
+     * <b>Поиск по сгруппированному списку не выданного СИЗ на складе предприятия</b>
      *
      * @param keyword ключевое слово поиска
      * @return сгруппированный по типу, размеру и росту список СИЗ на складе
@@ -46,12 +211,12 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "  (i.size LIKE %:keyword% OR\n" +
             "  i.height LIKE %:keyword% OR\n" +
             "  s.namesiz LIKE %:keyword% OR\n" +
-            "  i.nomenclature_number LIKE %:keyword%)"+
+            "  i.nomenclature_number LIKE %:keyword%)" +
             "GROUP BY 1,2,3,4,5", nativeQuery = true)
     List<Object[]> findGroupbySizeAndHeightByKeyword(@Param("keyword") String keyword);
 
     /**
-     * Получение сгруппированного списка не выданного СИЗ на складе подразделения
+     * <b>Получение сгруппированного списка не выданного СИЗ на складе подразделения</b>
      *
      * @param id ID подразделения
      * @return сгруппированный по типу, размеру и росту список СИЗ на складе
@@ -66,7 +231,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
     List<Object[]> findGroupbySizeAndHeightByKomplex(@Param("id") Long id);
 
     /**
-     * Поиск по сгруппированному списку не выданного СИЗ на складе подразделения
+     * <b>Поиск по сгруппированному списку не выданного СИЗ на складе подразделения</b>
      *
      * @param id      ID подразделения
      * @param keyword ключевое слово поиска
@@ -81,13 +246,13 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "  (i.size LIKE %:keyword% OR\n" +
             "  i.height LIKE %:keyword% OR\n" +
             "  s.namesiz LIKE %:keyword% OR\n" +
-            "  i.nomenclature_number LIKE %:keyword%)"+
+            "  i.nomenclature_number LIKE %:keyword%)" +
             "GROUP BY 1,2,3,4,5", nativeQuery = true)
     List<Object[]> findGroupbySizeAndHeightByKomplexAndKeyword(@Param("id") Long id,
                                                                @Param("keyword") String keyword);
 
     /**
-     * Поиск СИЗ на складе подразделения
+     * <b>Поиск СИЗ на складе подразделения</b>
      *
      * @param id      ID подразделения
      * @param keyword ключевое слово
@@ -582,7 +747,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "height =:h AND\n" +
             "siz_id =:s_id AND\n" +
             "status =:stat AND\n" +
-            "nomenclature_number =:n_n AND\n"+
+            "nomenclature_number =:n_n AND\n" +
             "komplex_id IS NULL AND\n" +
             "employee_id IS NULL", nativeQuery = true)
     List<IssuedSIZ> findByStock(@Param("s") String size,
@@ -602,7 +767,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
     @Query(value = "SELECT * FROM issuedsiz WHERE \n" +
             "size =:s AND\n" +
             "siz_id =:s_id AND\n" +
-            "nomenclature_number =:n_n AND\n"+
+            "nomenclature_number =:n_n AND\n" +
             "status =:stat AND\n" +
             "komplex_id IS NULL AND\n" +
             "employee_id IS NULL", nativeQuery = true)
@@ -625,7 +790,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "size =:s AND\n" +
             "height =:h AND\n" +
             "siz_id =:s_id AND\n" +
-            "nomenclature_number =:n_n AND\n"+
+            "nomenclature_number =:n_n AND\n" +
             "status =:stat AND\n" +
             "komplex_id =:k_id AND\n" +
             "employee_id IS NULL", nativeQuery = true)
@@ -650,7 +815,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "height IS NULL AND\n" +
             "siz_id =:s_id AND\n" +
             "status =:stat AND\n" +
-            "nomenclature_number =:n_n AND\n"+
+            "nomenclature_number =:n_n AND\n" +
             "komplex_id =:k_id AND\n" +
             "employee_id IS NULL", nativeQuery = true)
     List<IssuedSIZ> findByStockAndKomplex(@Param("s") String size,
@@ -659,5 +824,63 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
                                           @Param("n_n") String nomenclatureNumber,
                                           @Param("k_id") long k_id);
 
+    /**
+     * <b>Выбор списка СИЗ по статусу и окончанию срока носки в выбранном диапазоне дат</b>
+     *
+     * @param status статус
+     * @param date1  дата начала временного диапазона
+     * @param date2  дата окончания временного диапазона
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT * FROM issuedsiz \n" +
+            "WHERE status =:stat AND date_end_wear BETWEEN :date1 AND :date2", nativeQuery = true)
+    List<IssuedSIZ> findByStatusWithEndingDateWearForSelectDate(@Param("stat") String status,
+                                                                @Param("date1") String date1,
+                                                                @Param("date2") String date2);
+    /**
+     * <b>Выбор списка СИЗ по статусу и с просроченным сроком носки</b>
+     *
+     * @param status статус
+     * @param date1  дата
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT * FROM issuedsiz \n" +
+            "WHERE status =:stat AND date_end_wear < :date1 ORDER BY date_end_wear", nativeQuery = true)
+    List<IssuedSIZ> findByStatusWithEndingDateWear(@Param("stat") String status,
+                                                                @Param("date1") String date1);
+    /**
+     * <b>Выбор списка СИЗ по статусу и подразделению с просроченным сроком носки</b>
+     *
+     * @param status статус
+     * @param date1  дата
+     * @param komplex_id ID подразделения
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT * FROM issuedsiz \n" +
+            "LEFT JOIN employee ON issuedsiz.employee_id = employee.id\n" +
+            "WHERE\n" +
+            "    issuedsiz.status = :status AND employee.komplex_id = :id AND\n" +
+            "    issuedsiz.date_end_wear < :date1 ORDER BY issuedsiz.date_end_wear", nativeQuery = true)
+    List<IssuedSIZ> findByStatusAndKomplexWithEndingDateWear(@Param("status") String status,
+                                                             @Param("date1") String date1,
+                                                             @Param("id") Long komplex_id);
+    /**
+     * <b>Выбор списка СИЗ по статусу и подразделению с окончанием срока носки в выбранном диапазоне дат</b>
+     *
+     * @param status статус
+     * @param date1  дата1
+     * @param date2  дата2
+     * @param komplex_id ID подразделения
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT * FROM issuedsiz \n" +
+            "LEFT JOIN employee ON issuedsiz.employee_id = employee.id\n" +
+            "WHERE\n" +
+            "    issuedsiz.status = :status AND employee.komplex_id = :id AND\n" +
+            "    issuedsiz.date_end_wear BETWEEN :date1 AND :date2 ORDER BY issuedsiz.date_end_wear", nativeQuery = true)
+    List<IssuedSIZ> findByStatusAndKomplexWithEndingDateWearForSelectDate(@Param("status") String status,
+                                                                          @Param("date1") String date1,
+                                                                          @Param("date2") String date2,
+                                                                          @Param("id") Long komplex_id);
 
 }

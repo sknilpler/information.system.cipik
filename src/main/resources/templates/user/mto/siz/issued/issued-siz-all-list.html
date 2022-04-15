@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Весь выданный СИЗ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+    <style>
+            #tb tr:hover {background:#E2EEFF;}
+            #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+    </style>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<!--&lt;!&ndash; Modal window for norm SIZ &ndash;&gt;-->
+<!--<div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"-->
+<!--     aria-hidden="true">-->
+<!--    <div class="modal-dialog modal-xl" role="document">-->
+<!--        <div class="modal-content">-->
+<!--            <div class="modal-header">-->
+<!--                <h5 class="modal-title" id="exampleModalLiveLabel">Комплектность СИЗ</h5>-->
+<!--                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"-->
+<!--                        onclick="closeModalWindow()">-->
+<!--                    <span aria-hidden="true">×</span>-->
+<!--                </button>-->
+<!--            </div>-->
+<!--            <div class="modal-body">-->
+<!--                <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"-->
+<!--                     th:fragment="table-siz">-->
+<!--                    <h6 th:text="${employee.surname}+' '+${#strings.substring(employee.name,0,1)}+' '+${#strings.substring(employee.patronymic,0,1)}"></h6>-->
+<!--                    <table class="table table-hover">-->
+<!--                        <thead>-->
+<!--                        <tr>-->
+<!--                            <th >Наименование</th>-->
+<!--                            <th style="width: 10%">По норме</th>-->
+<!--                            <th style="width: 10%">Выдано</th>-->
+<!--                            &lt;!&ndash;                            <th style="width: 100px;"></th>&ndash;&gt;-->
+<!--                        </tr>-->
+<!--                        </thead>-->
+<!--                        <tbody>-->
+<!--                        <tr th:each="s : ${siz}" style="cursor: pointer">-->
+<!--                            <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>-->
+<!--                            <td th:text="${s.issuanceRate}"></td>-->
+<!--                            <td th:text="${issuedSIZRepository.getCountByEmployeeIdAndIPMStandart(s.id,employee.id)}"></td>-->
+<!--                            &lt;!&ndash;                            <td>&ndash;&gt;-->
+<!--                            &lt;!&ndash;                                <button class="btn btn-danger btn-sm" name="iss-btn"&ndash;&gt;-->
+<!--                            &lt;!&ndash;                                        th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'" disabled>Выдать&ndash;&gt;-->
+<!--                            &lt;!&ndash;                                </button>&ndash;&gt;-->
+<!--                            &lt;!&ndash;                            </td>&ndash;&gt;-->
+<!--                        </tr>-->
+<!--                        </tbody>-->
+<!--                    </table>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="modal-footer">-->
+<!--                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">-->
+<!--                    Закрыть-->
+<!--                </button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--&lt;!&ndash; Modal window &ndash;&gt;-->
+<!--&lt;!&ndash; Modal window for issued SIZ &ndash;&gt;-->
+<!--<div id="exampleModalLive2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"-->
+<!--     aria-hidden="true">-->
+<!--    <div class="modal-dialog modal-xl" role="document">-->
+<!--        <div class="modal-content">-->
+<!--            <div class="modal-header">-->
+<!--                <h5 class="modal-title" id="exampleModalLiveLabel2">Выданный СИЗ сотруднику</h5>-->
+<!--                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"-->
+<!--                        onclick="closeModalWindow()">-->
+<!--                    <span aria-hidden="true">×</span>-->
+<!--                </button>-->
+<!--            </div>-->
+<!--            <div class="modal-body">-->
+<!--                <div class="table-issued-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"-->
+<!--                     th:fragment="table-issued-siz">-->
+<!--                    <h6 th:text="${employee.surname}+' '+${#strings.substring(employee.name,0,1)}+' '+${#strings.substring(employee.patronymic,0,1)}"></h6>-->
+<!--                    <table class="table table-hover">-->
+<!--                        <thead>-->
+<!--                        <tr>-->
+<!--                            <th>Наименование</th>-->
+<!--                            <th style="width: 15%">Выдано</th>-->
+<!--                            <th>Окончание носки</th>-->
+<!--                        </tr>-->
+<!--                        </thead>-->
+<!--                        <tbody>-->
+<!--                        <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">-->
+<!--                            <td th:text="${s.siz.nameSIZ}"></td>-->
+<!--                            <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>-->
+<!--                            <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>-->
+<!--                        </tr>-->
+<!--                        </tbody>-->
+<!--                    </table>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="modal-footer">-->
+<!--                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">-->
+<!--                    Закрыть-->
+<!--                </button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--&lt;!&ndash; Modal window &ndash;&gt;-->
+<!-- Side panel -->
+<div class="d-flex">
+    <div th:insert="user/mto/sidebar :: sidebar"></div>
+    <!-- Side panel -->
+    <div class="my-container active-cont container-fluid">
+        <div class="panel-body">
+            <div class="row g-3">
+                <div class="col-sm-3">
+                    <select sec:authorize="hasAnyRole('ROLE_USER')" class="form-select mb-2" aria-label="example" name="issued-by-komplex" id="issued-by-komplex"
+                            th:onchange="'javascript:filterByKomplex(this.value);'">
+                        <option selected disabled value="">Выберите подразделение</option>
+                        <option value="all">Все</option>
+                        <option th:each="k : ${komplexes}" th:value="${k.id}"
+                                th:text="${k.shortName}"></option>
+                    </select>
+                    <input id="textSearch" class="form-control" type="text" name="keyword" placeholder="Поиск"
+                           oninput="searching(this.value)">
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-select mb-2" aria-label="example" name="issued-sort" id="issued-sort"
+                            th:onchange="'javascript:sorting(this.value);'">
+                        <option selected disabled value="">Выберите тип сортировки</option>
+                        <option value="date">Дата окончания носки</option>
+                        <option value="fio">ФИО сотрудника</option>
+                        <option value="tip">Тип СИЗ</option>
+                        <option sec:authorize="hasAnyRole('ROLE_USER')" value="k_and_p">Подразделение и должность</option>
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <div class="info-window" th:fragment="info-window">
+                        <div class="alert alert-primary row g-1">
+                            <div class="col-6">
+                                <p th:text="${'Всего выданно ед. СИЗ: '+info.numberOfAllIssuedSIZ}" class="mb-0"></p>
+                                <a th:text="${'Истекает срок носки в следующем году: '+info.numberOfEndIssuedSIZNextYear}"
+                                   th:onclick="'javascript:showEmployeeWithEndDateWearNextYear();'" class="mb-0"></a>
+                            </div>
+                            <div class="col-6">
+                                <a th:text="${'Истекает срок носки в этом году: '+info.numberOfEndIssuedSIZThisYear}"
+                                   th:onclick="'javascript:showEmployeeWithEndDateWearThisYear();'" class="mb-0"></a><br>
+                                <a th:text="${'Истек срок носки: '+info.numberOfEndIssuedSIZ}"
+                                   th:onclick="'javascript:showEmployeeWithEndDateWear();'" class="mb-0"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-11">
+                    <span class="lead">Выданный СИЗ</span>
+                </div>
+                <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button class="btn btn-outline-secondary btn-sm float-right"
+                            th:onclick="'javascript:print();'"
+                            aria-label="Распечатать" title="Печать таблицы">
+                        <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                    </button>
+                </div>
+            </div>
+            <div class="table-sizs" style="max-height: 100vh; min-height: 30vh; overflow-y: auto;"
+                 th:fragment="table-sizs">
+                <table class="table table-hover" id="tb">
+                    <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Наименование</th>
+                        <th>Тип СИЗ</th>
+                        <th>ФИО сотрудника</th>
+                        <th>Должность</th>
+                        <th>Подразделение</th>
+                        <th align="center">Дата выдачи</th>
+                        <th align="center">Дата окончания носки</th>
+                        <th style="width: 320px;"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="s, status : ${vidanSIZ}" style="cursor: pointer">
+                        <td th:text="${status.count}"></td>
+                        <td th:text="${s.siz.nameSIZ}"></td>
+                        <td th:text="${s.siz.typeIPM}"></td>
+                        <td th:text="${s.employee.surname}+' '+${#strings.substring(s.employee.name,0,1)}+' '+${#strings.substring(s.employee.patronymic,0,1)}"></td>
+                        <td th:text="${s.employee.post.postName}"></td>
+                        <td th:text="${s.employee.komplex.shortName}"></td>
+                        <td align="center" th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
+                        <td align="center" th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" type="button"
+                                    th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'">Списать
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm"
+                                    th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить
+                            </button>
+                            <button class="btn btn-warning btn-sm" type="button"
+                                    th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить
+                                выдачу
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/pagecontrol/issued-siz-all-list.js"></script>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
