@@ -11,6 +11,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class IssuedSIZExcelExporter {
@@ -48,12 +51,13 @@ public class IssuedSIZExcelExporter {
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
         sheet.autoSizeColumn(columnCount);
         Cell cell = row.createCell(columnCount);
-        if (value instanceof Integer) {
-            cell.setCellValue((Integer) value);
-        } else if (value instanceof Boolean) {
-            cell.setCellValue((Boolean) value);
+
+        if (value instanceof Timestamp) {
+            Timestamp ts = (Timestamp) value;
+            Date date = new Date(ts.getTime());
+            cell.setCellValue(new SimpleDateFormat("dd.MM.yyyy").format(date));
         }else {
-            cell.setCellValue((String) value);
+            cell.setCellValue(value.toString());
         }
         cell.setCellStyle(style);
     }
@@ -83,13 +87,17 @@ public class IssuedSIZExcelExporter {
     }
 
     public void export(HttpServletResponse response) throws IOException {
+        System.out.println("start creating xls....");
+        long startTime = System.currentTimeMillis();
         writeHeaderLine();
         writeDataLines();
 
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);
         workbook.close();
-
+        long endTime = System.currentTimeMillis();
+        System.out.println("end creating xls!");
+        System.out.println((endTime - startTime) / 1000);
         outputStream.close();
 
     }

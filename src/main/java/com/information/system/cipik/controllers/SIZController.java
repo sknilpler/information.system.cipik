@@ -1644,6 +1644,63 @@ public class SIZController {
         return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
     }
 
+    /**
+     *<b>Печать таблицы выданного СИЗ</b>
+     */
+    @GetMapping("/userPage/list-issued-siz/print-table/{id_komplex}/{sort}/{keyword}")
+    public void printTableListIssuedSiz(HttpServletResponse response,
+                                        @PathVariable(value = "id_komplex") long id_komplex,
+                                        @PathVariable(value = "sort") String sorting,
+                                        @PathVariable(value = "keyword") String keyword) throws IOException {
+        response.setContentType("application/octet-stream");
+        DateFormat dateFormatter = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=spisok_vidannogo_siz_sotrudnikam_" + currentDateTime + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+        List<IssuedSIZ> issuedSIZS = new ArrayList<>();
+        if (id_komplex == 0) {
+            if (sorting.equals("none")) {
+                if (keyword.equals("none")) {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
+                } else {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndKeyword("Выдано", keyword);
+                }
+            } else {
+                if (sorting.equals("date")) {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByDateEndWear("Выдано");
+                }
+                if (sorting.equals("fio")) {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeSurname("Выдано");
+                }
+                if (sorting.equals("tip")) {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderBySizTypeIPM("Выдано");
+                }
+            }
+        } else {
+            if (sorting.equals("none")) {
+                if (keyword.equals("none")) {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано",id_komplex);
+                } else {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndKeyword("Выдано",id_komplex, keyword);
+                }
+            } else {
+                if (sorting.equals("date")) {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByDate("Выдано",id_komplex);
+                }
+                if (sorting.equals("fio")) {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByFIO("Выдано",id_komplex);
+                }
+                if (sorting.equals("tip")) {
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByType("Выдано",id_komplex);
+                }
+            }
+        }
+        System.out.println(issuedSIZS.size());
+        IssuedSIZExcelExporter excelExporter = new IssuedSIZExcelExporter(issuedSIZS);
+        excelExporter.export(response);
+    }
+
     //////////////////////Укомплектованность сотрудников СИЗ//////////////////////
 
     /**

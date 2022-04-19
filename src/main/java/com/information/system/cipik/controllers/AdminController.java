@@ -50,7 +50,9 @@ public class AdminController {
         return "admin/all-users";
     }
 
-    //Формируем динамически страницу для каждого пользователя. Внутри страницы можно сделать операции над пользователем
+    /**
+     * Формируем динамически страницу для каждого пользователя. Внутри страницы можно сделать операции над пользователем
+     */
     @GetMapping("/admin/all-users/user-details/{id}")
     public String userDetails(@PathVariable(value = "id") long id, Model model) {
         if (!userRepository.existsById(id)) {

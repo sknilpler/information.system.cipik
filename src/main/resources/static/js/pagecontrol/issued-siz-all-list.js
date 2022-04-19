@@ -203,19 +203,57 @@ function updateInfoWindow(){
   });
 }
 ////////////////////////////////////////
+function ExportToExcel(type, fn, dl) {
+       var elt = document.getElementById('tb');
+       var wb = XLSX.utils.table_to_book(elt, { sheet: "Список СИЗ" });
+       return dl ?
+         XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }):
+         XLSX.writeFile(wb, fn || ('Список выданного СИЗ.' + (type || 'xlsx')));
+}
+
+function hideCol(table,colIndex){
+      var elt = document.getElementById('tb');
+        for (var i = 0, col; col = elt.cols[i]; i++) {
+
+           if(colIndex==i){
+              col.className ="hiddenclass";
+           }
+          }
+
+      }
+
 function print(){
     var komplexSelector = document.getElementById("issued-by-komplex");
+    var sortSelector = document.getElementById("issued-sort");
+    var textSearch = document.getElementById("textSearch");
     if (komplexSelector !== null){
         id_komplex = komplexSelector.value;
     }
     if (id_komplex === 'all' || id_komplex === '') {
         id_komplex = 0;
     }
+    var sort_type = 'none';
+    if (sortSelector !== null){
+        sort_type = sortSelector.value;
+    }
+    if (sort_type === '') {
+        sort_type = 'none';
+    }
+    var keyword = 'none';
+    if (textSearch !== null){
+        keyword = textSearch.value;
+    }
+    if (keyword === '') {
+        keyword = 'none';
+    }
+    console.log(id_komplex);
+    console.log(sort_type);
+    console.log(keyword);
     $.ajax({
         type : "GET",
         contentType : "application/json",
         accept: 'text/plain',
-        url: '/userPage/list-issued-siz/print-table/'+id_komplex,
+        url: '/userPage/list-issued-siz/print-table/'+id_komplex + '/'+sort_type+'/'+keyword,
         dataType: 'binary',
         xhrFields: {
              'responseType':'blob'
@@ -228,7 +266,7 @@ function print(){
                  if (($("#issued-by-komplex option:selected").val() !== "") && ($("#issued-by-komplex option:selected").val() !== "all")){
                     komplexName = ' '+$("#issued-by-komplex option:selected").text();
                  }
-                 link.download = 'Укомплектованность сотрудников'+komplexName+'.xlsx';
+                 link.download = 'Выданный СИЗ сотрудникам'+komplexName+'.xlsx';
                  link.click();
         },
         error : function(e) {

@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="/css/sidebar.css">
     <script type="text/javascript" src="/js/jquery.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="/js/xlsx.full.min.js"></script>
     <style>
             #tb tr:hover {background:#E2EEFF;}
             #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+
     </style>
 </head>
 <body>
@@ -115,7 +117,8 @@
         <div class="panel-body">
             <div class="row g-3">
                 <div class="col-sm-3">
-                    <select sec:authorize="hasAnyRole('ROLE_USER')" class="form-select mb-2" aria-label="example" name="issued-by-komplex" id="issued-by-komplex"
+                    <select sec:authorize="hasAnyRole('ROLE_USER')" class="form-select mb-2" aria-label="example"
+                            name="issued-by-komplex" id="issued-by-komplex"
                             th:onchange="'javascript:filterByKomplex(this.value);'">
                         <option selected disabled value="">Выберите подразделение</option>
                         <option value="all">Все</option>
@@ -132,7 +135,8 @@
                         <option value="date">Дата окончания носки</option>
                         <option value="fio">ФИО сотрудника</option>
                         <option value="tip">Тип СИЗ</option>
-                        <option sec:authorize="hasAnyRole('ROLE_USER')" value="k_and_p">Подразделение и должность</option>
+                        <option sec:authorize="hasAnyRole('ROLE_USER')" value="k_and_p">Подразделение и должность
+                        </option>
                     </select>
                 </div>
                 <div class="col-sm-6">
@@ -145,7 +149,8 @@
                             </div>
                             <div class="col-6">
                                 <a th:text="${'Истекает срок носки в этом году: '+info.numberOfEndIssuedSIZThisYear}"
-                                   th:onclick="'javascript:showEmployeeWithEndDateWearThisYear();'" class="mb-0"></a><br>
+                                   th:onclick="'javascript:showEmployeeWithEndDateWearThisYear();'"
+                                   class="mb-0"></a><br>
                                 <a th:text="${'Истек срок носки: '+info.numberOfEndIssuedSIZ}"
                                    th:onclick="'javascript:showEmployeeWithEndDateWear();'" class="mb-0"></a>
                             </div>
@@ -160,7 +165,7 @@
                 </div>
                 <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
                     <button class="btn btn-outline-secondary btn-sm float-right"
-                            th:onclick="'javascript:print();'"
+                            onclick="ExportToExcel('xlsx')"
                             aria-label="Распечатать" title="Печать таблицы">
                         <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
                     </button>
@@ -179,7 +184,7 @@
                         <th>Подразделение</th>
                         <th align="center">Дата выдачи</th>
                         <th align="center">Дата окончания носки</th>
-                        <th style="width: 320px;"></th>
+                        <th style="width: 180px;"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -194,14 +199,16 @@
                         <td align="center" th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
                         <td>
                             <button class="btn btn-danger btn-sm" type="button"
-                                    th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'">Списать
+                                    th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'" title="Списать СИЗ">
+                                <img src="/images/bootstrap-icons/trash-fill.svg" width="24" height="24">
                             </button>
                             <button type="button" class="btn btn-primary btn-sm"
-                                    th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить
+                                    th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'" title="Продлить носку">
+                                <img src="/images/bootstrap-icons/calendar2-plus.svg" width="24" height="24">
                             </button>
                             <button class="btn btn-warning btn-sm" type="button"
-                                    th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить
-                                выдачу
+                                    th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'" title="Отменить выдачу и возврат СИЗ на склад">
+                                <img src="/images/bootstrap-icons/arrow-clockwise.svg" width="24" height="24">
                             </button>
                         </td>
                     </tr>
@@ -212,5 +219,6 @@
     </div>
 </div>
 <script type="text/javascript" src="/js/pagecontrol/issued-siz-all-list.js"></script>
+<script type="text/javascript" src="/js/issued-siz-to-csv.js"></script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>
