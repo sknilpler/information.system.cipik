@@ -69,6 +69,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "    issuedsiz.status = :status AND employee.komplex_id = :id AND \n" +
             "    (individual_protection_means.namesiz LIKE %:keyword% OR\n" +
             "    individual_protection_means.typeipm LIKE %:keyword% OR\n" +
+            "    issuedsiz.nomenclature_number LIKE %:keyword% OR\n" +
             "    employee.surname LIKE %:keyword% OR\n" +
             "    post.post_name LIKE %:keyword% OR\n" +
             "    komplex.short_name LIKE %:keyword%)", nativeQuery = true)
@@ -96,6 +97,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "    (individual_protection_means.namesiz LIKE %:keyword% OR\n" +
             "    individual_protection_means.typeipm LIKE %:keyword% OR\n" +
             "    employee.surname LIKE %:keyword% OR\n" +
+            "    issuedsiz.nomenclature_number LIKE %:keyword% OR\n" +
             "    post.post_name LIKE %:keyword% OR\n" +
             "    komplex.short_name LIKE %:keyword%)", nativeQuery = true)
     Iterable<IssuedSIZ> findByStatusAndKeyword(@Param("status") String status, @Param("keyword") String keyword);

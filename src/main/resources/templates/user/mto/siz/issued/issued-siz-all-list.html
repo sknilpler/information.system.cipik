@@ -178,6 +178,7 @@
                     <tr>
                         <th>№</th>
                         <th>Наименование</th>
+                        <th>Номенклатурный №</th>
                         <th>Тип СИЗ</th>
                         <th>ФИО сотрудника</th>
                         <th>Должность</th>
@@ -191,6 +192,7 @@
                     <tr th:each="s, status : ${vidanSIZ}" style="cursor: pointer">
                         <td th:text="${status.count}"></td>
                         <td th:text="${s.siz.nameSIZ}"></td>
+                        <td th:text="${s.nomenclatureNumber}"></td>
                         <td th:text="${s.siz.typeIPM}"></td>
                         <td th:text="${s.employee.surname}+' '+${#strings.substring(s.employee.name,0,1)}+' '+${#strings.substring(s.employee.patronymic,0,1)}"></td>
                         <td th:text="${s.employee.post.postName}"></td>

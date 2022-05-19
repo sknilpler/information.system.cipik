@@ -20,7 +20,8 @@
                     <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                         <li sec:authorize="isAuthenticated()"><a href="/userPage/employee-siz" class="link-dark rounded">Укомплектованность<br>сотрудников</a><hr></li>
                         <li sec:authorize="isAuthenticated()"><a href="/userPage/issued-siz" class="link-dark rounded">Выдача<br>по нормам</a><hr></li>
-                        <li sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')"><a href="/userPage/issued-siz-manual" class="link-dark rounded">Выдача<br>вручную</a><hr></li>
+                        <li sec:authorize="isAuthenticated()"><a href="/userPage/list-issued-siz" class="link-dark rounded">Список<br>выданного СИЗ</a><hr></li>
+                        <li sec:authorize="isAuthenticated()"><a href="/userPage/issued-siz-manual" class="link-dark rounded">Выдача<br>вручную</a><hr></li>
                         <li sec:authorize="isAuthenticated()"><a href="/userPage/not-issued-siz" class="link-dark rounded">Склад</a><hr></li>
                         <li sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')"><a href="/userPage/purchasing-table" class="link-dark rounded">Закупочная<br>таблица</a><hr></li>
 <!--                        <li sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')"><a href="/userPage/issued-for-komplex" class="link-dark rounded">Выдача<br>подразделению</a><hr></li>-->
