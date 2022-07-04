@@ -22,7 +22,6 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Month;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1431,24 +1430,38 @@ public class SIZController {
      * @return список СИЗ
      */
     @GetMapping("/userPage/list-issued-siz")
-    public String staffingOfAllSIZ(Model model) {
+    public String staffingOfAllSIZ(Model model, Authentication authentication) {
 
         String nextYearBegin = (Year.now().getValue() + 1) + "_01_01";
         String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
         String currYearBegin = (Year.now().getValue()) + "_" + ((new Date()).getMonth() + 1) + "_" + (new Date()).getDate();
         String currYearEnd = (Year.now().getValue()) + "_12_31";
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            List<IssuedSIZ> issuedSIZS = StreamSupport.stream(issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано").spliterator(), false)
+                    .collect(Collectors.toList());
+            List<IssuedSIZ> issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
+            List<IssuedSIZ> issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
+            List<IssuedSIZ> issuedSIZSEnding = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
 
-        List<IssuedSIZ> issuedSIZS = StreamSupport.stream(issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано").spliterator(), false)
-                .collect(Collectors.toList());
-        List<IssuedSIZ> issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
-        List<IssuedSIZ> issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
-        List<IssuedSIZ> issuedSIZSEnding = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
-
-        StatisticsForListSIZ info = new StatisticsForListSIZ(issuedSIZS.size(), issuedSIZSEnding.size(), issuedSIZSEndingNextYear.size(), issuedSIZSEndingCurrYear.size());
-        model.addAttribute("info", info);
-        model.addAttribute("komplexes", komplexRepository.findAll());
-        model.addAttribute("vidanSIZ", issuedSIZS);
-
+            StatisticsForListSIZ info = new StatisticsForListSIZ(issuedSIZS.size(), issuedSIZSEnding.size(), issuedSIZSEndingNextYear.size(), issuedSIZSEndingCurrYear.size());
+            model.addAttribute("info", info);
+            model.addAttribute("komplexes", komplexRepository.findAll());
+            model.addAttribute("vidanSIZ", issuedSIZS);
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            Iterable<IssuedSIZ> issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", komplex.getId());
+            List<IssuedSIZ> issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, komplex.getId());
+            List<IssuedSIZ> issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, komplex.getId());
+            List<IssuedSIZ> issuedSIZSEnding = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWear("Выдано", currYearBegin, komplex.getId());
+            StatisticsForListSIZ info = new StatisticsForListSIZ(StreamSupport.stream(issuedSIZS.spliterator(), false)
+                    .collect(Collectors.toList()).size(), issuedSIZSEnding.size(), issuedSIZSEndingNextYear.size(), issuedSIZSEndingCurrYear.size());
+            model.addAttribute("info", info);
+            model.addAttribute("vidanSIZ", issuedSIZS);
+        }
         return "user/mto/siz/issued/issued-siz-all-list";
     }
 
@@ -1487,7 +1500,7 @@ public class SIZController {
     }
 
     @GetMapping("/userPage/list-issued-siz/info-update/{id_komplex}")
-    public String staffingByKomplexOfAllSIZInfoUpdate(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+    public String staffingByKomplexOfAllSIZInfoUpdate(Model model, Authentication authentication, @PathVariable(value = "id_komplex") long id_komplex) {
         Iterable<IssuedSIZ> issuedSIZS;
         List<IssuedSIZ> issuedSIZSEndingNextYear;
         List<IssuedSIZ> issuedSIZSEndingCurrYear;
@@ -1497,17 +1510,28 @@ public class SIZController {
         String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
         String currYearBegin = (Year.now().getValue()) + "_" + ((new Date()).getMonth() + 1) + "_" + (new Date()).getDate();
         String currYearEnd = (Year.now().getValue()) + "_12_31";
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex == 0) {
+                issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
+                issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
+                issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
+                issuedSIZSEnding = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
 
-        if (id_komplex == 0) {
-            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
-            issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
-            issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
-            issuedSIZSEnding = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
-
-        } else {
-            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", id_komplex);
-            issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, id_komplex);
-            issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, id_komplex);
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", id_komplex);
+                issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, id_komplex);
+                issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, id_komplex);
+                issuedSIZSEnding = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWear("Выдано", currYearBegin, id_komplex);
+            }
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", komplex.getId());
+            issuedSIZSEndingNextYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, komplex.getId());
+            issuedSIZSEndingCurrYear = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, komplex.getId());
             issuedSIZSEnding = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWear("Выдано", currYearBegin, id_komplex);
         }
         StatisticsForListSIZ info = new StatisticsForListSIZ(StreamSupport.stream(issuedSIZS.spliterator(), false)
@@ -1520,12 +1544,21 @@ public class SIZController {
      * <b>Сортировка таблицы выданного СИЗ по дате окончания носки</b>
      */
     @GetMapping("/userPage/list-issued-siz/sorting-date/{id_komplex}")
-    public String sortingByDateStaffingOfAllIssuedSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+    public String sortingByDateStaffingOfAllIssuedSIZ(Model model, Authentication authentication, @PathVariable(value = "id_komplex") long id_komplex) {
         Iterable<IssuedSIZ> issuedSIZS;
-        if (id_komplex == 0) {
-            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByDateEndWear("Выдано");
-        } else {
-            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByDate("Выдано", id_komplex);
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex == 0) {
+                issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByDateEndWear("Выдано");
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByDate("Выдано", id_komplex);
+            }
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByDate("Выдано", komplex.getId());
         }
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
@@ -1535,12 +1568,21 @@ public class SIZController {
      * <b>Сортировка таблицы СИЗ по ФИО сотрудника</b>
      */
     @GetMapping("/userPage/list-issued-siz/sorting-fio/{id_komplex}")
-    public String sortingByFIOStaffingOfAllIssuedSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+    public String sortingByFIOStaffingOfAllIssuedSIZ(Model model, Authentication authentication, @PathVariable(value = "id_komplex") long id_komplex) {
         Iterable<IssuedSIZ> issuedSIZS;
-        if (id_komplex == 0) {
-            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeSurname("Выдано");
-        } else {
-            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByFIO("Выдано", id_komplex);
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex == 0) {
+                issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeSurname("Выдано");
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByFIO("Выдано", id_komplex);
+            }
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByFIO("Выдано", komplex.getId());
         }
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
@@ -1550,12 +1592,21 @@ public class SIZController {
      * <b>Сортировка таблицы СИЗ по типу</b>
      */
     @GetMapping("/userPage/list-issued-siz/sorting-tip/{id_komplex}")
-    public String sortingByTypeStaffingOfAllIssuedSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+    public String sortingByTypeStaffingOfAllIssuedSIZ(Model model, Authentication authentication, @PathVariable(value = "id_komplex") long id_komplex) {
         Iterable<IssuedSIZ> issuedSIZS;
-        if (id_komplex == 0) {
-            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderBySizTypeIPM("Выдано");
-        } else {
-            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByType("Выдано", id_komplex);
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex == 0) {
+                issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderBySizTypeIPM("Выдано");
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByType("Выдано", id_komplex);
+            }
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByType("Выдано", komplex.getId());
         }
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
@@ -1565,12 +1616,21 @@ public class SIZController {
      * <b>Сортировка таблицы СИЗ по подразделению и должности</b>
      */
     @GetMapping("/userPage/list-issued-siz/sorting_k_p/{id_komplex}")
-    public String sortingByKomplexAndPostStaffingOfAllIssuedSIZ(Model model, @PathVariable(value = "id_komplex") long id_komplex) {
+    public String sortingByKomplexAndPostStaffingOfAllIssuedSIZ(Model model, Authentication authentication, @PathVariable(value = "id_komplex") long id_komplex) {
         Iterable<IssuedSIZ> issuedSIZS;
-        if (id_komplex == 0) {
-            issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeKomplexShortNameAscEmployeePostPostNameAsc("Выдано");
-        } else {
-            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByKomplexAndPost("Выдано", id_komplex);
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex == 0) {
+                issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeKomplexShortNameAscEmployeePostPostNameAsc("Выдано");
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByKomplexAndPost("Выдано", id_komplex);
+            }
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByKomplexAndPost("Выдано", komplex.getId());
         }
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
@@ -1580,20 +1640,33 @@ public class SIZController {
      * <b>Поиск по таблице выданного СИЗ</b>
      */
     @GetMapping("/userPage/list-issued-siz/filter/{keyword}/{id_komplex}")
-    public String searchStaffingOfAllIssuedSIZ(@PathVariable(value = "keyword") String keyword,
+    public String searchStaffingOfAllIssuedSIZ(@PathVariable(value = "keyword") String keyword, Authentication authentication,
                                                @PathVariable(value = "id_komplex") long id_komplex, Model model) {
         Iterable<IssuedSIZ> issuedSIZS;
-        if (id_komplex != 0) { // поиск по выбранному подразделению
-            if (keyword.equals("0")) {
-                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", id_komplex);
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex != 0) { // поиск по выбранному подразделению
+                if (keyword.equals("0")) {
+                    issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", id_komplex);
+                } else {
+                    issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndKeyword("Выдано", id_komplex, keyword);
+                }
             } else {
-                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndKeyword("Выдано", id_komplex, keyword);
+                if (keyword.equals("0")) {
+                    issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
+                } else {
+                    issuedSIZS = issuedSIZRepository.findByStatusAndKeyword("Выдано", keyword);
+                }
             }
-        } else {
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
             if (keyword.equals("0")) {
-                issuedSIZS = issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
+                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", komplex.getId());
             } else {
-                issuedSIZS = issuedSIZRepository.findByStatusAndKeyword("Выдано", keyword);
+                issuedSIZS = issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndKeyword("Выдано", komplex.getId(), keyword);
             }
         }
         model.addAttribute("vidanSIZ", issuedSIZS);
@@ -1601,54 +1674,81 @@ public class SIZController {
     }
 
     @GetMapping("/userPage/list-issued-siz/show-issuedsiz-with-end-wear-date/{id_komplex}")
-    public String showIssuedSizWithEndWearDate(Model model,
+    public String showIssuedSizWithEndWearDate(Model model, Authentication authentication,
                                                @PathVariable(value = "id_komplex") long id_komplex) {
         Iterable<IssuedSIZ> issuedSIZS;
         String currYearBegin = (Year.now().getValue()) + "_" + ((new Date()).getMonth() + 1) + "_" + (new Date()).getDate();
-        if (id_komplex == 0) {
-            issuedSIZS = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
-        } else {
-            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWear("Выдано", currYearBegin, id_komplex);
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex == 0) {
+                issuedSIZS = issuedSIZRepository.findByStatusWithEndingDateWear("Выдано", currYearBegin);
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWear("Выдано", currYearBegin, id_komplex);
+            }
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWear("Выдано", currYearBegin, komplex.getId());
         }
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
     }
 
     @GetMapping("/userPage/list-issued-siz/show-issuedsiz-with-end-wear-date-curr-year/{id_komplex}")
-    public String showIssuedSizWithEndWearDateThisYear(Model model,
+    public String showIssuedSizWithEndWearDateThisYear(Model model, Authentication authentication,
                                                        @PathVariable(value = "id_komplex") long id_komplex) {
         Iterable<IssuedSIZ> issuedSIZS;
         String currYearBegin = (Year.now().getValue()) + "_" + ((new Date()).getMonth() + 1) + "_" + (new Date()).getDate();
         String currYearEnd = (Year.now().getValue()) + "_12_31";
-        if (id_komplex == 0) {
-            issuedSIZS = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
-        } else {
-            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, id_komplex);
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex == 0) {
+                issuedSIZS = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd);
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, id_komplex);
+            }
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", currYearBegin, currYearEnd, komplex.getId());
         }
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
     }
 
     @GetMapping("/userPage/list-issued-siz/show-issuedsiz-with-end-wear-date-next-year/{id_komplex}")
-    public String showIssuedSizWithEndWearDateNextYear(Model model,
+    public String showIssuedSizWithEndWearDateNextYear(Model model, Authentication authentication,
                                                        @PathVariable(value = "id_komplex") long id_komplex) {
         Iterable<IssuedSIZ> issuedSIZS;
         String nextYearBegin = (Year.now().getValue() + 1) + "_01_01";
         String nextYearEnd = (Year.now().getValue() + 1) + "_12_31";
-        if (id_komplex == 0) {
-            issuedSIZS = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
-        } else {
-            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, id_komplex);
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex == 0) {
+                issuedSIZS = issuedSIZRepository.findByStatusWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd);
+            } else {
+                issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, id_komplex);
+            }
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
+            issuedSIZS = issuedSIZRepository.findByStatusAndKomplexWithEndingDateWearForSelectDate("Выдано", nextYearBegin, nextYearEnd, komplex.getId());
         }
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-all-list :: table-sizs";
     }
 
     /**
-     *<b>Печать таблицы выданного СИЗ</b>
+     * <b>Печать таблицы выданного СИЗ</b>
      */
     @GetMapping("/userPage/list-issued-siz/print-table/{id_komplex}/{sort}/{keyword}")
-    public void printTableListIssuedSiz(HttpServletResponse response,
+    public void printTableListIssuedSiz(HttpServletResponse response, Authentication authentication,
                                         @PathVariable(value = "id_komplex") long id_komplex,
                                         @PathVariable(value = "sort") String sorting,
                                         @PathVariable(value = "keyword") String keyword) throws IOException {
@@ -1659,40 +1759,65 @@ public class SIZController {
         String headerValue = "attachment; filename=spisok_vidannogo_siz_sotrudnikam_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
         List<IssuedSIZ> issuedSIZS = new ArrayList<>();
-        if (id_komplex == 0) {
-            if (sorting.equals("none")) {
-                if (keyword.equals("none")) {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
+        //определение текущей роли пользователя
+        Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
+        Iterable<Employee> employees;
+        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        if (role.getName().equals("ROLE_USER")) {
+            if (id_komplex == 0) {
+                if (sorting.equals("none")) {
+                    if (keyword.equals("none")) {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLike("Выдано");
+                    } else {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndKeyword("Выдано", keyword);
+                    }
                 } else {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndKeyword("Выдано", keyword);
+                    if (sorting.equals("date")) {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByDateEndWear("Выдано");
+                    }
+                    if (sorting.equals("fio")) {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeSurname("Выдано");
+                    }
+                    if (sorting.equals("tip")) {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderBySizTypeIPM("Выдано");
+                    }
                 }
             } else {
-                if (sorting.equals("date")) {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByDateEndWear("Выдано");
-                }
-                if (sorting.equals("fio")) {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderByEmployeeSurname("Выдано");
-                }
-                if (sorting.equals("tip")) {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByEmployeeIdNotNullAndStatusLikeOrderBySizTypeIPM("Выдано");
+                if (sorting.equals("none")) {
+                    if (keyword.equals("none")) {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", id_komplex);
+                    } else {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndKeyword("Выдано", id_komplex, keyword);
+                    }
+                } else {
+                    if (sorting.equals("date")) {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByDate("Выдано", id_komplex);
+                    }
+                    if (sorting.equals("fio")) {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByFIO("Выдано", id_komplex);
+                    }
+                    if (sorting.equals("tip")) {
+                        issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByType("Выдано", id_komplex);
+                    }
                 }
             }
-        } else {
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
+            Komplex komplex = komplexRepository.findByRoleId(role.getId());
             if (sorting.equals("none")) {
                 if (keyword.equals("none")) {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано",id_komplex);
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexId("Выдано", komplex.getId());
                 } else {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndKeyword("Выдано",id_komplex, keyword);
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndKeyword("Выдано", komplex.getId(), keyword);
                 }
             } else {
                 if (sorting.equals("date")) {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByDate("Выдано",id_komplex);
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByDate("Выдано", komplex.getId());
                 }
                 if (sorting.equals("fio")) {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByFIO("Выдано",id_komplex);
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByFIO("Выдано", komplex.getId());
                 }
                 if (sorting.equals("tip")) {
-                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByType("Выдано",id_komplex);
+                    issuedSIZS = (List<IssuedSIZ>) issuedSIZRepository.findByStatusAndEmployeeKomplexIdAndSortingByType("Выдано", komplex.getId());
                 }
             }
         }

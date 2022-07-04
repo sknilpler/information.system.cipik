@@ -334,7 +334,7 @@
                         </td>
                         <td align="center">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-auto">
                                     <p th:text="${el.post.postName}"></p>
                                 </div>
                                 <div class="col-md-auto">
@@ -351,7 +351,7 @@
                         <td align="center"
                             sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-auto">
                                     <p th:text="${el.komplex.shortName}"></p>
                                 </div>
                                 <div class="col-md-auto">
@@ -367,7 +367,7 @@
                         </td>
                         <td align="center">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-auto">
                                     <p th:text="${el.tabNomer}"></p>
                                 </div>
                                 <div class="col-md-auto">
@@ -383,7 +383,7 @@
                         </td>
                         <td align="center">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-auto">
                                     <p th:text="${#dates.format(el.dataStartWork, 'dd.MM.yyyy')}"></p>
                                 </div>
                                 <div class="col-md-auto">
@@ -400,7 +400,7 @@
                         <td align="center" th:text="${el.sex}"></td>
                         <td align="center">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-auto">
                                     <p th:text="${el.height}"></p>
                                 </div>
                                 <div class="col-md-auto">
@@ -416,7 +416,7 @@
                         </td>
                         <td align="center">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-auto">
                                     <p th:text="${el.clothingSize}"></p>
                                 </div>
                                 <div class="col-md-auto">
@@ -432,7 +432,7 @@
                         </td>
                         <td align="center">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-auto">
                                     <p th:text="${el.shoeSize}"></p>
                                 </div>
                                 <div class="col-md-auto">
@@ -448,7 +448,7 @@
                         </td>
                         <td align="center">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-auto">
                                     <p th:text="${el.headgearSize}"></p>
                                 </div>
                                 <div class="col-md-auto">

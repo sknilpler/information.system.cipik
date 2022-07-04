@@ -116,6 +116,7 @@ function loadEmployeesForSelectedPostForManual() {
 			url: '/userPage/issued-siz/getEmployeeForPost/' + postId,
 			success: function (data) {
 				$('.table-employees').html(data);
+				$('body input:checkbox').prop('disabled', false);
 			},
 		})
 		updateSizForPost();

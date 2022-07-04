@@ -275,6 +275,7 @@
                 <thead>
                 <tr>
                   <th>Наименование</th>
+                  <th align="center">Номенклатурный №</th>
                   <th align="center">Дата выдачи</th>
                   <th align="center">Дата окончания носки</th>
                   <th style="width: 320px;"></th>
@@ -283,6 +284,7 @@
                 <tbody>
                 <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
                   <td th:text="${s.siz.nameSIZ}"></td>
+                  <td align="center" th:text="${s.nomenclatureNumber}"></td>
                   <td align="center" th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
                   <td align="center" th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
                   <td>
@@ -347,6 +349,7 @@
 //////////////////////setting current date
 document.getElementById('backdate').valueAsDate = new Date();
 //////////////////////////////////////////////
+$('body input:checkbox').prop('disabled', false);
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>
