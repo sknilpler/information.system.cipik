@@ -508,6 +508,46 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
                                               @Param("date2") String date2);
 
     /**
+     * Получить список СИЗ необходимого для закупки на следующий год для всего центра для печати
+     *
+     * @param date1 дата начала следующего года
+     * @param date2 дата конца следующего года
+     * @return сгруппированный список СИЗ для закупки
+     */
+    @Query(value = "SELECT s.id, s.namesiz, t.height, t.size, i.issuance_rate) as numAll, \n" +
+            "(SELECT COUNT(issuedsiz.id) FROM issuedsiz\n" +
+            "WHERE issuedsiz.size = t.size AND\n" +
+            "      issuedsiz.height=t.height AND\n" +
+            "      issuedsiz.siz_id=s.id AND\n" +
+            "      issuedsiz.employee_id IS NOT null AND\n" +
+            "      issuedsiz.date_end_wear BETWEEN :date1 AND :date2 AND\n" +
+            "      issuedsiz.status = \"Выдано\") as numIssued,  e.surname, e.name, p.post_name, k.short_name\n" +
+            "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t, komplex k\n" +
+            "WHERE e.post_id = p.id AND\n" +
+            "e.komplex_id = k.id and \n" +
+            "i.post_id = p.id AND\n" +
+            "i.individual_protection_means_id = s.id AND\n" +
+            "s.id = t.individual_protection_means_id AND\n" +
+            "IF(s.typeipm = \"Одежда\",\n" +
+            "t.height = e.height AND\n" +
+            "t.size = e.clothing_size,\n" +
+            "IF(s.typeipm = \"Обувь\",\n" +
+            "t.size = e.shoe_size,\n" +
+            "       IF(s.typeipm = \"Головной убор\",\n" +
+            "       t.size = e.headgear_size,\n" +
+            "          IF(s.typeipm = \"Перчатки\",\n" +
+            "          t.size = e.glove_size,\n" +
+            "            IF(s.typeipm = \"Рукавицы\",\n" +
+            "            t.size = e.mittens_size,\n" +
+            "              IF(s.typeipm = \"Противогаз\",\n" +
+            "              t.size = e.gas_mask_size,\n" +
+            "                IF(s.typeipm = \"Респиратор\",\n" +
+            "                t.size = e.respirator_size,NULL)))))))  \n" +
+            "ORDER BY 3,4,5", nativeQuery = true)
+    List<Object[]> getAllSIZForPurchaseByDateForPrint(@Param("date1") String date1,
+                                              @Param("date2") String date2);
+
+    /**
      * Получить список СИЗ необходимого для закупки на следующий год для подразделения
      *
      * @param date1 дата начала следующего года
@@ -551,6 +591,50 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
                                                         @Param("id") Long id);
 
     /**
+     * Получить список СИЗ необходимого для закупки на следующий год для подразделения for print
+     *
+     * @param date1 дата начала следующего года
+     * @param date2 дата конца следующего года
+     * @param id    ID подразделения
+     * @return сгруппированный список СИЗ для закупки
+     */
+    @Query(value = "SELECT s.id, s.namesiz, t.height, t.size, i.issuance_rate as numAll, \n" +
+            "(SELECT COUNT(issuedsiz.id) FROM issuedsiz\n" +
+            "WHERE issuedsiz.size = t.size AND\n" +
+            "      issuedsiz.height=t.height AND\n" +
+            "      issuedsiz.siz_id=s.id AND\n" +
+            "      issuedsiz.employee_id = e.id AND\n" +
+            "      issuedsiz.date_end_wear BETWEEN :date1 AND :date2 AND\n" +
+            "      issuedsiz.status = \"Выдано\") as numIssued, e.surname, e.name, p.post_name, k.short_name\n" +
+            "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t, komplex k\n" +
+            "            WHERE e.post_id = p.id AND\n" +
+            "WHERE e.post_id = p.id AND\n" +
+            "e.komplex_id = k.id and \n" +
+            "i.post_id = p.id AND\n" +
+            "i.individual_protection_means_id = s.id AND\n" +
+            "s.id = t.individual_protection_means_id AND\n" +
+            "e.komplex_id =:id AND\n" +
+            "IF(s.typeipm = \"Одежда\",\n" +
+            "t.height = e.height AND\n" +
+            "t.size = e.clothing_size,\n" +
+            "IF(s.typeipm = \"Обувь\",\n" +
+            "t.size = e.shoe_size,\n" +
+            "       IF(s.typeipm = \"Головной убор\",\n" +
+            "       t.size = e.headgear_size,\n" +
+            "          IF(s.typeipm = \"Перчатки\",\n" +
+            "          t.size = e.glove_size,\n" +
+            "            IF(s.typeipm = \"Рукавицы\",\n" +
+            "            t.size = e.mittens_size,\n" +
+            "              IF(s.typeipm = \"Противогаз\",\n" +
+            "              t.size = e.gas_mask_size,\n" +
+            "                IF(s.typeipm = \"Респиратор\",\n" +
+            "                t.size = e.respirator_size,NULL)))))))  \n" +
+            "ORDER BY 3,4,5", nativeQuery = true)
+    List<Object[]> getAllSIZForPurchaseByDateAndKomplexForPrint(@Param("date1") String date1,
+                                                        @Param("date2") String date2,
+                                                        @Param("id") Long id);
+
+    /**
      * Получить список СИЗ необходимого для до закупки сотрудникам для всего центра
      *
      * @return сгруппированный список СИЗ для закупки
@@ -585,6 +669,42 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "GROUP BY 1,3,4 \n" +
             "ORDER BY 3,4,5", nativeQuery = true)
     List<Object[]> getAllSIZForPurchaseByNow();
+
+    /**
+     * Получить список СИЗ необходимого для до закупки сотрудникам для всего центра  for print
+     *
+     * @return сгруппированный список СИЗ для закупки
+     */
+    @Query(value = "SELECT s.id, s.namesiz, t.height, t.size, i.issuance_rate as numAll, \n" +
+            "(SELECT COUNT(issuedsiz.id) FROM issuedsiz\n" +
+            "WHERE issuedsiz.size = t.size AND\n" +
+            "      issuedsiz.height=t.height AND\n" +
+            "      issuedsiz.siz_id=s.id AND\n" +
+            "      issuedsiz.employee_id IS NOT null AND\n" +
+            "      issuedsiz.status = \"Выдано\") as numIssued, e.surname, e.name, p.post_name, k.short_name\n" +
+            "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t, komplex k\n" +
+            "WHERE e.post_id = p.id AND\n" +
+            "e.komplex_id = k.id and \n" +
+            "i.post_id = p.id AND\n" +
+            "i.individual_protection_means_id = s.id AND\n" +
+            "s.id = t.individual_protection_means_id AND\n" +
+            "IF(s.typeipm = \"Одежда\",\n" +
+            "t.height = e.height AND\n" +
+            "t.size = e.clothing_size,\n" +
+            "IF(s.typeipm = \"Обувь\",\n" +
+            "t.size = e.shoe_size,\n" +
+            "       IF(s.typeipm = \"Головной убор\",\n" +
+            "       t.size = e.headgear_size,\n" +
+            "          IF(s.typeipm = \"Перчатки\",\n" +
+            "          t.size = e.glove_size,\n" +
+            "            IF(s.typeipm = \"Рукавицы\",\n" +
+            "            t.size = e.mittens_size,\n" +
+            "              IF(s.typeipm = \"Противогаз\",\n" +
+            "              t.size = e.gas_mask_size,\n" +
+            "                IF(s.typeipm = \"Респиратор\",\n" +
+            "                t.size = e.respirator_size,NULL)))))))  \n" +
+            "ORDER BY 3,4,5", nativeQuery = true)
+    List<Object[]> getAllSIZForPurchaseByNowForPint();
 
     /**
      * Получить список СИЗ необходимого для до закупки сотрудникам для подразделения
@@ -625,6 +745,44 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
     List<Object[]> getAllSIZForPurchaseByNowAndKomplex(@Param("id") Long id);
 
     /**
+     * Получить список СИЗ необходимого для до закупки сотрудникам для подразделения for print
+     *
+     * @param id ID подразделения
+     * @return сгруппированный список СИЗ для закупки
+     */
+    @Query(value = "SELECT s.id, s.namesiz, t.height, t.size, i.issuance_rate as numAll, \n" +
+            "(SELECT COUNT(issuedsiz.id) FROM issuedsiz\n" +
+            "WHERE issuedsiz.size = t.size AND\n" +
+            "      issuedsiz.height=t.height AND\n" +
+            "      issuedsiz.siz_id=s.id AND\n" +
+            "      issuedsiz.employee_id = e.id AND\n" +
+            "      issuedsiz.status = \"Выдано\") as numIssued, e.surname, e.name, p.post_name, k.short_name\n" +
+            "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t, komplex k\n" +
+            "WHERE e.post_id = p.id AND\n" +
+            "e.komplex_id = k.id and \n" +
+            "i.post_id = p.id AND\n" +
+            "i.individual_protection_means_id = s.id AND\n" +
+            "s.id = t.individual_protection_means_id AND\n" +
+            "e.komplex_id =:id AND\n" +
+            "IF(s.typeipm = \"Одежда\",\n" +
+            "t.height = e.height AND\n" +
+            "t.size = e.clothing_size,\n" +
+            "IF(s.typeipm = \"Обувь\",\n" +
+            "t.size = e.shoe_size,\n" +
+            "       IF(s.typeipm = \"Головной убор\",\n" +
+            "       t.size = e.headgear_size,\n" +
+            "          IF(s.typeipm = \"Перчатки\",\n" +
+            "          t.size = e.glove_size,\n" +
+            "            IF(s.typeipm = \"Рукавицы\",\n" +
+            "            t.size = e.mittens_size,\n" +
+            "              IF(s.typeipm = \"Противогаз\",\n" +
+            "              t.size = e.gas_mask_size,\n" +
+            "                IF(s.typeipm = \"Респиратор\",\n" +
+            "                t.size = e.respirator_size,NULL)))))))  \n" +
+            "ORDER BY 3,4,5", nativeQuery = true)
+    List<Object[]> getAllSIZForPurchaseByNowAndKomplexForPrint(@Param("id") Long id);
+
+    /**
      * Получить весь список СИЗ для закупки
      *
      * @return список СИЗ
@@ -655,6 +813,38 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "GROUP BY 1,3,4 \n" +
             "ORDER BY 3,4,5", nativeQuery = true)
     List<Object[]> getAllSIZForPurchase();
+
+    /**
+     * Получить весь список СИЗ для закупки for print
+     *
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT s.id, s.namesiz, t.height, t.size, i.issuance_rate as numAll, \n" +
+            "(SELECT COUNT(issuedsiz.id) FROM issuedsiz\n" +
+            "WHERE issuedsiz.id = 0) as numIssued, e.surname, e.name, p.post_name, k.short_name\n" +
+            "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t, komplex k\n" +
+            "WHERE e.post_id = p.id AND\n" +
+            "e.komplex_id = k.id and \n" +
+            "i.post_id = p.id AND\n" +
+            "i.individual_protection_means_id = s.id AND\n" +
+            "s.id = t.individual_protection_means_id AND\n" +
+            "IF(s.typeipm = \"Одежда\",\n" +
+            "t.height = e.height AND\n" +
+            "t.size = e.clothing_size,\n" +
+            "IF(s.typeipm = \"Обувь\",\n" +
+            "t.size = e.shoe_size,\n" +
+            "       IF(s.typeipm = \"Головной убор\",\n" +
+            "       t.size = e.headgear_size,\n" +
+            "          IF(s.typeipm = \"Перчатки\",\n" +
+            "          t.size = e.glove_size,\n" +
+            "            IF(s.typeipm = \"Рукавицы\",\n" +
+            "            t.size = e.mittens_size,\n" +
+            "              IF(s.typeipm = \"Противогаз\",\n" +
+            "              t.size = e.gas_mask_size,\n" +
+            "                IF(s.typeipm = \"Респиратор\",\n" +
+            "                t.size = e.respirator_size,NULL)))))))  \n" +
+            "ORDER BY 3,4,5", nativeQuery = true)
+    List<Object[]> getAllSIZForPurchaseForPrint();
 
     /**
      * Получить весь список СИЗ для закупки для подразделения
@@ -691,6 +881,40 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
     List<Object[]> getAllSIZForPurchaseByKomplex(@Param("id") Long id);
 
     /**
+     * Получить весь список СИЗ для закупки для подразделения for print
+     *
+     * @param id ID подразделения
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT s.id, s.namesiz, t.height, t.size, i.issuance_rate as numAll, \n" +
+            "(SELECT COUNT(issuedsiz.id) FROM issuedsiz\n" +
+            "WHERE issuedsiz.id = 0) as numIssued, e.surname, e.name, p.post_name, k.short_name\n" +
+            "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t, komplex k\n" +
+            "WHERE e.post_id = p.id AND\n" +
+            "e.komplex_id = k.id and \n" +
+            "i.post_id = p.id AND\n" +
+            "i.individual_protection_means_id = s.id AND\n" +
+            "s.id = t.individual_protection_means_id AND\n" +
+            "e.komplex_id =:id AND\n" +
+            "IF(s.typeipm = \"Одежда\",\n" +
+            "t.height = e.height AND\n" +
+            "t.size = e.clothing_size,\n" +
+            "IF(s.typeipm = \"Обувь\",\n" +
+            "t.size = e.shoe_size,\n" +
+            "       IF(s.typeipm = \"Головной убор\",\n" +
+            "       t.size = e.headgear_size,\n" +
+            "          IF(s.typeipm = \"Перчатки\",\n" +
+            "          t.size = e.glove_size,\n" +
+            "            IF(s.typeipm = \"Рукавицы\",\n" +
+            "            t.size = e.mittens_size,\n" +
+            "              IF(s.typeipm = \"Противогаз\",\n" +
+            "              t.size = e.gas_mask_size,\n" +
+            "                IF(s.typeipm = \"Респиратор\",\n" +
+            "                t.size = e.respirator_size,NULL)))))))  \n" +
+            "ORDER BY 3,4,5", nativeQuery = true)
+    List<Object[]> getAllSIZForPurchaseByKomplexForPrint(@Param("id") Long id);
+
+    /**
      * Получить закупочную таблицу для всего подразделения
      *
      * @param id ID подразделения
@@ -721,6 +945,37 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "GROUP BY 1,3,4\n" +
             "ORDER BY 3,4,5", nativeQuery = true)
     List<Object[]> getIssuedSIZForKomplex(@Param("id") Long id);
+
+    /**
+     * Получить закупочную таблицу для всего подразделения for print
+     *
+     * @param id ID подразделения
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT s.id, s.namesiz, t.height, t.size, i.issuance_rate as num, e.surname, e.name, p.post_name, k.short_name\n" +
+            "FROM employee e, post p, ipmstandard i, individual_protection_means s, size_siz t, komplex k\n" +
+            "WHERE e.post_id = p.id AND\n" +
+            "i.post_id = p.id AND\n" +
+            "i.individual_protection_means_id = s.id AND\n" +
+            "s.id = t.individual_protection_means_id AND\n" +
+            "e.komplex_id = :id AND\n" +
+            "IF(s.typeipm = \"Одежда\",\n" +
+            "t.height = e.height AND\n" +
+            "t.size = e.clothing_size,\n" +
+            "IF(s.typeipm = \"Обувь\",\n" +
+            "   t.size = e.shoe_size,\n" +
+            "       IF(s.typeipm = \"Головной убор\",\n" +
+            "       t.size = e.headgear_size,\n" +
+            "          IF(s.typeipm = \"Перчатки\",\n" +
+            "          t.size = e.glove_size,\n" +
+            "            IF(s.typeipm = \"Рукавицы\",\n" +
+            "            t.size = e.mittens_size,\n" +
+            "              IF(s.typeipm = \"Противогаз\",\n" +
+            "              t.size = e.gas_mask_size,\n" +
+            "                IF(s.typeipm = \"Респиратор\",\n" +
+            "                t.size = e.respirator_size,NULL)))))))  \n" +
+            "ORDER BY 3,4,5", nativeQuery = true)
+    List<Object[]> getIssuedSIZForKomplexForPrint(@Param("id") Long id);
 
     /**
      * Получить список СИЗ по параметрам

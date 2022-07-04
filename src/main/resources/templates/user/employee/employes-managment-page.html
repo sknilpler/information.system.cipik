@@ -13,6 +13,252 @@
 <header th:insert="blocks/header :: header"></header>
 <!-- Modal windows for accepting delete -->
 <div th:insert="blocks/accept-delete :: accept-delete"></div>
+<!--окно редактирования текстовых данных сотрудника-->
+<div id="editTextInfo" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editTextInfoLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTextInfoLabel">Редактирование</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h6>ФИО</h6>
+                </div>
+
+                <div>
+                    <label for="surname" class="form-label">Фамилия</label>
+                    <input type="text" class="form-control" name="surname" id="surname">
+
+
+                    <label for="name" class="form-label">Имя</label>
+                    <input type="text" class="form-control" name="name" id="name">
+
+                    <label for="patronymic" class="form-label">Отчество</label>
+                    <input type="text" class="form-control" name="patronymic" id="patronymic">
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="acceptBtn" class="btn btn-primary btn-sm" data-dismiss="modal"
+                        onclick="saveNewFio()">
+                    Подтвердить
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                        onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--окно редактирования должности сотрудника-->
+<div id="editPost" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editPostLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPostLabel">Редактирование</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h6>Должность</h6>
+                </div>
+
+                <div>
+                    <select class="form-control" id="post" name="post" required>
+                        <option selected disabled value="">Выберите должность</option>
+                        <option th:each="post : ${posts}" th:value="${post.id}"
+                                th:text="${post.postName}"></option>
+                    </select>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="acceptBtn" class="btn btn-primary btn-sm" data-dismiss="modal"
+                        onclick="saveNewPost()">
+                    Подтвердить
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                        onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--окно редактирования табельного номера сотрудника-->
+<div id="editTabel" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editTabelLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTabelLabel">Редактирование</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h6>Табельный номер</h6>
+                </div>
+
+                <div>
+                    <input type="text" class="form-control" name="tabNomer" id="tabNomer" >
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="acceptBtn" class="btn btn-primary btn-sm" data-dismiss="modal"
+                        onclick="saveNewTabel()">
+                    Подтвердить
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                        onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--окно редактирования отдела сотрудника-->
+<div id="editKomplex" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editKomplexLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editKomplexLabel">Редактирование</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h6>Подразделение</h6>
+                </div>
+
+                <div>
+                    <select class="form-control" id="komplex" name="komplex">
+                        <option selected disabled value="">Подразделение</option>
+                        <option th:each="k : ${komplexes}" th:value="${k.id}"
+                                th:text="${k.shortName}"></option>
+                    </select>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="acceptBtn" class="btn btn-primary btn-sm" data-dismiss="modal"
+                        onclick="saveNewKomplex()">
+                    Подтвердить
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                        onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--окно редактирования даты трудоустройства сотрудника-->
+<div id="editDate" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editDateLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDateLabel">Редактирование</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h6>Дата трудоустройства</h6>
+                </div>
+
+                <div>
+                    <input type="date" class="form-control" name="dataStart" id="dataStart">
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="acceptBtn" class="btn btn-primary btn-sm" data-dismiss="modal"
+                        onclick="saveNewStartDate()">
+                    Подтвердить
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                        onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--окно редактирования размеров сотрудника-->
+<div id="editSizeInfo" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editSizeInfoLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSizeInfoLabel">Редактирование</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h6>Размеры</h6>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="height" class="form-label">Рост</label>
+                        <input type="text"  class="form-control" name="height" id="height">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="clothingSize" class="form-label">Одежда</label>
+                        <input type="text"  class="form-control" name="clothingSize" id="clothingSize">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="headgearSize" class="form-label">Головной убор</label>
+                        <input type="text" class="form-control" name="headgearSize" id="headgearSize">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="shoeSize" class="form-label">Обувь</label>
+                        <input type="text"  class="form-control" name="shoeSize" id="shoeSize">
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="acceptBtn" class="btn btn-primary btn-sm" data-dismiss="modal"
+                        onclick="saveNewSize()">
+                    Подтвердить
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                        onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <!--Страница для вывода всех сотрудников-->
 <div class="d-flex">
     <!-- Side panel -->
@@ -24,10 +270,10 @@
                     <h1>Список всех сотрудников</h1>
                 </div>
                 <div class="col-sm-1">
-                        <button class="btn btn-outline-secondary btn-sm float-right" onclick="printTable()"
-                                aria-label="Распечатать" title="Печать таблицы">
-                            <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
-                        </button>
+                    <button class="btn btn-outline-secondary btn-sm float-right" onclick="printTable()"
+                            aria-label="Распечатать" title="Печать таблицы">
+                        <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24" height="24">
+                    </button>
                 </div>
             </div>
             <div class="pagination justify-content-start">
@@ -46,19 +292,20 @@
 
             <br>
             <div class="bd-example" th:fragment="bd-example">
-                <table class="table table-bordered" >
+                <table class="table table-bordered">
                     <thead>
                     <tr align="center">
                         <th scope="col" rowspan="2">№</th>
                         <th scope="col" rowspan="2">ФИО</th>
                         <th scope="col" rowspan="2">Должность</th>
-                        <th scope="col" rowspan="2" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">Подразделение</th>
+                        <th scope="col" rowspan="2" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">Подразделение
+                        </th>
                         <th scope="col" rowspan="2">Табельный №</th>
                         <th scope="col" rowspan="2">Дата трудоустройства</th>
                         <th scope="col" rowspan="2">Пол</th>
                         <th scope="col" rowspan="2">Рост</th>
                         <th scope="col" colspan="3">Размеры</th>
-                        <th scope="col" style="width: 95px;" rowspan="2"></th>
+                        <th scope="col" style="width: 45px;" rowspan="2"></th>
                     </tr>
                     <tr align="center">
                         <th scope="col">Одежды</th>
@@ -69,23 +316,162 @@
                     <tbody>
                     <tr th:each="el, stat : ${employees}">
                         <th scope="row" th:text="${stat.count}"></th>
-                        <td th:text="${el.surname}+' '+${el.name}+' '+${el.patronymic}"></td>
-                        <td align="center" th:text="${el.post.postName}"></td>
-                        <td align="center" th:text="${el.komplex.shortName}" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')"></td>
-                        <td align="center" th:text="${el.tabNomer}"></td>
-                        <td align="center" th:text="${#dates.format(el.dataStartWork, 'dd.MM.yyyy')}"></td>
-                        <td align="center" th:text="${el.sex}"></td>
-                        <td align="center" th:text="${el.height}"></td>
-                        <td align="center" th:text="${el.clothingSize}"></td>
-                        <td align="center" th:text="${el.shoeSize}"></td>
-                        <td align="center" th:text="${el.headgearSize}"></td>
                         <td>
-                            <a th:href="'/userPage/employee/'+${el.id}+'/edit'"
-                               class="btn btn-primary btn-sm" title="Редактировать данные о сотруднике">
-                                <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"
-                                     height="16" style="filter: invert (100%);">
-                            </a>
-                            <button class="btn btn-danger btn-sm" th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'" title="Удалить сотрудника">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p th:text="${el.surname}+' '+${el.name}+' '+${el.patronymic}"></p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" class="btn btn-link btn-sm"
+                                            th:onclick="'javascript:editfio(\'' + ${el.id} + '\');'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td align="center">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p th:text="${el.post.postName}"></p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" class="btn btn-link btn-sm"
+                                            th:onclick="'javascript:editpost(\'' + ${el.id} + '\');'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td align="center"
+                            sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p th:text="${el.komplex.shortName}"></p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" class="btn btn-link btn-sm"
+                                            th:onclick="'javascript:editkomplex(\'' + ${el.id} + '\');'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td align="center">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p th:text="${el.tabNomer}"></p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" class="btn btn-link btn-sm"
+                                            th:onclick="'javascript:edittabel(\'' + ${el.id} + '\');'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td align="center">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p th:text="${#dates.format(el.dataStartWork, 'dd.MM.yyyy')}"></p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" class="btn btn-link btn-sm"
+                                            th:onclick="'javascript:editdate(\'' + ${el.id} + '\');'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td align="center" th:text="${el.sex}"></td>
+                        <td align="center">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p th:text="${el.height}"></p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" class="btn btn-link btn-sm"
+                                            th:onclick="editsize([[${el.id}]],[[${el.height}]],[[${el.clothingSize}]],[[${el.shoeSize}]],[[${el.headgearSize}]])">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td align="center">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p th:text="${el.clothingSize}"></p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" class="btn btn-link btn-sm"
+                                            th:onclick="editsize([[${el.id}]],[[${el.height}]],[[${el.clothingSize}]],[[${el.shoeSize}]],[[${el.headgearSize}]])">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td align="center">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p th:text="${el.shoeSize}"></p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" class="btn btn-link btn-sm"
+                                            th:onclick="editsize([[${el.id}]],[[${el.height}]],[[${el.clothingSize}]],[[${el.shoeSize}]],[[${el.headgearSize}]])">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td align="center">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p th:text="${el.headgearSize}"></p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" class="btn btn-link btn-sm"
+                                            th:onclick="editsize([[${el.id}]],[[${el.height}]],[[${el.clothingSize}]],[[${el.shoeSize}]],[[${el.headgearSize}]])">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </td>
+                        <td>
+<!--                            <a th:href="'/userPage/employee/'+${el.id}+'/edit'"-->
+<!--                               class="btn btn-primary btn-sm" title="Редактировать данные о сотруднике">-->
+<!--                                <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"-->
+<!--                                     height="16" style="filter: invert (100%);">-->
+<!--                            </a>-->
+                            <button class="btn btn-danger btn-sm"
+                                    th:onclick="'javascript:showDeleteModalWindow(\'' + ${el.id} + '\');'"
+                                    title="Удалить сотрудника">
                                 <img src="/images/bootstrap-icons/trash.svg" alt="Bootstrap" width="16"
                                      height="16" style="filter: invert (1);">
                             </button>
@@ -100,64 +486,198 @@
 </div>
 <script th:inline="javascript">
 var search_keyword = '0';
-    ///////////////open sidebar///////////////////
+///////////////open sidebar///////////////////
 
-      var menu_btn = document.querySelector("#menu-btn");
-      var sidebar = document.querySelector("#sidebar");
-      var container = document.querySelector(".my-container");
-      menu_btn.addEventListener("click", () => {
-        sidebar.classList.toggle("active-nav");
-        container.classList.toggle("active-cont");
-      });
+var menu_btn = document.querySelector("#menu-btn");
+var sidebar = document.querySelector("#sidebar");
+var container = document.querySelector(".my-container");
+menu_btn.addEventListener("click", () => {
+    sidebar.classList.toggle("active-nav");
+    container.classList.toggle("active-cont");
+});
 
 /////////////////////////////////
 
 function closeModalWindow() {
-	$("#deleteAccept").modal('hide');
+    $("#deleteAccept").modal('hide');
+    $("#editTextInfo").modal('hide');
+    $("#editPost").modal('hide');
+    $("#editKomplex").modal('hide');
+    $("#editTabel").modal('hide');
+    $("#editDate").modal('hide');
+    $("#editSizeInfo").modal('hide');
 };
 
 var id_del;
 
-function showDeleteModalWindow(id){
+function showDeleteModalWindow(id) {
     id_del = id;
     document.getElementById("delete-object").innerHTML = "Вы точно хотите удалить?";
     $("#deleteAccept").modal('show');
 }
 
-function deleteObject(){
-    post('/userPage/employee/'+id_del+'/remove');
+function deleteObject() {
+    post('/userPage/employee/' + id_del + '/remove');
 }
 
-function printTable(){
-     post('/userPage/employee/export/excel/'+search_keyword);
+function printTable() {
+    post('/userPage/employee/export/excel/' + search_keyword);
 }
 
-function post(path, method='post') {
-  const form = document.createElement('form');
-  form.method = method;
-  form.action = path;
-  const hiddenField = document.createElement('input');
-  hiddenField.type = 'hidden';
-  form.appendChild(hiddenField);
-  document.body.appendChild(form);
-  form.submit();
+function post(path, method = 'post') {
+    const form = document.createElement('form');
+    form.method = method;
+    form.action = path;
+    const hiddenField = document.createElement('input');
+    hiddenField.type = 'hidden';
+    form.appendChild(hiddenField);
+    document.body.appendChild(form);
+    form.submit();
 }
 /////////////////////////////////
-    function searching(value) {
-        search_keyword = value;
-    	if (value.length === 0) {
-    	    search_keyword = '0'
-    		value = 0;
-    	}
-    	$.ajax({
-    		type: 'get',
-    		url: '/userPage/employee/search/' + value,
-    		success: function(data) {
-    			$('.bd-example').html(data);
-    		},
-    	});
-    };
+function searching(value) {
+    search_keyword = value;
+    if (value.length === 0) {
+        search_keyword = '0'
+        value = 0;
+    }
+    $.ajax({
+        type: 'get',
+        url: '/userPage/employee/search/' + value,
+        success: function(data) {
+            $('.bd-example').html(data);
+        },
+    });
+};
 //////////////////////////////////////
+
+/////////////////////////////////
+var selected_id;
+
+function editfio(id) {
+    selected_id = id;
+    $("#editTextInfo").modal('show');
+};
+
+function editpost(id) {
+    selected_id = id;
+    $("#editPost").modal('show');
+};
+
+function editkomplex(id) {
+    selected_id = id;
+    $("#editKomplex").modal('show');
+};
+
+function edittabel(id) {
+    selected_id = id;
+    $("#editTabel").modal('show');
+};
+
+function editdate(id) {
+    selected_id = id;
+    $("#editDate").modal('show');
+};
+
+//var height = '';
+//var clothes = '';
+//var boots = '';
+//var head = '';
+function editsize(id, h, c, b, he) {
+    selected_id = id;
+    //if ((h === '')||(h === null)){
+    //    height = '0';
+    //} else
+    //height = h;
+    //if ((c === '')||(c === null)){
+    //    clothes = '0';
+    //} else
+    //clothes = c;
+    //if ((b === '')||(b === null)){
+    //    boots = '0';
+    //} else
+    //boots = b;
+    //if ((he === '')||(he === null)){
+    //    head = '0';
+    //} else
+    //head = he;
+    //console.log(id+' ' +height +' '+clothes+' '+boots+' '+head);
+    document.getElementById("height").value = h;
+    document.getElementById("clothingSize").value = c;
+    document.getElementById("headgearSize").value = he;
+    document.getElementById("shoeSize").value = b;
+    $("#editSizeInfo").modal('show');
+};
+//////////////////////////////////////
+function saveNewFio() {
+    var s = document.getElementById("surname").value;
+    var n = document.getElementById("name").value;
+    var p = document.getElementById("patronymic").value;
+    if ((s === '') || (n === '')) {
+        alert("Введите фамилию и имя!");
+    } else {
+        if (p === '') {
+            p = "0";
+        }
+        post('/userPage/employee/edit-fio/' + selected_id + '/' + s + '/' + n + '/' + p);
+    }
+}
+
+function saveNewPost() {
+    var id_p = document.getElementById("post").value;
+    if (id_p === '') {
+        alert("Выберите должность");
+    } else {
+        post('/userPage/employee/edit-post/' + selected_id + '/' + id_p);
+    }
+}
+
+function saveNewKomplex() {
+    var id_k = document.getElementById("komplex").value;
+    if (id_k === '') {
+        alert("Выберите подразделение");
+    } else {
+        post('/userPage/employee/edit-komplex/' + selected_id + '/' + id_k);
+    }
+}
+
+function saveNewTabel() {
+    var tabel = document.getElementById("tabNomer").value;
+    if (tabel === '') {
+        alert("Введите табельный номер!");
+    } else {
+        post('/userPage/employee/edit-tab-nom/' + selected_id + '/' + tabel);
+    }
+}
+
+function saveNewStartDate() {
+    var d = document.getElementById("dataStart").value;
+    if (d === '') {
+        alert("Выберите дату трудоустройства!");
+    } else {
+        post('/userPage/employee/edit-date/' + selected_id + '/' + d);
+    }
+}
+
+function saveNewSize() {
+    var h = document.getElementById("height").value;
+    var c = document.getElementById("clothingSize").value;
+    var he = document.getElementById("headgearSize").value;
+    var b = document.getElementById("shoeSize").value;
+    if ((h === '') || (h === null)) {
+        h = '0';
+    }
+    if ((c === '') || (c === null)) {
+        c = '0';
+    }
+    if ((b === '') || (b === null)) {
+        b = '0';
+    }
+    if ((he === '') || (he === null)) {
+        he = '0';
+    }
+    post('/userPage/employee/edit-sizes/' + selected_id + '/' + h + '/' + c + '/' + b + '/' + he);
+}
 </script>
 <div th:insert="blocks/footer :: footer"></div>
 </body>

@@ -45,13 +45,15 @@ public class EmployeeController {
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         Iterable<Employee> employees;
         //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
-        if (role.getName().equals("ROLE_USER")){
+        if (role.getName().equals("ROLE_USER")) {
             employees = employeeRepository.findAll();
-        }else{  //иначе определяем подразделение пользователя и по нему выводим информацию
+        } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             employees = employeeRepository.findAllByKomplexId(komplex.getId());
-            model.addAttribute("komplex",komplex);
+            model.addAttribute("komplex", komplex);
         }
+        model.addAttribute("komplexes", komplexRepository.findAll());
+        model.addAttribute("posts", postRepository.findAll());
         model.addAttribute("employees", employees);
         return "user/employee/employes-managment-page";
     }
@@ -97,12 +99,13 @@ public class EmployeeController {
 //      model.addAttribute("otdels", otdelRepository.findAll());
         model.addAttribute("komplexes", komplexRepository.findAll());
         model.addAttribute("employee", employee);
-        model.addAttribute("dataStart",employee.getDataStartWork());
+        model.addAttribute("dataStart", employee.getDataStartWork());
         return "user/employee/employee-edit";
     }
 
     @PostMapping("/userPage/employee/{id}/edit")
     public String employeeUpdate(@PathVariable(value = "id") long id, @ModelAttribute("employee") Employee newEmployee, @RequestParam("dataStart") String dataStart, Model model) {
+        System.out.println(newEmployee.toString());
         Date dataStartWork = null;
         try {
             dataStartWork = new SimpleDateFormat("yyyy-MM-dd").parse(dataStart);
@@ -112,6 +115,90 @@ public class EmployeeController {
         }
         newEmployee.setId(id);
         employeeRepository.save(newEmployee);
+        return "redirect:/userPage/employee/employees-all";
+    }
+
+    /**
+     * <b>Редактирование ФИО сотрудника</b>
+     */
+    @PostMapping("/userPage/employee/edit-fio/{id}/{s}/{n}/{p}")
+    public String editFioEmployee(@PathVariable(value = "id") long id, @PathVariable(value = "s") String s,
+                                  @PathVariable(value = "n") String n, @PathVariable(value = "p") String p) {
+        Employee e = employeeRepository.findById(id).orElse(null);
+        e.setSurname(s);
+        e.setName(n);
+        if (!p.equals("0")) {
+            e.setPatronymic(p);
+        }
+        employeeRepository.save(e);
+        return "redirect:/userPage/employee/employees-all";
+    }
+
+    /**
+     * <b>Редактирование должности сотрудника</b>
+     */
+    @PostMapping("/userPage/employee/edit-post/{id_e}/{id_p}")
+    public String editPostEmployee(@PathVariable(value = "id_e") long id_e, @PathVariable(value = "id_p") long id_p) {
+        Employee e = employeeRepository.findById(id_e).orElse(null);
+        Post p = postRepository.findById(id_p).orElse(null);
+        e.setPost(p);
+        employeeRepository.save(e);
+        return "redirect:/userPage/employee/employees-all";
+    }
+
+
+    /**
+     * <b>Редактирование подразделения сотрудника</b>
+     */
+    @PostMapping("/userPage/employee/edit-komplex/{id_e}/{id_k}")
+    public String editKomplexEmployee(@PathVariable(value = "id_e") long id_e, @PathVariable(value = "id_k") long id_k) {
+        Employee e = employeeRepository.findById(id_e).orElse(null);
+        Komplex k = komplexRepository.findById(id_k).orElse(null);
+        e.setKomplex(k);
+        employeeRepository.save(e);
+        return "redirect:/userPage/employee/employees-all";
+    }
+
+    /**
+     * <b>Редактирование табельного номера сотрудника</b>
+     */
+    @PostMapping("/userPage/employee/edit-tab-nom/{id_e}/{text}")
+    public String editTabelEmployee(@PathVariable(value = "id_e") long id_e, @PathVariable(value = "text") String text) {
+        Employee e = employeeRepository.findById(id_e).orElse(null);
+        e.setTabNomer(text);
+        employeeRepository.save(e);
+        return "redirect:/userPage/employee/employees-all";
+    }
+
+    /**
+     * <b>Редактирование даты трудоустройства сотрудника</b>
+     */
+    @PostMapping("/userPage/employee/edit-date/{id_e}/{date}")
+    public String editDateEmployee(@PathVariable(value = "id_e") long id_e, @PathVariable(value = "date") String date) throws ParseException {
+        Employee e = employeeRepository.findById(id_e).orElse(null);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = format.parse(date);
+        e.setDataStartWork(d);
+        employeeRepository.save(e);
+        return "redirect:/userPage/employee/employees-all";
+    }
+
+    /**
+     * <b>Редактирование размеров сотрудника</b>
+     */
+    @PostMapping("/userPage/employee/edit-sizes/{id_e}/{height}/{clothes}/{boots}/{head}")
+    public String editSizesEmployee(@PathVariable(value = "id_e") long id_e, @PathVariable(value = "height") String height, @PathVariable(value = "clothes") String clothes,
+                                    @PathVariable(value = "boots") String boots, @PathVariable(value = "head") String head) {
+        Employee e = employeeRepository.findById(id_e).orElse(null);
+        if (height.equals("0")) height = "";
+        if (clothes.equals("0")) clothes = "";
+        if (boots.equals("0")) boots = "";
+        if (head.equals("0")) head = "";
+        e.setHeight(height);
+        e.setClothingSize(clothes);
+        e.setShoeSize(boots);
+        e.setHeadgearSize(head);
+        employeeRepository.save(e);
         return "redirect:/userPage/employee/employees-all";
     }
 
@@ -156,11 +243,12 @@ public class EmployeeController {
 
     /**
      * Экспорт списка сотрудников в EXCEL
+     *
      * @param response
      * @throws IOException
      */
     @PostMapping("/userPage/employee/export/excel/{keyword}")
-    public void exportEmployeeToExcel(@PathVariable(value = "keyword") String keyword,HttpServletResponse response, Authentication authentication) throws IOException {
+    public void exportEmployeeToExcel(@PathVariable(value = "keyword") String keyword, HttpServletResponse response, Authentication authentication) throws IOException {
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -194,9 +282,9 @@ public class EmployeeController {
     /**
      * Поиск и фильтрация списка сотрудников
      *
-     * @param keyword ключевое слово для поиска и фильтрации
+     * @param keyword        ключевое слово для поиска и фильтрации
      * @param authentication параметры аутентификации
-     * @param model модель аттрибутов страницы
+     * @param model          модель аттрибутов страницы
      * @return список сотрудников
      */
     @GetMapping("/userPage/employee/search/{keyword}")

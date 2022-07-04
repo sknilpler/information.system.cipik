@@ -40,6 +40,9 @@ public class PurchasingSIZExcelExporter {
         createCell(row, 2, "Рост", style);
         createCell(row, 3, "Размер", style);
         createCell(row, 4, "Кол-во", style);
+        createCell(row, 5, "ФИО", style);
+        createCell(row, 6, "Должность", style);
+        createCell(row, 7, "Подразделение", style);
 
     }
 
@@ -73,6 +76,9 @@ public class PurchasingSIZExcelExporter {
             createCell(row, columnCount++, e.getHeight(), style);
             createCell(row, columnCount++, e.getSize(), style);
             createCell(row, columnCount++, e.getNumPurchase(), style);
+            createCell(row, columnCount++, e.getFio(), style);
+            createCell(row, columnCount++, e.getPost(), style);
+            createCell(row, columnCount++, e.getKomplex(), style);
         }
 
     }

@@ -126,31 +126,34 @@ public class PurchasingController {
         List<SIZForPurchase> sizesForPurchase = new ArrayList<>();
 
         List<Object[]> objectList = null;
+        System.out.println("start getting info from bd to purchases table! ");
 
         if (id != 0) {
             if (value.equals("next-year")) {
-                objectList = issuedSIZRepository.getAllSIZForPurchaseByDateAndKomplex((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31", id);
+                objectList = issuedSIZRepository.getAllSIZForPurchaseByDateAndKomplexForPrint((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31", id);
             } else if (value.equals("overall")) {
-                objectList = issuedSIZRepository.getAllSIZForPurchaseByKomplex(id);
+                objectList = issuedSIZRepository.getAllSIZForPurchaseByKomplexForPrint(id);
             } else {
-                objectList = issuedSIZRepository.getAllSIZForPurchaseByNowAndKomplex(id);
+                objectList = issuedSIZRepository.getAllSIZForPurchaseByNowAndKomplexForPrint(id);
             }
         } else {
             if (value.equals("next-year")) {
-                objectList = issuedSIZRepository.getAllSIZForPurchaseByDate((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31");
+                objectList = issuedSIZRepository.getAllSIZForPurchaseByDateForPrint((Year.now().getValue() + 1) + "_01_01", (Year.now().getValue() + 1) + "_12_31");
             } else if (value.equals("overall")) {
-                objectList = issuedSIZRepository.getAllSIZForPurchase();
+                objectList = issuedSIZRepository.getAllSIZForPurchaseForPrint();
             } else {
-                objectList = issuedSIZRepository.getAllSIZForPurchaseByNow();
+                objectList = issuedSIZRepository.getAllSIZForPurchaseByNowForPint();
             }
         }
         for (Object[] obj : objectList) {
             if ((Integer.parseInt(obj[4].toString()) - Integer.parseInt(obj[5].toString())) != 0) {
-                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], Integer.parseInt(obj[4].toString()), Integer.parseInt(obj[5].toString())));
+                sizesForPurchase.add(new SIZForPurchase(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], Integer.parseInt(obj[4].toString()) , Integer.parseInt(obj[5].toString()),((String) obj[6])+" "+((String) obj[7]),(String) obj[8],(String) obj[9]));
             }
         }
-
+        System.out.println("end getting info from db");
+        System.out.println("start printing!");
         PurchasingSIZExcelExporter excelExporter = new PurchasingSIZExcelExporter(sizesForPurchase);
         excelExporter.export(response);
+        System.out.println("end printing");
     }
 }

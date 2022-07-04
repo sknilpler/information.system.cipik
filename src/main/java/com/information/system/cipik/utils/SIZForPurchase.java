@@ -8,6 +8,9 @@ public class SIZForPurchase {
     private int numAll;
     private int numIssued;
     private int numPurchase;
+    private String fio;
+    private String post;
+    private String komplex;
 
     public SIZForPurchase() {
     }
@@ -22,12 +25,61 @@ public class SIZForPurchase {
         this.numPurchase = numAll-numIssued;
     }
 
+    public SIZForPurchase(Long id, String namesiz, String height, String size, int numAll, int numIssued, String fio, String post, String komplex) {
+        this.id = id;
+        this.namesiz = namesiz;
+        this.height = height;
+        this.size = size;
+        this.numAll = numAll;
+        this.numIssued = numIssued;
+        this.numPurchase = numAll-numIssued;
+        this.fio = fio;
+        this.post = post;
+        this.komplex = komplex;
+    }
+
+    public SIZForPurchase(Long id, String namesiz, String height, String size, int num, String fio, String post, String komplex) {
+        this.id = id;
+        this.namesiz = namesiz;
+        this.height = height;
+        this.size = size;
+        this.numAll = num;
+        this.fio = fio;
+        this.post = post;
+        this.komplex = komplex;
+    }
+
+
     public SIZForPurchase(Long id, String namesiz, String height, String size, int num) {
         this.id = id;
         this.namesiz = namesiz;
         this.height = height;
         this.size = size;
         this.numAll = num;
+    }
+
+    public String getFio() {
+        return fio;
+    }
+
+    public void setFio(String fio) {
+        this.fio = fio;
+    }
+
+    public String getPost() {
+        return post;
+    }
+
+    public void setPost(String post) {
+        this.post = post;
+    }
+
+    public String getKomplex() {
+        return komplex;
+    }
+
+    public void setKomplex(String komplex) {
+        this.komplex = komplex;
     }
 
     public Long getId() {
@@ -96,6 +148,9 @@ public class SIZForPurchase {
                 ", numAll=" + numAll +
                 ", numIssued=" + numIssued +
                 ", numPurchase=" + numPurchase +
+                ", fio='" + fio + '\'' +
+                ", post='" + post + '\'' +
+                ", komplex='" + komplex + '\'' +
                 '}';
     }
 }
