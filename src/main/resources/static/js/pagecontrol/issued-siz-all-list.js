@@ -1,6 +1,8 @@
 function closeModalWindow() {
 	$("#exampleModalLive").modal('hide');
 	$("#exampleModalLive2").modal('hide');
+    $("#exampleModalLive3").modal('hide');
+    $("#historyModalLive3").modal('hide');
 };
 ///////////////open sidebar///////////////////
       var menu_btn = document.querySelector("#menu-btn");
@@ -106,27 +108,76 @@ function showEmployeeWithEndDateWearNextYear(){
     });
 }
 //////////////////////////////////////////////
-function showModalWindow(value1,value2) {
-   $.ajax({
-       type: 'get',
-       url: '/userPage/employee-siz/info-siz/employee/' + value1+'/'+value2,
-       success: function(data) {
-       	   $('.table-siz').html(data);
-       	   $("#exampleModalLive").modal('show');
-       },
-   });
+
+/////////////////////////////////////////////
+//// modal functions///////
+function showModalWindow(value) {
+	extendingSIZId = value;
+	$("#exampleModalLive").modal('show');
 }
-//////////////////////////////////////////////
 function showModalWindow2(value) {
-	$.ajax({
-        type: 'get',
-        url: '/userPage/employee-siz/info-issued-siz/employee/' + value,
-        success: function(data) {
-        	$('.table-issued-siz').html(data);
-        	$("#exampleModalLive2").modal('show');
-        },
-    });
+	writeoffSIZId = value;
+	$("#exampleModalLive2").modal('show');
 }
+function showModalWindow3(value) {
+	$.ajax({
+            type: 'get',
+            url: '/userPage/employee-siz/edit-staffing/employee/history-issued-siz/' + value,
+            success: function(data) {
+            	$('.table-history-issued-siz').html(data);
+            	$("#exampleModalLive3").modal('show');
+            },
+        });
+}
+//////////////////////////////////////////
+var dateExtending;
+var protocol;
+var protocolDate;
+
+function setDateExtending(value) {
+	dateExtending = value;
+};
+
+function setProtocolExtending(value){
+    protocol = value;
+}
+
+function setDateProtocol(value){
+    protocolDate = value;
+}
+
+function extendSIZ() {
+    if ((dateExtending != '') && (dateExtending != undefined) && (protocol != '') && (protocol != undefined) &&
+            (protocolDate != '') && (protocolDate != undefined)){
+	    closeModalWindow();
+	    $.ajax({
+		    type: 'get',
+		    url: '/userPage/employee-siz/edit-staffing/' + extendingSIZId + '/extend/' + dateExtending + '/protocol/' + protocol + '/date/' + protocolDate,
+		    success: function(data) {
+			   location.reload();
+		    },
+	    })
+	} else alert("Не все данные введены");
+};
+//////////////////////////////////
+var actName;
+
+function setActWriteoff(value){
+    actName = value;
+}
+//////////////////////////////////
+function writeoffSIZ() {
+  if ((actName != '') && (actName != undefined)){
+	    closeModalWindow();
+	    $.ajax({
+		    type: 'get',
+		    url: '/userPage/employee-siz/edit-staffing/' + writeoffSIZId + '/writeoff/'+actName,
+		    success: function(data) {
+			   location.reload();
+		    },
+	    });
+	} else alert("Не все данные введены");
+};
 /////////////////////////////////////////////
 function sorting(value){
 document.getElementById("textSearch").innerHTML="";

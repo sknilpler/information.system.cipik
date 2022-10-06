@@ -154,8 +154,8 @@
                         <tbody>
                         <tr th:each="p : ${protocols}" style="cursor: pointer">
                             <td th:text="${p.protocolName}"></td>
-                            <td align="center" th:text="${#dates.format(p.protocolDate, 'dd.MM.yyyy')}"></td>
-                            <td align="center" th:text="${#dates.format(p.dateExtending, 'dd.MM.yyyy')}"></td>
+                            <td th:text="${#dates.format(p.protocolDate, 'dd.MM.yyyy')}"></td>
+                            <td th:text="${#dates.format(p.dateExtending, 'dd.MM.yyyy')}"></td>
                         </tr>
                         </tbody>
                     </table>
@@ -259,7 +259,7 @@
                                     <th align="center">Номенклатурный №</th>
                                     <th align="center">Дата выдачи</th>
                                     <th align="center">Дата окончания носки</th>
-                                    <th style="width: 320px;"></th>
+                                    <th style="width: 200px;"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -270,17 +270,20 @@
                                     <td align="center" th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" type="button"
-                                                th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'">Списать
+                                                th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'" title="Списать СИЗ">
+                                            <img src="/images/bootstrap-icons/trash-fill.svg" width="24" height="24">
                                         </button>
                                         <button type="button" class="btn btn-primary btn-sm"
-                                                th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить
+                                                th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'" title="Продлить носку">
+                                            <img src="/images/bootstrap-icons/calendar2-plus.svg" width="24" height="24">
                                         </button>
                                         <button class="btn btn-warning btn-sm" type="button"
-                                                th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить
-                                            выдачу
+                                                th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'" title="Отменить выдачу и возврат СИЗ на склад">
+                                            <img src="/images/bootstrap-icons/arrow-clockwise.svg" width="24" height="24">
                                         </button>
                                         <button class="btn btn-secondary btn-sm" type="button"
-                                                th:onclick="'javascript:showHistoryWindow(\'' + ${s.id} + '\');'">История продления
+                                                th:onclick="'javascript:showHistoryWindow(\'' + ${s.id} + '\');'" title="История продления">
+                                            <img src="/images/bootstrap-icons/clock-history.svg" width="24" height="24">
                                         </button>
                                     </td>
                                 </tr>

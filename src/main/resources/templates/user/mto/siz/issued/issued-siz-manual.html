@@ -289,13 +289,15 @@
                   <td align="center" th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
                   <td>
                     <button class="btn btn-danger btn-sm" type="button"
-                            th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'">Списать
+                            th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'" title="Списать СИЗ">
+                      <img src="/images/bootstrap-icons/trash-fill.svg" width="24" height="24">
                     </button>
-                    <button type="button" class="btn btn-primary btn-sm"
-                            th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить
-                    </button>
+<!--                    <button type="button" class="btn btn-primary btn-sm"-->
+<!--                            th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'">Продлить-->
+<!--                    </button>-->
                     <button class="btn btn-warning btn-sm" type="button"
-                            th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить
+                            th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'" title="Отменить выдачу и возврат СИЗ на склад">
+                      <img src="/images/bootstrap-icons/arrow-clockwise.svg" width="24" height="24">
                       выдачу
                     </button>
                   </td>
