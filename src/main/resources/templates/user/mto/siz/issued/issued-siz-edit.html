@@ -27,10 +27,17 @@
                 </button>
             </div>
             <div class="modal-body">
+                <label class="md-2" for="protocol">Протокол</label>
+                <input type="text" id="protocol" name="protocol" class="form-control"
+                       placeholder="Введите наименование протокола продления" onchange="setProtocolExtending(this.value)"/>
+                <label class="md-2" for="protocolDate">Выберите дату протокола</label>
+                <input type="date" id="protocolDate" name="protocolDate" class="form-control"
+                       placeholder="Выберите дату" onchange="setDateProtocol(this.value)"/>
+<!--                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>-->
                 <label class="md-2" for="extendDate">Выберите дату продления ресурса</label>
                 <input type="date" id="extendDate" name="extendDate" class="form-control"
-                       placeholder="Выберите дату" onchange="setDateExtending(this.value)"
-                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>
+                       placeholder="Выберите дату" onchange="setDateExtending(this.value)"/>
+<!--                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>-->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
@@ -104,6 +111,51 @@
                             <td th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
                             <td th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
                             <td th:text="${s.writeOffAct}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
+
+<!-- Modal window for history issued SIZ -->
+<div id="historyModalLive3" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="historyModalLiveLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="historyModalLiveLabel3">История продления СИЗ</h5>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-history-extended-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
+                     th:fragment="table-history-extended-siz">
+<!--                    <h6 th:text="${exSiz.siz.nameSIZ}"></h6>-->
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Протокол</th>
+                            <th align="center">Дата протокола</th>
+                            <th align="center">Дата продления</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="p : ${protocols}" style="cursor: pointer">
+                            <td th:text="${p.protocolName}"></td>
+                            <td align="center" th:text="${#dates.format(p.protocolDate, 'dd.MM.yyyy')}"></td>
+                            <td align="center" th:text="${#dates.format(p.dateExtending, 'dd.MM.yyyy')}"></td>
                         </tr>
                         </tbody>
                     </table>
@@ -226,6 +278,9 @@
                                         <button class="btn btn-warning btn-sm" type="button"
                                                 th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'">Отменить
                                             выдачу
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm" type="button"
+                                                th:onclick="'javascript:showHistoryWindow(\'' + ${s.id} + '\');'">История продления
                                         </button>
                                     </td>
                                 </tr>

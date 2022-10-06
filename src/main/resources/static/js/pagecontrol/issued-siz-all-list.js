@@ -207,7 +207,7 @@ function ExportToExcel(type, fn, dl) {
        var elt = document.getElementById('tb');
        var wb = XLSX.utils.table_to_book(elt, { sheet: "Список СИЗ" });
        return dl ?
-         XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }):
+         XLSX.write(wb, { bookType: type, bookSST: false, type: 'base64', raw: true }):
          XLSX.writeFile(wb, fn || ('Список выданного СИЗ.' + (type || 'xlsx')));
 }
 

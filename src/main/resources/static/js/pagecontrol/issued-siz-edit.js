@@ -19,10 +19,23 @@ function showModalWindow3(value) {
             },
         });
 }
+
+function showHistoryWindow(value) {
+	$.ajax({
+            type: 'get',
+            url: '/userPage/employee-siz/edit-staffing/employee/history-extended-siz/' + value,
+            success: function(data) {
+            	$('.table-history-extended-siz').html(data);
+            	$("#historyModalLive3").modal('show');
+            },
+        });
+}
+
 function closeModalWindow() {
 	$("#exampleModalLive").modal('hide');
 	$("#exampleModalLive2").modal('hide');
     $("#exampleModalLive3").modal('hide');
+    $("#historyModalLive3").modal('hide');
 };
 ///////////////open sidebar///////////////////
       var menu_btn = document.querySelector("#menu-btn");
@@ -44,20 +57,33 @@ function loadIssuedSiz(value) {
 };
 //////////////////////////////////////////
 var dateExtending;
+var protocol;
+var protocolDate;
 
 function setDateExtending(value) {
 	dateExtending = value;
 };
 
+function setProtocolExtending(value){
+    protocol = value;
+}
+
+function setDateProtocol(value){
+    protocolDate = value;
+}
+
 function extendSIZ() {
-	closeModalWindow();
-	$.ajax({
-		type: 'get',
-		url: '/userPage/employee-siz/edit-staffing/' + extendingSIZId + '/extend/' + dateExtending,
-		success: function(data) {
-			$('.table-issuedSiz').html(data);
-		},
-	})
+    if ((dateExtending != '') && (dateExtending != undefined) && (protocol != '') && (protocol != undefined) &&
+            (protocolDate != '') && (protocolDate != undefined)){
+	    closeModalWindow();
+	    $.ajax({
+		    type: 'get',
+		    url: '/userPage/employee-siz/edit-staffing/' + extendingSIZId + '/extend/' + dateExtending + '/protocol/' + protocol + '/date/' + protocolDate,
+		    success: function(data) {
+			    $('.table-issuedSiz').html(data);
+		    },
+	    })
+	} else alert("Не все данные введены");
 };
 //////////////////////////////////
 var actName;
@@ -65,8 +91,6 @@ var actName;
 function setActWriteoff(value){
     actName = value;
 }
-
-
 //////////////////////////////////
 function cancelIssed(value) {
 	$.ajax({
@@ -80,14 +104,16 @@ function cancelIssed(value) {
 };
 //////////////////////////////////
 function writeoffSIZ() {
-	closeModalWindow();
-	$.ajax({
-		type: 'get',
-		url: '/userPage/employee-siz/edit-staffing/' + writeoffSIZId + '/writeoff/'+actName,
-		success: function(data) {
-			$('.table-issuedSiz').html(data);
-		},
-	});
+  if ((actName != '') && (actName != undefined)){
+	    closeModalWindow();
+	    $.ajax({
+		    type: 'get',
+		    url: '/userPage/employee-siz/edit-staffing/' + writeoffSIZId + '/writeoff/'+actName,
+		    success: function(data) {
+			    $('.table-issuedSiz').html(data);
+		    },
+	    });
+	} else alert("Не все данные введены");
 };
 //////////////////////////////////
 function updateIssuedSiz(value) {

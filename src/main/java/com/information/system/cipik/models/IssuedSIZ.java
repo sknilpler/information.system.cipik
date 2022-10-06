@@ -3,9 +3,11 @@ package com.information.system.cipik.models;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.tomcat.util.net.openssl.ciphers.Protocol;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Сущность выданный СИЗ
@@ -35,6 +37,10 @@ public class IssuedSIZ {
 
     @ManyToOne
     private Komplex komplex;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "issuedSIZ_id")
+    private List<ProtocolExtending> protocols;
 
     public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size,String nomenclatureNumber) {
         this.siz = individualProtectionMeans;

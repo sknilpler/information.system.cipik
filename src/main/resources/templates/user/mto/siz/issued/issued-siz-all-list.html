@@ -197,8 +197,8 @@
                         <td th:text="${s.employee.surname}+' '+${#strings.substring(s.employee.name,0,1)}+' '+${#strings.substring(s.employee.patronymic,0,1)}"></td>
                         <td th:text="${s.employee.post.postName}"></td>
                         <td th:text="${s.employee.komplex.shortName}"></td>
-                        <td align="center" th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
-                        <td align="center" th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
+                        <td align="center" th:text="' '+${#dates.format(s.dateIssued, 'dd MMM yyyy')}"></td>
+                        <td align="center" th:text="' '+${#dates.format(s.dateEndWear, 'dd MMM yyyy')}"></td>
                         <td>
                             <button class="btn btn-danger btn-sm" type="button"
                                     th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'" title="Списать СИЗ">
