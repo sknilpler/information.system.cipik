@@ -209,11 +209,11 @@
                         <th>Номенклатурный №</th>
                         <th>Тип СИЗ</th>
                         <th>ФИО сотрудника</th>
-                        <th></th>
                         <th>Должность</th>
                         <th>Подразделение</th>
                         <th align="center">Дата выдачи</th>
                         <th align="center">Дата окончания носки</th>
+                        <th></th>
                         <!--                        <th style="width: 180px;"></th>-->
                     </tr>
                     </thead>
@@ -224,6 +224,10 @@
                         <td th:text="${s.nomenclatureNumber}"></td>
                         <td th:text="${s.siz.typeIPM}"></td>
                         <td th:text="${s.employee.surname}+' '+${#strings.substring(s.employee.name,0,1)}+' '+${#strings.substring(s.employee.patronymic,0,1)}"></td>
+                        <td th:text="${s.employee.post.postName}"></td>
+                        <td th:text="${s.employee.komplex.shortName}"></td>
+                        <td align="center" th:text="' '+${#dates.format(s.dateIssued, 'dd MMM yyyy')}"></td>
+                        <td align="center" th:text="' '+${#dates.format(s.dateEndWear, 'dd MMM yyyy')}"></td>
                         <td>
                             <form th:action="'/userPage/employee-siz/edit-staffing/employee/'+${s.employee.id}"
                                   method="get">
@@ -234,10 +238,6 @@
                                 </button>
                             </form>
                         </td>
-                        <td th:text="${s.employee.post.postName}"></td>
-                        <td th:text="${s.employee.komplex.shortName}"></td>
-                        <td align="center" th:text="' '+${#dates.format(s.dateIssued, 'dd MMM yyyy')}"></td>
-                        <td align="center" th:text="' '+${#dates.format(s.dateEndWear, 'dd MMM yyyy')}"></td>
                         <!--                        <td>-->
                         <!--                            <button class="btn btn-danger btn-sm" type="button"-->
                         <!--                                    th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'" title="Списать СИЗ">-->

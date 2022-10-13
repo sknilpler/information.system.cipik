@@ -28,6 +28,7 @@ public class AdminController {
     OtdelRepository otdelRepository;
     @Autowired
     UserRepository userRepository;
+
     @Autowired
     private UserService userService;
     @Autowired
