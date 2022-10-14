@@ -94,7 +94,8 @@ public class SIZController {
      * @return отформатированная строка
      */
     private String setUserLog(String username) {
-        return ANSIColor.ANSI_GREEN + " User: " + ANSIColor.ANSI_YELLOW + " " + username + " " + ANSIColor.ANSI_RESET + " -> ";
+        //return ANSIColor.ANSI_GREEN + " User: " + ANSIColor.ANSI_YELLOW + " " + username + " " + ANSIColor.ANSI_RESET + " -> ";
+        return "----" + " User: " + username +  " --> ";
     }
 
     /**
@@ -105,7 +106,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/siz-types")
     public String allSIZ(Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Открытие страницы с типами СИЗ");
+        log.info(setUserLog(authentication.getName()) + "Open page with type of SIZ");
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("ipms", individualProtectionMeans);
         return "user/mto/siz/types-of-siz";
@@ -121,7 +122,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/siz-types")
     public String addSIZ(@RequestParam String nameSIZ, @RequestParam String ed_izm, @RequestParam String typeIPM, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Добавление нового типа СИЗб входные данные: {}", nameSIZ, ed_izm, typeIPM);
+        log.info(setUserLog(authentication.getName()) + "Adding new SIZ, input data: {}", nameSIZ, ed_izm, typeIPM);
         IndividualProtectionMeans individualProtectionMeans = new IndividualProtectionMeans(nameSIZ, ed_izm, typeIPM);
         sizRepository.save(individualProtectionMeans);
         List<String> sizes = new ArrayList<>();
@@ -253,7 +254,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/siz-types/{id}/edit")
     public String editSIZ(@PathVariable(value = "id") long id, Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Открытие страницы для редактирования типа СИЗ. ID СИЗ: {}", id);
+        log.info(setUserLog(authentication.getName()) + "Open page editing type of SIZ. ID SIZ: {}", id);
         if (!sizRepository.existsById(id)) {
             return "redirect:/userPage/siz-types";
         }
@@ -276,7 +277,7 @@ public class SIZController {
     public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ,
                             @RequestParam String ed_izm,
                             @RequestParam String typeIPM, Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Сохранение отредактированного типа СИЗ. Входные данные: {}", id, nameSIZ,ed_izm,typeIPM);
+        log.info(setUserLog(authentication.getName()) + "Saving edited type of SIZ, input data: {}", id, nameSIZ,ed_izm,typeIPM);
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID "+id+" не найден"));
         Objects.requireNonNull(individualProtectionMeans).setNameSIZ(nameSIZ);
         individualProtectionMeans.setEd_izm(ed_izm);
@@ -416,7 +417,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/siz-types/{id}/remove")
     public String deleteSIZ(@PathVariable(value = "id") long id, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Удаление Типа СИЗ: {}", id);
+        log.info(setUserLog(authentication.getName()) + "Delete type of SIZ: {}", id);
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID "+id+" не найден"));
         sizRepository.deleteById(id);
         return "redirect:/userPage/siz-types";
@@ -431,7 +432,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/siz-types/sizes/{id}")
     public String openSizeSizPage(@PathVariable(value = "id") long id, Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Открытие страницы размеров выбранного Типа СИЗ: {}", id);
+        log.info(setUserLog(authentication.getName()) + "Open page with sizes by selected type SIZ: {}", id);
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID "+id+" не найден"));
         model.addAttribute("siz", individualProtectionMeans);
         model.addAttribute("sizes", sizeSizRepository.findAllByIndividualProtectionMeansId(id));
@@ -451,7 +452,7 @@ public class SIZController {
     public String addSizeAndHeightToSIZ(@PathVariable(value = "id") long id,
                                         @RequestParam(required = false) String height,
                                         @RequestParam String size, Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Сохранение нового размера для Типа СИЗ. Входные данные: {}", id, height, size);
+        log.info(setUserLog(authentication.getName()) + "Saving new size for selected type of SIZ, input data: {}", id, height, size);
         IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID "+id+" не найден"));
         SizeSiz sizeSiz;
         if ((height == null) || (height.equals(""))) {
@@ -475,7 +476,7 @@ public class SIZController {
      */
     @PostMapping("/userPage/sizes/{id}/remove")
     public String deleteSizeFromSiz(@PathVariable(value = "id") long id, Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Удаление размера выбранного типа СИЗ: {}", id);
+        log.info(setUserLog(authentication.getName()) + "Delete size for selected type of SIZ: {}", id);
         SizeSiz sizeSiz = sizeSizRepository.findById(id).orElse(null);
         IndividualProtectionMeans individualProtectionMeans = Objects.requireNonNull(sizeSiz).getIndividualProtectionMeans();
         sizeSizRepository.deleteById(id);
@@ -494,7 +495,7 @@ public class SIZController {
      * @return страница со списком норм
      */
     @GetMapping("/userPage/siz/norms")
-    public String normsAll(Model model, String keyword) {
+    public String normsAll(Model model, String keyword, Authentication authentication) {
         postAddToNorm = new Post("");
         if (keyword != null) {
             listPosts = postRepository.findAllByKeyword(keyword);
@@ -632,12 +633,14 @@ public class SIZController {
      * @param issuanceRate        нормы выдачи (кол-во)
      * @param serviceLife         срок носки
      * @param regulatoryDocuments регламентирующий документ
-     * @param model               модель аттрибутов страницы
      * @return перенаправление на /userPage/siz/norms
      */
     @PostMapping("/userPage/siz/norms/add")
-    public String normsAdding(@RequestParam Long dropSIZ, @RequestParam int issuanceRate,
-                              @RequestParam int serviceLife, @RequestParam String regulatoryDocuments, Model model) {
+    public String normsAdding(@RequestParam Long dropSIZ,
+                              @RequestParam int issuanceRate,
+                              @RequestParam int serviceLife,
+                              @RequestParam String regulatoryDocuments, Authentication authentication) {
+        log.info(setUserLog(authentication.getName()) + "Save new issued norm for selected SIZ. input data: {}", dropSIZ, issuanceRate,serviceLife, regulatoryDocuments);
         if (!postAddToNorm.getPostName().equals("")) {
             IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElse(null);
             IPMStandard norma = new IPMStandard(postAddToNorm, siz, issuanceRate, serviceLife, regulatoryDocuments);
@@ -654,7 +657,8 @@ public class SIZController {
      * @return веб станица
      */
     @GetMapping("/userPage/siz/norms/{id}/edit")
-    public String normsEdit(@PathVariable(value = "id") long id, Model model) {
+    public String normsEdit(@PathVariable(value = "id") long id, Model model, Authentication authentication) {
+        log.info(setUserLog(authentication.getName()) + "Open page editing issued SIZ norm: {}", id);
         if (!ipmStandardRepository.existsById(id)) {
             return "redirect:/userPage/siz/norms";
         }
@@ -673,12 +677,15 @@ public class SIZController {
      * @param issuanceRate        норма выдачи (кол-во)
      * @param serviceLife         срок носки
      * @param regulatoryDocuments регламентирующий документ
-     * @param model               модель аттрибутов страницы
      * @return перенаправление на /userPage/siz/norms
      */
     @PostMapping("/userPage/siz/norms/{id}/edit")
-    public String normsUpdate(@PathVariable(value = "id") long id, @RequestParam Long dropSIZ, @RequestParam int issuanceRate,
-                              @RequestParam int serviceLife, @RequestParam String regulatoryDocuments, Model model) {
+    public String normsUpdate(@PathVariable(value = "id") long id,
+                              @RequestParam Long dropSIZ,
+                              @RequestParam int issuanceRate,
+                              @RequestParam int serviceLife,
+                              @RequestParam String regulatoryDocuments, Authentication authentication) {
+        log.info(setUserLog(authentication.getName()) + "Save editing issued norm for selected SIZ. input data: {}", dropSIZ, issuanceRate,serviceLife, regulatoryDocuments);
         IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElse(null);
         IPMStandard norma = ipmStandardRepository.findById(id).orElse(null);
         Objects.requireNonNull(norma).setIndividualProtectionMeans(siz);
@@ -694,11 +701,11 @@ public class SIZController {
      * Удаление нормы выдачи СИЗ
      *
      * @param id    ID нормы
-     * @param model модель аттрибутов страницы
      * @return перенаправление на /userPage/siz/norms
      */
     @PostMapping("/userPage/siz/norms/{id}/remove")
-    public String normsDelete(@PathVariable(value = "id") long id, Model model) {
+    public String normsDelete(@PathVariable(value = "id") long id, Authentication authentication) {
+        log.info(setUserLog(authentication.getName()) + "Delete issued SIZ norm: {}", id);
         IPMStandard norma = ipmStandardRepository.findById(id).orElse(null);
         ipmStandardRepository.deleteById(id);
         return "redirect:/userPage/siz/norms";
@@ -714,6 +721,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/not-issued-siz")
     public String notIssuedSIZAll(Model model, Authentication authentication) {
+        log.info(setUserLog(authentication.getName()) + "Open stock page");
         Role role = roleRepository.findByName(authentication.getAuthorities()
                 .stream().collect(Collectors.toList()).get(0).getAuthority());
         List<SIZForStock> sizesForStock = new ArrayList<>();
@@ -764,8 +772,14 @@ public class SIZController {
      * @return веб страница
      */
     @PostMapping("/userPage/not-issued-siz")
-    public String notIssuedSIZAdd(@RequestParam Long typeSIZ, @RequestParam String size, @RequestParam String height,
-                                  @RequestParam String nomenclatureNumber, @RequestParam int number) {
+    public String notIssuedSIZAdd(@RequestParam Long typeSIZ,
+                                  @RequestParam String size,
+                                  @RequestParam String height,
+                                  @RequestParam String nomenclatureNumber,
+                                  @RequestParam int number, Authentication authentication) {
+        log.info(setUserLog(authentication.getName()) + "Add new SIZ, number of SIZ: {}", number);
+        log.info(setUserLog(authentication.getName()) + "Add new SIZ, input data: {}", typeSIZ, size, height, nomenclatureNumber);
+
         IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ).orElse(null);
         IssuedSIZ issuedSIZ;
         for (int i = 0; i < number; i++) {
@@ -791,7 +805,8 @@ public class SIZController {
                                    @PathVariable(value = "nomenclatureNumber") String nomenclatureNumber,
                                    @PathVariable(value = "height") String height,
                                    @PathVariable(value = "size") String size,
-                                   @PathVariable(value = "number") int number, Model model) {
+                                   @PathVariable(value = "number") int number, Model model, Authentication authentication) {
+        log.info(setUserLog(authentication.getName()) + "Save editing SIZ, input data: {}", id, nomenclatureNumber, height,size,number);
         IssuedSIZ siz;
         if ((height == null) || (height.equals("")) || (height.equals("non"))) {
             siz = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, "На складе").get(0);
@@ -815,9 +830,12 @@ public class SIZController {
      * @return веб страница
      */
     @PostMapping("/userPage/not-issued-siz/{id}/edit")
-    public String notIssuedSIZUpdate(@PathVariable(value = "id") long id, @RequestParam IndividualProtectionMeans siz,
-                                     @RequestParam String size, @RequestParam String height,
-                                     @RequestParam String nomenclatureNumber, @RequestParam int number) {
+    public String notIssuedSIZUpdate(@PathVariable(value = "id") long id,
+                                     @RequestParam IndividualProtectionMeans siz,
+                                     @RequestParam String size,
+                                     @RequestParam String height,
+                                     @RequestParam String nomenclatureNumber,
+                                     @RequestParam int number) {
         List<IssuedSIZ> list;
         IssuedSIZ old_siz = issuedSIZRepository.findById(id).orElse(null);
         if (old_siz != null) {
@@ -858,6 +876,7 @@ public class SIZController {
         List<SIZForStock> sizesForStock = new ArrayList<>();
         List<Object[]> objectList;
         if (role.getName().equals("ROLE_USER")) {    //если пользователь СуперЮзер то просто удаляем записи из базы
+            log.info(setUserLog(authentication.getName()) + "Delete SIZs: {}", list);
             for (String str : list) {
                 String[] arrData = str.split("_");
                 long id = Long.parseLong(arrData[0]);
@@ -878,6 +897,7 @@ public class SIZController {
             }
             objectList = issuedSIZRepository.findGroupbySizeAndHeight();
         } else {      //иначе возвращаем СИЗ на главный склад центра
+            log.info(setUserLog(authentication.getName()) + "Return SIZs on stock: {}", list);
             Komplex komplex = komplexRepository.findByRoleId(role.getId());
             for (String str : list) {
                 String[] arrData = str.split("_");
@@ -952,7 +972,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/issued-siz")
     public String issuedSIZAll(Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Открытие страницы выдачи по нормам СИЗ");
+        log.info(setUserLog(authentication.getName()) + "Open page for issued SIZ");
         Post post = new Post("");
         Employee employee = new Employee("", "", "", "", "", null, null);
         Iterable<Post> posts = postRepository.findAll();
@@ -984,7 +1004,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/issued-siz-manual")
     public String issuedSIZToEach(Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Открытие страницы СИЗ вручную");
+        log.info(setUserLog(authentication.getName()) + "Open page for manual issued SIZ");
         Post post = new Post("");
         Employee employee = new Employee("", "", "", "", "", null, null);
         Iterable<Post> posts = postRepository.findAll();
@@ -1146,8 +1166,8 @@ public class SIZController {
                                      @PathVariable(value = "serviceLife") int serviceLife,
                                      @PathVariable(value = "dateissued") String datei, Model model,
                                      Authentication authentication) throws ParseException {
-        log.info(setUserLog(authentication.getName()) + "Выдача СИЗ вручную. Входные данные: {}", list, typeSIZ_id, size, height,number, nomenclature, serviceLife, datei);
-        IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ_id).orElseThrow(() -> new NotFoundException("Тип СИЗ с ID "+typeSIZ_id+" не найден"));
+        log.info(setUserLog(authentication.getName()) + "Issued SIZ manual. Input data: {}", list, typeSIZ_id, size, height,number, nomenclature, serviceLife, datei);
+        IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ_id).orElseThrow(() -> new NotFoundException("Type of SIZ with ID "+typeSIZ_id+" not found"));
 
         ArrayList<IssuedSIZ> listSIZs = new ArrayList<>();
         for (int i = 0; i < number; i++) {
@@ -1199,7 +1219,7 @@ public class SIZController {
     public String addIssuedSiz(@PathVariable(value = "list") List<Long> list,
                                @PathVariable(value = "id") long id,
                                @PathVariable(value = "dateissued") String datei, Model model, Authentication authentication) throws ParseException {
-        log.info(setUserLog(authentication.getName()) + "Выдача СИЗ сотрудникам по норме. Входные данные: {}", list,id,datei);
+        log.info(setUserLog(authentication.getName()) + "Issued SIZ to employee by norms. Input data: {}", list,id,datei);
         String message = "";
         listErrors.clear();
         List<IssuedSIZ> issuedSIZS = null;
@@ -1365,7 +1385,7 @@ public class SIZController {
     public String extendIssuedSiz(@PathVariable(value = "id") long id,
                                   @PathVariable(value = "dateExtending") String dateExtending,
                                   Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Продление ресурса для СИЗ: {}", id, dateExtending);
+        log.info(setUserLog(authentication.getName()) + "Extending Issued SIZ: {}", id, dateExtending);
         String message = "";
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -1395,7 +1415,7 @@ public class SIZController {
     public String cancelIssuedSiz(@PathVariable(value = "id") long id, Model model, Authentication authentication) {
         String message = "";
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
-        log.info(setUserLog(authentication.getName()) + "Отмена выдачи СИЗ: {}", id, issuedSIZ);
+        log.info(setUserLog(authentication.getName()) + "Cancel Issued SIZ: {}", id, issuedSIZ);
         //  issuedSIZ.setKomplex(issuedSIZ.getEmployee().getKomplex());
         issuedSIZ.setDateIssued(null);
         issuedSIZ.setDateEndWear(null);
@@ -1420,10 +1440,10 @@ public class SIZController {
     public String writeOfIssuedSiz(@PathVariable(value = "id") long id,
                                    @PathVariable(value = "actName") String actName,
                                    Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Списание СИЗ: {}", id);
+        log.info(setUserLog(authentication.getName()) + "Write of SIZ: {}", id);
         String message = "";
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
-        log.info(setUserLog(authentication.getName()) + "Списываемый СИЗ: {}", issuedSIZ);
+        log.info(setUserLog(authentication.getName()) + "Write of SIZ: {}", issuedSIZ);
         issuedSIZ.setStatus("Списано");
         issuedSIZ.setEmployee(null);
         issuedSIZ.setWriteOffAct(actName);
@@ -1877,7 +1897,7 @@ public class SIZController {
      */
     @GetMapping("/userPage/employee-siz")
     public String staffingOfAllEmployeesSIZ(Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Открытие страницы укомплектованности");
+        log.info(setUserLog(authentication.getName()) + "Open page staffing of all employee");
         filerIssuedSizAll = "all";
         typeOfSortingEmployeeTable = new TypeOfSortingEmployeeTable();
         typeOfSortingEmployeeTable.setFilter("all");
@@ -2394,7 +2414,7 @@ public class SIZController {
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/{id}")
     public String getEditStaffingPageOfEmployee(@PathVariable(value = "id") long id, Authentication
             authentication, Model model) {
-        log.info(setUserLog(authentication.getName()) + "Открытие страницы редактирования укомплектованности СИЗ выбранного сотрудника: {}", id);
+        log.info(setUserLog(authentication.getName()) + "Open page editing staff of SIZ for selected employee: {}", id);
         Employee employee = employeeRepository.findById(id).orElse(null);
         employeeForIssuedSIZ = employee;
         List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(id, "Выдано");
@@ -2427,7 +2447,7 @@ public class SIZController {
                                              @PathVariable(value = "protocol") String protocolName,
                                              @PathVariable(value = "protocolDate") String protocolDate,
                                              Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Продление ресурса СИЗ: {}", id);
+        log.info(setUserLog(authentication.getName()) + "Extend SIZ: {}", id);
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID: " + id + " не найден!"));
         log.info(setUserLog(authentication.getName()) + "Fetching from DB Issued SIZ: {}", issuedSIZ);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -2465,7 +2485,7 @@ public class SIZController {
     @GetMapping("/userPage/employee-siz/edit-staffing/{id}/cancel")
     public String cancelIssuedSizForEmployee(@PathVariable(value = "id") long id, Model model, Authentication authentication) {
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
-        log.info(setUserLog(authentication.getName()) + "Отмена выдачи СИЗ: {}", issuedSIZ);
+        log.info(setUserLog(authentication.getName()) + "Cancel issued SIZ: {}", issuedSIZ);
         Objects.requireNonNull(issuedSIZ).setKomplex(issuedSIZ.getEmployee().getKomplex());
         issuedSIZ.setDateIssued(null);
         issuedSIZ.setDateEndWear(null);
@@ -2490,8 +2510,8 @@ public class SIZController {
     public String writeOfIssuedSizForEmployee(@PathVariable(value = "id") long id,
                                               @PathVariable(value = "actName") String actName, Model model, Authentication authentication) {
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
-        log.info(setUserLog(authentication.getName()) + "Списание СИЗ: {}", issuedSIZ);
-        log.info(setUserLog(authentication.getName()) + "Акт списания: {}", actName);
+        log.info(setUserLog(authentication.getName()) + "Write of SIZ: {}", issuedSIZ);
+        log.info(setUserLog(authentication.getName()) + "Write of act: {}", actName);
         Objects.requireNonNull(issuedSIZ).setStatus("Списано");
         issuedSIZ.setWriteOffAct(actName);
         issuedSIZRepository.save(issuedSIZ);
