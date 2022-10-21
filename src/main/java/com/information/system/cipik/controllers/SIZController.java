@@ -1446,7 +1446,7 @@ public class SIZController {
         log.info(setUserLog(authentication.getName()) + "Write of SIZ: {}", issuedSIZ);
         issuedSIZ.setStatus("Списано");
         issuedSIZ.setEmployee(null);
-        issuedSIZ.setWriteOffAct(actName);
+        issuedSIZ.setWriteOffAct(actName.replace('@', '/'));
         issuedSIZRepository.save(issuedSIZ);
         List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
         model.addAttribute("vidanSIZ", issuedSIZS2);
@@ -2462,9 +2462,10 @@ public class SIZController {
         issuedSIZ.setDateEndWear(exDate);
         log.info(setUserLog(authentication.getName()) + "Extended Issued SIZ: {}", issuedSIZ);
         issuedSIZRepository.save(issuedSIZ);
+
         ProtocolExtending protocol = new ProtocolExtending();
         protocol.setProtocolDate(prDate);
-        protocol.setProtocolName(protocolName);
+        protocol.setProtocolName(protocolName.replace('@', '/'));
         protocol.setDateExtending(exDate);
         protocol.setIssuedSIZ(issuedSIZ);
         log.info(setUserLog(authentication.getName()) + "New protocol extended: {}", protocol);
@@ -2511,9 +2512,9 @@ public class SIZController {
                                               @PathVariable(value = "actName") String actName, Model model, Authentication authentication) {
         IssuedSIZ issuedSIZ = issuedSIZRepository.findById(id).orElse(null);
         log.info(setUserLog(authentication.getName()) + "Write of SIZ: {}", issuedSIZ);
-        log.info(setUserLog(authentication.getName()) + "Write of act: {}", actName);
+        log.info(setUserLog(authentication.getName()) + "Write of act: {}", actName.replace('@', '/'));
         Objects.requireNonNull(issuedSIZ).setStatus("Списано");
-        issuedSIZ.setWriteOffAct(actName);
+        issuedSIZ.setWriteOffAct(actName.replace('@', '/'));
         issuedSIZRepository.save(issuedSIZ);
         List<IssuedSIZ> issuedSIZS2 = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(employeeForIssuedSIZ.getId(), "Выдано");
         model.addAttribute("employee", employeeForIssuedSIZ);

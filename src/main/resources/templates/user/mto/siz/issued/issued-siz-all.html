@@ -202,9 +202,9 @@
 <!--                        </td>-->
                         <td th:text="${e.post.postName}"></td>
                         <td th:text="${e.komplex.shortName}"></td>
-                        <td th:text="${e.surname}"></td>
-                        <td th:text="${e.name}"></td>
-                        <td th:text="${e.patronymic}"></td>
+                        <td th:text="${e?.surname}"></td>
+                        <td th:text="${e?.name}"></td>
+                        <td th:text="${e?.patronymic}"></td>
                         <td>
                             <div class="progress">
                                 <div class="progress-bar" role="progressbar"

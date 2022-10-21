@@ -72,13 +72,14 @@ function setDateProtocol(value){
     protocolDate = value;
 }
 
+
 function extendSIZ() {
     if ((dateExtending != '') && (dateExtending != undefined) && (protocol != '') && (protocol != undefined) &&
             (protocolDate != '') && (protocolDate != undefined)){
 	    closeModalWindow();
 	    $.ajax({
 		    type: 'get',
-		    url: '/userPage/employee-siz/edit-staffing/' + extendingSIZId + '/extend/' + dateExtending + '/protocol/' + protocol + '/date/' + protocolDate,
+		    url: '/userPage/employee-siz/edit-staffing/' + extendingSIZId + '/extend/' + dateExtending + '/protocol/' + protocol.replace(/\/|\\/g , '@') + '/date/' + protocolDate,
 		    success: function(data) {
 			    $('.table-issuedSiz').html(data);
 		    },
@@ -108,7 +109,7 @@ function writeoffSIZ() {
 	    closeModalWindow();
 	    $.ajax({
 		    type: 'get',
-		    url: '/userPage/employee-siz/edit-staffing/' + writeoffSIZId + '/writeoff/'+actName,
+		    url: '/userPage/employee-siz/edit-staffing/' + writeoffSIZId + '/writeoff/'+actName.replace(/\/|\\/g , '@'),
 		    success: function(data) {
 			    $('.table-issuedSiz').html(data);
 		    },

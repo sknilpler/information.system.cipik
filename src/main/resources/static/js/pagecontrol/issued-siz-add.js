@@ -346,7 +346,7 @@ function writeoffSIZ() {
 	closeModalWindow();
 	$.ajax({
 		type: 'get',
-		url: '/userPage/issued-siz/' + writeoffSIZId + '/writeoff/'+actName,
+		url: '/userPage/issued-siz/' + writeoffSIZId + '/writeoff/'+actName.replace(/\/|\\/g , '@'),
 		success: function(data) {
 			$('.table-issuedSiz').html(data);
 		},
