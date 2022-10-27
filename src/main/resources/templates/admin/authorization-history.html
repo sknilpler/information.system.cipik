@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>История авторизаций</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+
+<div class="container">
+    <div class="mt-5">
+        <h1>Информация об авторизации пользователей</h1>
+    </div>
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="lead">История</span></div>
+        <div class="row">
+            <div class="col-sm-3">
+                <input type="date" id="filter1" name="filter1" onchange="filter(this.value)">
+            </div>
+            <div class="col-sm-3">
+                <input type="date" id="filter2" name="filter2" onchange="filter(this.value)">
+            </div>
+            <div class="col-sm-3">
+                <label for="textSearch" class="form-label">Поиск</label>
+                <input id="textSearch" type="text" name="keyword" oninput="search(this.value)">
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-ha " style="max-height: 40vh; min-height: 40vh; overflow-y: auto; font-size: 14px;"
+                 th:fragment="table-ha">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Имя пользователя</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ha : ${histories}">
+                        <td th:text="${#dates.format(ha.authorizationTime, 'dd.MM.yyyy HH:mm:ss')}"></td>
+                        <td th:text="${ha.username}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+
+var t1;
+var t2;
+var str;
+
+function filter(){
+    t1 = document.getElementById("filter1").value;
+    t2 = document.getElementById("filter2").value;
+
+    if (str === '' || str === undefined){
+        str = '0';
+    }
+
+    $.ajax({
+		type: 'get',
+		url: '/admin/auth-history/' + t1+'/'+t2+'/'+str,
+		success: function(data) {
+			$('.table-ha').html(data);
+		},
+	});
+}
+
+function search(value){
+    t1 = document.getElementById("filter1").value;
+    t2 = document.getElementById("filter2").value;
+    str = value;
+    if (str === '' || str === undefined){
+        str = '0';
+    }
+
+    $.ajax({
+		type: 'get',
+		url: '/admin/auth-history/' + t1+'/'+t2+'/'+str,
+		success: function(data) {
+			$('.table-ha').html(data);
+		},
+	});
+}
+  //////////////////////setting current date
+document.getElementById('filter1').valueAsDate = new Date();
+document.getElementById('filter2').valueAsDate = new Date();
+</script>
+<div th:insert="blocks/footer :: footer"></div>
+</body>
