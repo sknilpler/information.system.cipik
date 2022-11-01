@@ -207,12 +207,15 @@
                         <th>№</th>
                         <th>Наименование</th>
                         <th align="center">Номенклатурный №</th>
+                        <th align="center">№ партии</th>
                         <th align="center">Тип СИЗ</th>
+                        <th align="center">Ед изм</th>
                         <th>ФИО сотрудника</th>
                         <th>Должность</th>
                         <th align="center">Подразделение</th>
                         <th align="center" style="width: 100px;">Дата выдачи</th>
                         <th align="center" style="5%">Дата окончания носки</th>
+                        <th align="center" style="5%">Срок носки</th>
                         <th></th>
                         <!--                        <th style="width: 180px;"></th>-->
                     </tr>
@@ -222,12 +225,15 @@
                         <td th:text="${status.count}"></td>
                         <td th:text="${s.siz.nameSIZ}"></td>
                         <td th:text="${s.nomenclatureNumber}"></td>
+                        <td th:text="${s.incomeNumber}"></td>
                         <td th:text="${s.siz.typeIPM}"></td>
+                        <td th:text="${s.siz.ed_izm}"></td>
                         <td th:text="${s.employee.surname}+' '+${#strings.substring(s.employee.name,0,1)}+' '+${#strings.substring(s.employee.patronymic,0,1)}"></td>
                         <td th:text="${s.employee.post.postName}"></td>
                         <td th:text="${s.employee.komplex.shortName}"></td>
                         <td align="center" th:text="' '+${#dates.format(s.dateIssued, 'dd MMM yyyy')}"></td>
                         <td align="center" th:text="' '+${#dates.format(s.dateEndWear, 'dd MMM yyyy')}"></td>
+                        <td align="center" th:text="${s.getMonthOfIssued()}+' мес'"></td>
                         <td>
                             <form th:action="'/userPage/employee-siz/edit-staffing/employee/'+${s.employee.id}"
                                   method="get">

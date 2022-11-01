@@ -726,7 +726,7 @@ public class SIZController {
                 .stream().collect(Collectors.toList()).get(0).getAuthority());
         List<SIZForStock> sizesForStock = new ArrayList<>();
         List<Object[]> objectList;
-        //если пользователь СуперЮзер то отображаем все данные по всем подразделениям
+        //если пользователь СуперЮзер, то отображаем все данные по всем подразделениям
         if (role.getName().equals("ROLE_USER")) {
             objectList = issuedSIZRepository.findGroupbySizeAndHeight();
         } else {  //иначе определяем подразделение пользователя и по нему выводим информацию
@@ -736,7 +736,7 @@ public class SIZController {
         }
         for (Object[] obj : objectList) {
             sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2],
-                    (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
+                    (String) obj[3], (String) obj[4],(String) obj[5], Integer.parseInt(obj[6].toString())));
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("typeSIZS", individualProtectionMeans);
@@ -776,17 +776,18 @@ public class SIZController {
                                   @RequestParam String size,
                                   @RequestParam String height,
                                   @RequestParam String nomenclatureNumber,
+                                  @RequestParam String incomeNumber,
                                   @RequestParam int number, Authentication authentication) {
         log.info(setUserLog(authentication.getName()) + "Add new SIZ, number of SIZ: {}", number);
-        log.info(setUserLog(authentication.getName()) + "Add new SIZ, input data: {}", typeSIZ, size, height, nomenclatureNumber);
+        log.info(setUserLog(authentication.getName()) + "Add new SIZ, input data: {}", typeSIZ, size, height, nomenclatureNumber,incomeNumber);
 
         IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ).orElse(null);
         IssuedSIZ issuedSIZ;
         for (int i = 0; i < number; i++) {
             if (height.equals("non")) {
-                issuedSIZ = new IssuedSIZ(ipm, size, nomenclatureNumber);
+                issuedSIZ = new IssuedSIZ(ipm, size, nomenclatureNumber, incomeNumber);
             } else {
-                issuedSIZ = new IssuedSIZ(ipm, size, height, nomenclatureNumber);
+                issuedSIZ = new IssuedSIZ(ipm, size, height, nomenclatureNumber, incomeNumber);
             }
             issuedSIZRepository.save(issuedSIZ);
         }
@@ -800,18 +801,19 @@ public class SIZController {
      * @param model model from page
      * @return page
      */
-    @GetMapping("/userPage/not-issued-siz/{id}/{size}/{height}/{number}/{nomenclatureNumber}/edit")
+    @GetMapping("/userPage/not-issued-siz/{id}/{size}/{height}/{number}/{nomenclatureNumber}/{incomeNumber}/edit")
     public String notIssuedSIZEdit(@PathVariable(value = "id") long id,
                                    @PathVariable(value = "nomenclatureNumber") String nomenclatureNumber,
+                                   @PathVariable(value = "incomeNumber") String incomeNumber,
                                    @PathVariable(value = "height") String height,
                                    @PathVariable(value = "size") String size,
                                    @PathVariable(value = "number") int number, Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Save editing SIZ, input data: {}", id, nomenclatureNumber, height,size,number);
+        log.info(setUserLog(authentication.getName()) + "Save editing SIZ, input data: {}", id, nomenclatureNumber, incomeNumber, height,size,number);
         IssuedSIZ siz;
         if ((height == null) || (height.equals("")) || (height.equals("non"))) {
-            siz = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, "На складе").get(0);
+            siz = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, incomeNumber, "На складе").get(0);
         } else {
-            siz = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, "На складе").get(0);
+            siz = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, incomeNumber, "На складе").get(0);
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("typeSIZS", individualProtectionMeans);
@@ -835,27 +837,28 @@ public class SIZController {
                                      @RequestParam String size,
                                      @RequestParam String height,
                                      @RequestParam String nomenclatureNumber,
+                                     @RequestParam String incomeNumber,
                                      @RequestParam int number) {
         List<IssuedSIZ> list;
         IssuedSIZ old_siz = issuedSIZRepository.findById(id).orElse(null);
         if (old_siz != null) {
             if ((old_siz.getHeight() == null) || old_siz.getHeight().equals("") || old_siz.getHeight().equals("non") || old_siz.getHeight().equals("null")) {
-                list = issuedSIZRepository.findByStock(old_siz.getSize(), siz.getId(), old_siz.getNomenclatureNumber(), old_siz.getStatus());
+                list = issuedSIZRepository.findByStock(old_siz.getSize(), siz.getId(), old_siz.getNomenclatureNumber(), old_siz.getIncomeNumber(), old_siz.getStatus());
                 for (IssuedSIZ s : list) {
                     // System.out.println("Updating (deleting): " + s.toString());
                     issuedSIZRepository.delete(s);
                 }
                 for (int i = 0; i < number; i++) {
-                    issuedSIZRepository.save(new IssuedSIZ(siz, size, nomenclatureNumber));
+                    issuedSIZRepository.save(new IssuedSIZ(siz, size, nomenclatureNumber, incomeNumber));
                 }
             } else {
-                list = issuedSIZRepository.findByStock(old_siz.getSize(), old_siz.getHeight(), siz.getId(), old_siz.getNomenclatureNumber(), old_siz.getStatus());
+                list = issuedSIZRepository.findByStock(old_siz.getSize(), old_siz.getHeight(), siz.getId(), old_siz.getNomenclatureNumber(), old_siz.getIncomeNumber(), old_siz.getStatus());
                 for (IssuedSIZ s : list) {
                     //  System.out.println("Updating (deleting): " + s.toString());
                     issuedSIZRepository.delete(s);
                 }
                 for (int i = 0; i < number; i++) {
-                    issuedSIZRepository.save(new IssuedSIZ(siz, size, height, nomenclatureNumber));
+                    issuedSIZRepository.save(new IssuedSIZ(siz, size, height, nomenclatureNumber, incomeNumber));
                 }
             }
         }
@@ -875,7 +878,7 @@ public class SIZController {
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         List<SIZForStock> sizesForStock = new ArrayList<>();
         List<Object[]> objectList;
-        if (role.getName().equals("ROLE_USER")) {    //если пользователь СуперЮзер то просто удаляем записи из базы
+        if (role.getName().equals("ROLE_USER")) {    //если пользователь СуперЮзер, то просто удаляем записи из базы
             log.info(setUserLog(authentication.getName()) + "Delete SIZs: {}", list);
             for (String str : list) {
                 String[] arrData = str.split("_");
@@ -883,11 +886,12 @@ public class SIZController {
                 String size = arrData[1];
                 String height = arrData[2];
                 String nomenclatureNumber = arrData[3];
+                String incomeNumber = arrData[4];
                 List<IssuedSIZ> sizs;
                 if ((height == null) || (height.equals("")) || (height.equals("null"))) {
-                    sizs = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, "На складе");
+                    sizs = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, incomeNumber, "На складе");
                 } else {
-                    sizs = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, "На складе");
+                    sizs = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, incomeNumber, "На складе");
                     System.out.println("is not null");
                 }
                 for (IssuedSIZ s : sizs) {
@@ -905,22 +909,23 @@ public class SIZController {
                 String size = arrData[1];
                 String height = arrData[2];
                 String nomenclatureNumber = arrData[3];
+                String incomeNumber = arrData[4];
                 List<IssuedSIZ> sizs;
                 if ((height == null) || (height.equals("")) || (height.equals("null"))) {
-                    sizs = issuedSIZRepository.findByStockAndKomplex(size, id, "На складе", nomenclatureNumber, komplex.getId());
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, id, "На складе", nomenclatureNumber, incomeNumber, komplex.getId());
                 } else {
-                    sizs = issuedSIZRepository.findByStockAndKomplex(size, height, id, "На складе", nomenclatureNumber, komplex.getId());
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, height, id, "На складе", nomenclatureNumber, incomeNumber, komplex.getId());
                 }
                 for (IssuedSIZ s : sizs) {
                     s.setKomplex(null);
-                    System.out.println("Return to storage: " + s.toString());
+                    System.out.println("Return to storage: " + s);
                     issuedSIZRepository.save(s);
                 }
             }
             objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplex(komplex.getId());
         }
         for (Object[] obj : objectList) {
-            sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
+            sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], (String) obj[5], Integer.parseInt(obj[6].toString())));
         }
         model.addAttribute("notIssuedSIZ", sizesForStock);
         return "user/mto/siz/siz-from-stock :: table-sock-siz";
@@ -939,7 +944,7 @@ public class SIZController {
         Role role = roleRepository.findByName(authentication.getAuthorities().stream().collect(toCollection(ArrayList::new)).get(0).getAuthority());
         List<SIZForStock> sizesForStock = new ArrayList<>();
         List<Object[]> objectList;
-        if (role.getName().equals("ROLE_USER")) {    //если пользователь СуперЮзер то выводим общую информацию
+        if (role.getName().equals("ROLE_USER")) {    //если пользователь СуперЮзер, то выводим общую информацию
             if (keyword.equals("0")) {
                 objectList = issuedSIZRepository.findGroupbySizeAndHeight();
             } else {
@@ -954,7 +959,7 @@ public class SIZController {
             }
         }
         for (Object[] obj : objectList) {
-            sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], Integer.parseInt(obj[5].toString())));
+            sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], (String) obj[5], Integer.parseInt(obj[6].toString())));
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("typeSIZS", individualProtectionMeans);
@@ -1156,25 +1161,26 @@ public class SIZController {
      * @param model        модель аттрибутов страницы
      * @return фрагмент
      */
-    @GetMapping("/userPage/issued-siz/{list}/add/{id}/{size}/{height}/{number}/{nomenclature}/{serviceLife}/{dateissued}")
+    @GetMapping("/userPage/issued-siz/{list}/add/{id}/{size}/{height}/{number}/{nomenclature}/{incomeNumber}/{serviceLife}/{dateissued}")
     public String addIssuedSizManual(@PathVariable(value = "list") List<Long> list,
                                      @PathVariable(value = "id") long typeSIZ_id,
                                      @PathVariable(value = "size") String size,
                                      @PathVariable(value = "height") String height,
                                      @PathVariable(value = "number") int number,
                                      @PathVariable(value = "nomenclature") String nomenclature,
+                                     @PathVariable(value = "incomeNumber") String incomeNumber,
                                      @PathVariable(value = "serviceLife") int serviceLife,
                                      @PathVariable(value = "dateissued") String datei, Model model,
                                      Authentication authentication) throws ParseException {
-        log.info(setUserLog(authentication.getName()) + "Issued SIZ manual. Input data: {}", list, typeSIZ_id, size, height,number, nomenclature, serviceLife, datei);
+        log.info(setUserLog(authentication.getName()) + "Issued SIZ manual. Input data: {}", list, typeSIZ_id, size, height,number, nomenclature, incomeNumber, serviceLife, datei);
         IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ_id).orElseThrow(() -> new NotFoundException("Type of SIZ with ID "+typeSIZ_id+" not found"));
 
         ArrayList<IssuedSIZ> listSIZs = new ArrayList<>();
         for (int i = 0; i < number; i++) {
             if (height.equals("non")) {
-                listSIZs.add(new IssuedSIZ(ipm, size, nomenclature));
+                listSIZs.add(new IssuedSIZ(ipm, size, nomenclature, incomeNumber));
             } else {
-                listSIZs.add(new IssuedSIZ(ipm, size, height, nomenclature));
+                listSIZs.add(new IssuedSIZ(ipm, size, height, nomenclature, incomeNumber));
             }
         }
 
@@ -1204,7 +1210,7 @@ public class SIZController {
         model.addAttribute("errors", listErrors);
         model.addAttribute("vidanSIZ", issuedSIZS2);
         model.addAttribute("selectedEmployee", employeeForIssuedSIZ);
-        return "user/mto/siz/issued/issued-siz-add :: table-issuedSiz";
+        return "user/mto/siz/issued/issued-siz-manual :: table-issuedSiz";
     }
 
     /**

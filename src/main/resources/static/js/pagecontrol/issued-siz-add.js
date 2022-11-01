@@ -221,6 +221,7 @@ function saveIssuedSIZToEmployee(){
     var dateissued = document.getElementById("backdate").value;
     var numberSiz = document.getElementById("number").value;
     var nomenklatureSiz = document.getElementById("nomenclatureNumber").value;
+    var incomeSiz = document.getElementById("incomeNumber").value;
     var sizeSiz = document.getElementById("size").value;
     var heightSiz = document.getElementById("height").value;
     var serviceLife = document.getElementById("serviceLife").value;
@@ -230,7 +231,7 @@ function saveIssuedSIZToEmployee(){
 
     $.ajax({
         	    type: 'get',
-        	    url: '/userPage/issued-siz/' + selRecs + '/add/'+id_typeSiz+'/'+sizeSiz+'/'+heightSiz+'/'+numberSiz+'/'+nomenklatureSiz+'/'+serviceLife+'/'+dateissued,
+        	    url: '/userPage/issued-siz/' + selRecs + '/add/'+id_typeSiz+'/'+sizeSiz+'/'+heightSiz+'/'+numberSiz+'/'+nomenklatureSiz+'/'+incomeSiz+'/'+serviceLife+'/'+dateissued,
         	    success: function(data) {
         		    $('.table-issuedSiz').html(data);
         		    //document.getElementsByName('iss-btn').forEach(el => el.disabled = true);
@@ -241,6 +242,7 @@ function saveIssuedSIZToEmployee(){
 
                     document.getElementById("number").value = "";
                     document.getElementById("nomenclatureNumber").value = "";
+                    document.getElementById("incomeNumber").value = "";
                     document.getElementById("serviceLife").value = "";
                     var heightSel = document.getElementById('height');
                     heightSel.selectedIndex = 0;

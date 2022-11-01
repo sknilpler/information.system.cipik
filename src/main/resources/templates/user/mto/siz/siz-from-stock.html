@@ -73,6 +73,14 @@
                         </div>
                     </div>
 
+                    <div class="col-sm-3">
+                        <label class="md-2" for="incomeNumber">Номер партии</label>
+                        <div class="md-7">
+                            <input type="text" id="incomeNumber" name="incomeNumber" class="form-control"
+                                   placeholder="Введите номер партии" required/>
+                        </div>
+                    </div>
+
                     <div class="container mt-1 form-actions floatRight">
                         <button type="submit" class="btn btn-success">Добавить</button>
                         <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Очистить
@@ -102,6 +110,7 @@
                                 </th>
                                 <th style="5%">№ п/п</th>
                                 <th>Номенклатурный №</th>
+                                <th>№ партии</th>
                                 <th>Наименование</th>
                                 <th style="width: 5%">Размер</th>
                                 <th style="width: 5%">Рост</th>
@@ -125,12 +134,13 @@
                                 </td>
                                 <td th:text="${iter.index+1}"></td>
                                 <td th:text="${n.nomenclatureNumber}"></td>
+                                <td th:text="${n.incomeNumber}"></td>
                                 <td th:text="${n.nameSIZ}"></td>
                                 <td th:text="${n.size}"></td>
                                 <td th:text="${n.height}"></td>
                                 <td th:text="${n.number}"></td>
                                 <td>
-                                        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/not-issued-siz/'+${n.id}+'/'+${n.size}+'/'+${#strings.defaultString(n.height,'non')}+'/'+${n.number}+'/'+${n.nomenclatureNumber}+'/edit'"
+                                        <a sec:authorize="hasRole('ROLE_USER')" th:href="'/userPage/not-issued-siz/'+${n.id}+'/'+${n.size}+'/'+${#strings.defaultString(n.height,'non')}+'/'+${n.number}+'/'+${n.nomenclatureNumber}+'/'+${n.incomeNumber}+'/edit'"
                                            class="btn btn-primary btn-sm" title="Редактировать">
                                             <img src="/images/bootstrap-icons/pen.svg" alt="Bootstrap" width="16"
                                                  height="16" style="filter: invert (100%);">

@@ -247,6 +247,7 @@
                                 <tr>
                                     <th>Наименование</th>
                                     <th align="center">Номенклатурный №</th>
+                                    <th align="center">№ партии</th>
                                     <th align="center">Дата выдачи</th>
                                     <th align="center">Дата окончания носки</th>
                                     <th style="width: 150px;"></th>
@@ -256,6 +257,7 @@
                                 <tr th:each="s : ${vidanSIZ}" style="cursor: pointer">
                                     <td th:text="${s.siz.nameSIZ}"></td>
                                     <td align="center" th:text="${s.nomenclatureNumber}"></td>
+                                    <td align="center" th:text="${s.incomeNumber}"></td>
                                     <td align="center" th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></td>
                                     <td align="center" th:text="${#dates.format(s.dateEndWear, 'dd.MM.yyyy')}"></td>
                                     <td>
@@ -269,7 +271,6 @@
                                         <button class="btn btn-warning btn-sm" type="button"
                                                 th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'" title="Отменить выдачу и возврат СИЗ на склад">
                                             <img src="/images/bootstrap-icons/arrow-clockwise.svg" width="24" height="24">
-                                            выдачу
                                         </button>
                                     </td>
                                 </tr>

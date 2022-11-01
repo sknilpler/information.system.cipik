@@ -6,6 +6,8 @@ public class SIZForStock {
     private String ed_izm;
     private String typeIPM;
     private String nomenclatureNumber;
+
+    private String incomeNumber;
     private String size;
     private String height;
     private int number;
@@ -13,7 +15,7 @@ public class SIZForStock {
     public SIZForStock() {
     }
 
-    public SIZForStock(Long id, String nomenclatureNumber, String nameSIZ, String ed_izm, String typeIPM, String size, String height, int number) {
+    public SIZForStock(Long id, String nomenclatureNumber, String incomeNumber, String nameSIZ, String ed_izm, String typeIPM, String size, String height, int number) {
         this.id = id;
         this.nameSIZ = nameSIZ;
         this.ed_izm = ed_izm;
@@ -22,15 +24,17 @@ public class SIZForStock {
         this.size = size;
         this.height = height;
         this.number = number;
+        this.incomeNumber = incomeNumber;
     }
 
-    public SIZForStock(Long id, String nomenclatureNumber, String nameSIZ, String size, String height, int number) {
+    public SIZForStock(Long id, String nomenclatureNumber, String incomeNumber, String nameSIZ, String size, String height, int number) {
         this.id = id;
         this.nameSIZ = nameSIZ;
         this.nomenclatureNumber = nomenclatureNumber;
         this.size = size;
         this.height = height;
         this.number = number;
+        this.incomeNumber = incomeNumber;
     }
 
     public Long getId() {
@@ -95,5 +99,13 @@ public class SIZForStock {
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    public String getIncomeNumber() {
+        return incomeNumber;
+    }
+
+    public void setIncomeNumber(String incomeNumber) {
+        this.incomeNumber = incomeNumber;
     }
 }

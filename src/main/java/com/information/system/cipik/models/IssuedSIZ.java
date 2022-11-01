@@ -6,6 +6,10 @@ import lombok.Setter;
 import org.apache.tomcat.util.net.openssl.ciphers.Protocol;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +39,8 @@ public class IssuedSIZ {
     private String writeOffAct;
     private String nomenclatureNumber;
 
+    private String incomeNumber;
+
     @ManyToOne
     private Komplex komplex;
 
@@ -42,19 +48,30 @@ public class IssuedSIZ {
     @JoinColumn(name = "issuedSIZ_id")
     private List<ProtocolExtending> protocols;
 
-    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size,String nomenclatureNumber) {
+    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size,String nomenclatureNumber, String incomeNumber) {
         this.siz = individualProtectionMeans;
         this.status = "На складе";
         this.size = size;
         this.nomenclatureNumber = nomenclatureNumber;
+        this.incomeNumber = incomeNumber;
     }
 
-    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size, String height,String nomenclatureNumber) {
+    public IssuedSIZ(IndividualProtectionMeans individualProtectionMeans, String size, String height,String nomenclatureNumber, String incomeNumber) {
         this.siz = individualProtectionMeans;
         this.status = "На складе";
         this.size = size;
         this.height = height;
         this.nomenclatureNumber = nomenclatureNumber;
+        this.incomeNumber = incomeNumber;
+    }
+
+    public long getMonthOfIssued(){
+        return ChronoUnit.MONTHS.between(
+                YearMonth.from(this.dateIssued.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime()),
+                YearMonth.from(LocalDate.now())
+        );
     }
 
     @Override
@@ -70,6 +87,7 @@ public class IssuedSIZ {
                 ", height='" + height + '\'' +
                 ", writeOffAct='" + writeOffAct + '\'' +
                 ", nomenclatureNumber='" + nomenclatureNumber + '\'' +
+                ", incomeNumber='" + incomeNumber + '\'' +
                 ", komplex=" + komplex +
                 '}';
     }

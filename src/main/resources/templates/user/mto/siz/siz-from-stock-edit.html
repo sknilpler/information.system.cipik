@@ -59,6 +59,14 @@
                         </div>
                     </div>
 
+                    <div class="col-sm-2">
+                        <label class="md-2" for="incomeNumber">Номер партии</label>
+                        <div class="md-7">
+                            <input type="text" id="incomeNumber" name="incomeNumber" th:value="${incomeNumber}" class="form-control"
+                                   placeholder="Введите номер партии" required/>
+                        </div>
+                    </div>
+
                     <div class="container mt-1 form-actions floatRight">
                         <button type="submit" class="btn btn-success">Сохранить</button>
                         <button type="button" onclick="window.location.reload();" class="btn btn-secondary">Сбросить

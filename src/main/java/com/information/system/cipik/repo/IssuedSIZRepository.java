@@ -189,13 +189,13 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
      *
      * @return сгруппированный по типу, размеру и росту список СИЗ на складе
      */
-    @Query(value = "SELECT s.id,i.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
+    @Query(value = "SELECT s.id,i.nomenclature_number, i.income_number, s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
             "FROM issuedsiz i, individual_protection_means s \n" +
             "WHERE s.id=i.siz_id AND \n" +
             "i.status = \"На складе\" AND \n" +
             "i.employee_id IS null AND \n" +
             "i.komplex_id IS null \n" +
-            "GROUP BY 1,2,3,4,5", nativeQuery = true)
+            "GROUP BY 1,2,3,4,5,6", nativeQuery = true)
     List<Object[]> findGroupbySizeAndHeight();
 
     /**
@@ -204,7 +204,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
      * @param keyword ключевое слово поиска
      * @return сгруппированный по типу, размеру и росту список СИЗ на складе
      */
-    @Query(value = "SELECT s.id,i.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
+    @Query(value = "SELECT s.id,i.nomenclature_number, i.income_number, s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
             "FROM issuedsiz i, individual_protection_means s \n" +
             "WHERE s.id=i.siz_id AND \n" +
             "i.status = \"На складе\" AND \n" +
@@ -214,7 +214,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "  i.height LIKE %:keyword% OR\n" +
             "  s.namesiz LIKE %:keyword% OR\n" +
             "  i.nomenclature_number LIKE %:keyword%)" +
-            "GROUP BY 1,2,3,4,5", nativeQuery = true)
+            "GROUP BY 1,2,3,4,5,6", nativeQuery = true)
     List<Object[]> findGroupbySizeAndHeightByKeyword(@Param("keyword") String keyword);
 
     /**
@@ -223,13 +223,13 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
      * @param id ID подразделения
      * @return сгруппированный по типу, размеру и росту список СИЗ на складе
      */
-    @Query(value = "SELECT s.id,i.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
+    @Query(value = "SELECT s.id,i.nomenclature_number, i.income_number, s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
             "FROM issuedsiz i, individual_protection_means s \n" +
             "WHERE s.id=i.siz_id AND \n" +
             "i.status = \"На складе\" AND \n" +
             "i.employee_id IS null AND \n" +
             "i.komplex_id = :id \n" +
-            "GROUP BY 1,2,3,4,5", nativeQuery = true)
+            "GROUP BY 1,2,3,4,5,6", nativeQuery = true)
     List<Object[]> findGroupbySizeAndHeightByKomplex(@Param("id") Long id);
 
     /**
@@ -239,7 +239,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
      * @param keyword ключевое слово поиска
      * @return сгруппированный по типу, размеру и росту список СИЗ на складе
      */
-    @Query(value = "SELECT s.id,i.nomenclature_number,s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
+    @Query(value = "SELECT s.id,i.nomenclature_number, i.income_number, s.namesiz,i.size,i.height, COUNT(i.id) AS num \n" +
             "FROM issuedsiz i, individual_protection_means s \n" +
             "WHERE s.id=i.siz_id AND \n" +
             "i.status = \"На складе\" AND \n" +
@@ -249,7 +249,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "  i.height LIKE %:keyword% OR\n" +
             "  s.namesiz LIKE %:keyword% OR\n" +
             "  i.nomenclature_number LIKE %:keyword%)" +
-            "GROUP BY 1,2,3,4,5", nativeQuery = true)
+            "GROUP BY 1,2,3,4,5,6", nativeQuery = true)
     List<Object[]> findGroupbySizeAndHeightByKomplexAndKeyword(@Param("id") Long id,
                                                                @Param("keyword") String keyword);
 
@@ -1005,12 +1005,14 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "siz_id =:s_id AND\n" +
             "status =:stat AND\n" +
             "nomenclature_number =:n_n AND\n" +
+            "income_number =:i_n AND\n" +
             "komplex_id IS NULL AND\n" +
             "employee_id IS NULL", nativeQuery = true)
     List<IssuedSIZ> findByStock(@Param("s") String size,
                                 @Param("h") String height,
                                 @Param("s_id") long siz_id,
                                 @Param("n_n") String nomenclatureNumber,
+                                @Param("i_n") String incomeNumber,
                                 @Param("stat") String status);
 
     /**
@@ -1025,12 +1027,14 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "size =:s AND\n" +
             "siz_id =:s_id AND\n" +
             "nomenclature_number =:n_n AND\n" +
+            "income_number =:i_n AND\n" +
             "status =:stat AND\n" +
             "komplex_id IS NULL AND\n" +
             "employee_id IS NULL", nativeQuery = true)
     List<IssuedSIZ> findByStock(@Param("s") String size,
                                 @Param("s_id") long siz_id,
                                 @Param("n_n") String nomenclatureNumber,
+                                @Param("i_n") String incomeNumber,
                                 @Param("stat") String status);
 
     /**
@@ -1048,6 +1052,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "height =:h AND\n" +
             "siz_id =:s_id AND\n" +
             "nomenclature_number =:n_n AND\n" +
+            "income_number =:i_n AND\n" +
             "status =:stat AND\n" +
             "komplex_id =:k_id AND\n" +
             "employee_id IS NULL", nativeQuery = true)
@@ -1056,6 +1061,7 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
                                           @Param("s_id") long siz_id,
                                           @Param("stat") String status,
                                           @Param("n_n") String nomenclatureNumber,
+                                          @Param("i_n") String incomeNumber,
                                           @Param("k_id") long k_id);
 
     /**
@@ -1073,12 +1079,14 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
             "siz_id =:s_id AND\n" +
             "status =:stat AND\n" +
             "nomenclature_number =:n_n AND\n" +
+            "income_number =:i_n AND\n" +
             "komplex_id =:k_id AND\n" +
             "employee_id IS NULL", nativeQuery = true)
     List<IssuedSIZ> findByStockAndKomplex(@Param("s") String size,
                                           @Param("s_id") long siz_id,
                                           @Param("stat") String status,
                                           @Param("n_n") String nomenclatureNumber,
+                                          @Param("i_n") String incomeNumber,
                                           @Param("k_id") long k_id);
 
     /**
