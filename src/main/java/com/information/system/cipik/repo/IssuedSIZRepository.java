@@ -1016,6 +1016,29 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
                                 @Param("stat") String status);
 
     /**
+     * Получить список не выданного СИЗ на складе предприятия по параметрам
+     *
+     * @param size   размер
+     * @param height рост
+     * @param siz_id ID типа СИЗ
+     * @param status статус
+     * @return список СИЗ
+     */
+    @Query(value = "SELECT * FROM issuedsiz WHERE \n" +
+            "size =:s AND\n" +
+            "height =:h AND\n" +
+            "siz_id =:s_id AND\n" +
+            "status =:stat AND\n" +
+            "nomenclature_number =:n_n AND\n" +
+            "komplex_id IS NULL AND\n" +
+            "employee_id IS NULL", nativeQuery = true)
+    List<IssuedSIZ> findByStock(@Param("s") String size,
+                                @Param("h") String height,
+                                @Param("s_id") long siz_id,
+                                @Param("n_n") String nomenclatureNumber,
+                                @Param("stat") String status);
+
+    /**
      * Получить список не выданного СИЗ (не одежды) на складе предприятия по параметрам
      *
      * @param size   размер
@@ -1035,6 +1058,18 @@ public interface IssuedSIZRepository extends CrudRepository<IssuedSIZ, Long> {
                                 @Param("s_id") long siz_id,
                                 @Param("n_n") String nomenclatureNumber,
                                 @Param("i_n") String incomeNumber,
+                                @Param("stat") String status);
+
+    @Query(value = "SELECT * FROM issuedsiz WHERE \n" +
+            "size =:s AND\n" +
+            "siz_id =:s_id AND\n" +
+            "nomenclature_number =:n_n AND\n" +
+            "status =:stat AND\n" +
+            "komplex_id IS NULL AND\n" +
+            "employee_id IS NULL", nativeQuery = true)
+    List<IssuedSIZ> findByStock(@Param("s") String size,
+                                @Param("s_id") long siz_id,
+                                @Param("n_n") String nomenclatureNumber,
                                 @Param("stat") String status);
 
     /**

@@ -206,7 +206,7 @@
                                     <th>Наименование</th>
                                     <th style="width: 100px">По норме</th>
                                     <th style="width: 100px">На складе</th>
-                                    <th style="width: 80px;"></th>
+<!--                                    <th style="width: 80px;"></th>-->
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -215,10 +215,10 @@
                                     <td align="center" th:text="${s.issuanceRate}"></td>
                                     <td align="center" sec:authorize="isAuthenticated() && !hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRateForKomplex(s.id,employee.komplex.id)}"></td>
                                     <td align="center" sec:authorize="hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
-                                    <td>
-                                        <button class="btn btn-danger btn-sm" name="iss-btn"
-                                                th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</button>
-                                    </td>
+<!--                                    <td>-->
+<!--                                        <button class="btn btn-danger btn-sm" name="iss-btn"-->
+<!--                                                th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</button>-->
+<!--                                    </td>-->
                                 </tr>
                                 </tbody>
                             </table>

@@ -95,7 +95,7 @@ public class SIZController {
      */
     private String setUserLog(String username) {
         //return ANSIColor.ANSI_GREEN + " User: " + ANSIColor.ANSI_YELLOW + " " + username + " " + ANSIColor.ANSI_RESET + " -> ";
-        return "----" + " User: " + username +  " --> ";
+        return "----" + " User: " + username + " --> ";
     }
 
     /**
@@ -258,7 +258,7 @@ public class SIZController {
         if (!sizRepository.existsById(id)) {
             return "redirect:/userPage/siz-types";
         }
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID "+id+" не найден"));
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID " + id + " не найден"));
         model.addAttribute("siz", individualProtectionMeans);
         return "user/mto/siz/types-of-siz-edit";
     }
@@ -277,8 +277,8 @@ public class SIZController {
     public String updateSIZ(@PathVariable(value = "id") long id, @RequestParam String nameSIZ,
                             @RequestParam String ed_izm,
                             @RequestParam String typeIPM, Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Saving edited type of SIZ, input data: {}", id, nameSIZ,ed_izm,typeIPM);
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID "+id+" не найден"));
+        log.info(setUserLog(authentication.getName()) + "Saving edited type of SIZ, input data: {}", id, nameSIZ, ed_izm, typeIPM);
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID " + id + " не найден"));
         Objects.requireNonNull(individualProtectionMeans).setNameSIZ(nameSIZ);
         individualProtectionMeans.setEd_izm(ed_izm);
         individualProtectionMeans.setTypeIPM(typeIPM);
@@ -418,7 +418,7 @@ public class SIZController {
     @PostMapping("/userPage/siz-types/{id}/remove")
     public String deleteSIZ(@PathVariable(value = "id") long id, Authentication authentication) {
         log.info(setUserLog(authentication.getName()) + "Delete type of SIZ: {}", id);
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID "+id+" не найден"));
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID " + id + " не найден"));
         sizRepository.deleteById(id);
         return "redirect:/userPage/siz-types";
     }
@@ -433,7 +433,7 @@ public class SIZController {
     @GetMapping("/userPage/siz-types/sizes/{id}")
     public String openSizeSizPage(@PathVariable(value = "id") long id, Model model, Authentication authentication) {
         log.info(setUserLog(authentication.getName()) + "Open page with sizes by selected type SIZ: {}", id);
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID "+id+" не найден"));
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID " + id + " не найден"));
         model.addAttribute("siz", individualProtectionMeans);
         model.addAttribute("sizes", sizeSizRepository.findAllByIndividualProtectionMeansId(id));
         return "user/mto/siz/sizes";
@@ -453,7 +453,7 @@ public class SIZController {
                                         @RequestParam(required = false) String height,
                                         @RequestParam String size, Model model, Authentication authentication) {
         log.info(setUserLog(authentication.getName()) + "Saving new size for selected type of SIZ, input data: {}", id, height, size);
-        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID "+id+" не найден"));
+        IndividualProtectionMeans individualProtectionMeans = sizRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID " + id + " не найден"));
         SizeSiz sizeSiz;
         if ((height == null) || (height.equals(""))) {
             sizeSiz = new SizeSiz(individualProtectionMeans, size);
@@ -640,7 +640,7 @@ public class SIZController {
                               @RequestParam int issuanceRate,
                               @RequestParam int serviceLife,
                               @RequestParam String regulatoryDocuments, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Save new issued norm for selected SIZ. input data: {}", dropSIZ, issuanceRate,serviceLife, regulatoryDocuments);
+        log.info(setUserLog(authentication.getName()) + "Save new issued norm for selected SIZ. input data: {}", dropSIZ, issuanceRate, serviceLife, regulatoryDocuments);
         if (!postAddToNorm.getPostName().equals("")) {
             IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElse(null);
             IPMStandard norma = new IPMStandard(postAddToNorm, siz, issuanceRate, serviceLife, regulatoryDocuments);
@@ -685,7 +685,7 @@ public class SIZController {
                               @RequestParam int issuanceRate,
                               @RequestParam int serviceLife,
                               @RequestParam String regulatoryDocuments, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Save editing issued norm for selected SIZ. input data: {}", dropSIZ, issuanceRate,serviceLife, regulatoryDocuments);
+        log.info(setUserLog(authentication.getName()) + "Save editing issued norm for selected SIZ. input data: {}", dropSIZ, issuanceRate, serviceLife, regulatoryDocuments);
         IndividualProtectionMeans siz = sizRepository.findById(dropSIZ).orElse(null);
         IPMStandard norma = ipmStandardRepository.findById(id).orElse(null);
         Objects.requireNonNull(norma).setIndividualProtectionMeans(siz);
@@ -700,7 +700,7 @@ public class SIZController {
     /**
      * Удаление нормы выдачи СИЗ
      *
-     * @param id    ID нормы
+     * @param id ID нормы
      * @return перенаправление на /userPage/siz/norms
      */
     @PostMapping("/userPage/siz/norms/{id}/remove")
@@ -736,7 +736,7 @@ public class SIZController {
         }
         for (Object[] obj : objectList) {
             sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2],
-                    (String) obj[3], (String) obj[4],(String) obj[5], Integer.parseInt(obj[6].toString())));
+                    (String) obj[3], (String) obj[4], (String) obj[5], Integer.parseInt(obj[6].toString())));
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("typeSIZS", individualProtectionMeans);
@@ -779,7 +779,7 @@ public class SIZController {
                                   @RequestParam String incomeNumber,
                                   @RequestParam int number, Authentication authentication) {
         log.info(setUserLog(authentication.getName()) + "Add new SIZ, number of SIZ: {}", number);
-        log.info(setUserLog(authentication.getName()) + "Add new SIZ, input data: {}", typeSIZ, size, height, nomenclatureNumber,incomeNumber);
+        log.info(setUserLog(authentication.getName()) + "Add new SIZ, input data: {}", typeSIZ, size, height, nomenclatureNumber, incomeNumber);
 
         IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ).orElse(null);
         IssuedSIZ issuedSIZ;
@@ -808,12 +808,22 @@ public class SIZController {
                                    @PathVariable(value = "height") String height,
                                    @PathVariable(value = "size") String size,
                                    @PathVariable(value = "number") int number, Model model, Authentication authentication) {
-        log.info(setUserLog(authentication.getName()) + "Save editing SIZ, input data: {}", id, nomenclatureNumber, incomeNumber, height,size,number);
+        log.info(setUserLog(authentication.getName()) + "Save editing SIZ, input data: " + id + ", " + nomenclatureNumber + ", " + incomeNumber + ", " + height + ", " + size + ", " + number);
+
         IssuedSIZ siz;
-        if ((height == null) || (height.equals("")) || (height.equals("non"))) {
-            siz = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, incomeNumber, "На складе").get(0);
+        boolean nonHeight = (height == null) || (height.equals("")) || (height.equals("non"));
+        if (incomeNumber.equals("null")) {
+            if (nonHeight) {
+                siz = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, "На складе").get(0);
+            } else {
+                siz = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, "На складе").get(0);
+            }
         } else {
-            siz = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, incomeNumber, "На складе").get(0);
+            if (nonHeight) {
+                siz = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, incomeNumber, "На складе").get(0);
+            } else {
+                siz = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, incomeNumber, "На складе").get(0);
+            }
         }
         Iterable<IndividualProtectionMeans> individualProtectionMeans = sizRepository.findAll();
         model.addAttribute("typeSIZS", individualProtectionMeans);
@@ -879,7 +889,7 @@ public class SIZController {
         List<SIZForStock> sizesForStock = new ArrayList<>();
         List<Object[]> objectList;
         if (role.getName().equals("ROLE_USER")) {    //если пользователь СуперЮзер, то просто удаляем записи из базы
-            log.info(setUserLog(authentication.getName()) + "Delete SIZs: {}", list);
+
             for (String str : list) {
                 String[] arrData = str.split("_");
                 long id = Long.parseLong(arrData[0]);
@@ -888,14 +898,28 @@ public class SIZController {
                 String nomenclatureNumber = arrData[3];
                 String incomeNumber = arrData[4];
                 List<IssuedSIZ> sizs;
-                if ((height == null) || (height.equals("")) || (height.equals("null"))) {
-                    sizs = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, incomeNumber, "На складе");
+
+                boolean nonHeight = (height == null) || (height.equals("")) || (height.equals("null"));
+                if (incomeNumber.equals("null")) {
+                    if (nonHeight) {
+                        sizs = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, "На складе")
+                                .stream().filter(issuedSIZ -> issuedSIZ.getIncomeNumber() == null)
+                                .collect(Collectors.toList());
+                    } else {
+                        sizs = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, "На складе")
+                                .stream().filter(issuedSIZ -> issuedSIZ.getIncomeNumber() == null)
+                                .collect(Collectors.toList());
+                    }
                 } else {
-                    sizs = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, incomeNumber, "На складе");
-                    System.out.println("is not null");
+                    if (nonHeight) {
+                        sizs = issuedSIZRepository.findByStock(size, id, nomenclatureNumber, incomeNumber, "На складе");
+                    } else {
+                        sizs = issuedSIZRepository.findByStock(size, height, id, nomenclatureNumber, incomeNumber, "На складе");
+                    }
                 }
+
                 for (IssuedSIZ s : sizs) {
-                    System.out.println("Deleting: " + s.toString());
+                    log.info(setUserLog(authentication.getName()) + "Deleting: " + s.toString());
                     issuedSIZRepository.deleteById(s.getId());
                 }
             }
@@ -912,20 +936,23 @@ public class SIZController {
                 String incomeNumber = arrData[4];
                 List<IssuedSIZ> sizs;
                 if ((height == null) || (height.equals("")) || (height.equals("null"))) {
-                    sizs = issuedSIZRepository.findByStockAndKomplex(size, id, "На складе", nomenclatureNumber, incomeNumber, komplex.getId());
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, id, "На складе", nomenclatureNumber,
+                            incomeNumber, komplex.getId());
                 } else {
-                    sizs = issuedSIZRepository.findByStockAndKomplex(size, height, id, "На складе", nomenclatureNumber, incomeNumber, komplex.getId());
+                    sizs = issuedSIZRepository.findByStockAndKomplex(size, height, id, "На складе",
+                            nomenclatureNumber, incomeNumber, komplex.getId());
                 }
                 for (IssuedSIZ s : sizs) {
                     s.setKomplex(null);
-                    System.out.println("Return to storage: " + s);
+                    log.info(setUserLog(authentication.getName()) + "Return to storage: " + s);
                     issuedSIZRepository.save(s);
                 }
             }
             objectList = issuedSIZRepository.findGroupbySizeAndHeightByKomplex(komplex.getId());
         }
         for (Object[] obj : objectList) {
-            sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2], (String) obj[3], (String) obj[4], (String) obj[5], Integer.parseInt(obj[6].toString())));
+            sizesForStock.add(new SIZForStock(Long.parseLong(obj[0].toString()), (String) obj[1], (String) obj[2],
+                    (String) obj[3], (String) obj[4], (String) obj[5], Integer.parseInt(obj[6].toString())));
         }
         model.addAttribute("notIssuedSIZ", sizesForStock);
         return "user/mto/siz/siz-from-stock :: table-sock-siz";
@@ -1172,8 +1199,8 @@ public class SIZController {
                                      @PathVariable(value = "serviceLife") int serviceLife,
                                      @PathVariable(value = "dateissued") String datei, Model model,
                                      Authentication authentication) throws ParseException {
-        log.info(setUserLog(authentication.getName()) + "Issued SIZ manual. Input data: {}", list, typeSIZ_id, size, height,number, nomenclature, incomeNumber, serviceLife, datei);
-        IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ_id).orElseThrow(() -> new NotFoundException("Type of SIZ with ID "+typeSIZ_id+" not found"));
+        log.info(setUserLog(authentication.getName()) + "Issued SIZ manual. Input data: {}", list, typeSIZ_id, size, height, number, nomenclature, incomeNumber, serviceLife, datei);
+        IndividualProtectionMeans ipm = sizRepository.findById(typeSIZ_id).orElseThrow(() -> new NotFoundException("Type of SIZ with ID " + typeSIZ_id + " not found"));
 
         ArrayList<IssuedSIZ> listSIZs = new ArrayList<>();
         for (int i = 0; i < number; i++) {
@@ -1193,7 +1220,7 @@ public class SIZController {
         Date dateEndWear = c.getTime();
 
         for (Long employee_id : list) {
-            Employee employee = employeeRepository.findById(employee_id).orElseThrow(() -> new NotFoundException("Сотрудник с ID "+employee_id+" не найден"));
+            Employee employee = employeeRepository.findById(employee_id).orElseThrow(() -> new NotFoundException("Сотрудник с ID " + employee_id + " не найден"));
             for (int i = 0; i < number; i++) {
                 IssuedSIZ siz = listSIZs.get(i);
 
@@ -1225,7 +1252,7 @@ public class SIZController {
     public String addIssuedSiz(@PathVariable(value = "list") List<Long> list,
                                @PathVariable(value = "id") long id,
                                @PathVariable(value = "dateissued") String datei, Model model, Authentication authentication) throws ParseException {
-        log.info(setUserLog(authentication.getName()) + "Issued SIZ to employee by norms. Input data: {}", list,id,datei);
+        log.info(setUserLog(authentication.getName()) + "Issued SIZ to employee by norms. Input data: {}", list, id, datei);
         String message = "";
         listErrors.clear();
         List<IssuedSIZ> issuedSIZS = null;

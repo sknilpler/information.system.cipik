@@ -9,10 +9,17 @@
     <script type="text/javascript" src="/js/jquery.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/fixedtable.js"></script>
+    <link href="/css/select2.min.css" rel="stylesheet" />
+    <script src="/js/select2.min.js"></script>
     <style>
             #tb tr:hover {background:#E2EEFF;}
             #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
     </style>
+    <script>
+  $(function(){
+  $("#typeSIZ").select2();
+ });
+</script>
 </head>
 <body>
 <header th:insert="blocks/header :: header"></header>
@@ -130,7 +137,7 @@
                             <tbody>
                             <tr th:each="n,iter : ${notIssuedSIZ}">
                                 <td>
-                                        <input type="checkbox" name="record-checkbox" th:data-size="${n.size}" th:data-height="${n.height}" th:data-id="${n.id}" th:data-nomenclatureNumber="${n.nomenclatureNumber}" onchange="selectRecord(this,this.getAttribute('data-id'),this.getAttribute('data-size'),this.getAttribute('data-height'),this.getAttribute('data-nomenclatureNumber'));">
+                                        <input type="checkbox" name="record-checkbox" th:data-size="${n.size}" th:data-height="${n.height}" th:data-id="${n.id}" th:data-nomenclatureNumber="${n.nomenclatureNumber}" th:data-incomeNumber="${n.incomeNumber}" onchange="selectRecord(this,this.getAttribute('data-id'),this.getAttribute('data-size'),this.getAttribute('data-height'),this.getAttribute('data-nomenclatureNumber'), this.getAttribute('data-incomeNumber'));">
                                 </td>
                                 <td th:text="${iter.index+1}"></td>
                                 <td th:text="${n.nomenclatureNumber}"></td>
@@ -232,8 +239,8 @@ function U2A(str) {
 //////////////////////////////////////
 var selRecs = [];
 
-function selectRecord(value, id,size,height,nomenclatureNumber) {
-    var str = id+'_'+size+'_'+height+'_'+nomenclatureNumber;
+function selectRecord(value, id,size,height,nomenclatureNumber, incomeNumber) {
+    var str = id+'_'+size+'_'+height+'_'+nomenclatureNumber+'_'+incomeNumber;
 
 	if (value.checked) {
 		selRecs.push(str);
@@ -259,7 +266,7 @@ function selectAllRecord(value){
 		/*<![CDATA[*/
  	    var list = [];
  	    /*[# th:each="elVar : ${notIssuedSIZ}"]*/
- 	        list.push(/*[[${elVar.id}+'_'+${elVar.size}+'_'+${elVar.height}+'_'+${elVar.nomenclatureNumber}]]*/);
+ 	        list.push(/*[[${elVar.id}+'_'+${elVar.size}+'_'+${elVar.height}+'_'+${elVar.nomenclatureNumber}+'_'+${elVar.incomeNumber}]]*/);
  		/*[/]*/
  		/*]]>*/
         selRecs = list;
