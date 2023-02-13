@@ -2637,6 +2637,55 @@ public class SIZController {
     }
 
     /**
+     * <b>Установка новой даты выдачи уже выданному СИЗ</b>
+     * @param id ID СИЗ
+     * @param date новая дата выдачи
+     * @param authentication данные пользователя вошедшего в систему
+     * @param model модель данных страницы
+     * @return таблицу с выданным СИЗ
+     */
+    @GetMapping("/userPage/employee-siz/edit-staffing/employee/siz/{id}/date-on/{date}")
+    public String setNewDateIssuedForSiz(@PathVariable(value = "id") long id, @PathVariable(value = "date") String date, Authentication
+            authentication, Model model) throws ParseException {
+        log.info(setUserLog(authentication.getName()) + "Set new date of issued for SIZ: {}", id);
+        IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow(() -> new NotFoundException("Siz with id="+id+" not found"));
+        Employee employee = employeeRepository.findById(siz.getEmployee().getId()).orElse(null);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = format.parse(date);
+        siz.setDateIssued(d);
+        issuedSIZRepository.save(siz);
+        employeeForIssuedSIZ = employee;
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(siz.getEmployee().getId(), "Выдано");
+        model.addAttribute("employee", employeeForIssuedSIZ);
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
+    }
+    /**
+     * <b>Установка новой даты окончания носки уже выданному СИЗ</b>
+     * @param id ID СИЗ
+     * @param date новая дата окончания носки
+     * @param authentication данные пользователя вошедшего в систему
+     * @param model модель данных страницы
+     * @return таблицу с выданным СИЗ
+     */
+    @GetMapping("/userPage/employee-siz/edit-staffing/employee/siz/{id}/date-off/{date}")
+    public String setNewDateEndOfIssuedForSiz(@PathVariable(value = "id") long id, @PathVariable(value = "date") String date, Authentication
+            authentication, Model model) throws ParseException {
+        log.info(setUserLog(authentication.getName()) + "Set end date of issued for SIZ: {}", id);
+        IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow(() -> new NotFoundException("Siz with id="+id+" not found"));
+        Employee employee = employeeRepository.findById(siz.getEmployee().getId()).orElse(null);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = format.parse(date);
+        siz.setDateEndWear(d);
+        issuedSIZRepository.save(siz);
+        employeeForIssuedSIZ = employee;
+        List<IssuedSIZ> issuedSIZS = issuedSIZRepository.findAllByEmployeeIdAndStatusOrderByDateIssued(siz.getEmployee().getId(), "Выдано");
+        model.addAttribute("employee", employeeForIssuedSIZ);
+        model.addAttribute("vidanSIZ", issuedSIZS);
+        return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
+    }
+
+    /**
      * Обновление таблицы с нормами выдачи СИЗ для сотрудника
      *
      * @param model модель аттрибутов страницы

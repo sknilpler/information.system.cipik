@@ -9,6 +9,51 @@ function showModalWindow2(value) {
 	writeoffSIZId = value;
 	$("#exampleModalLive2").modal('show');
 }
+
+function editdateon(id) {
+    selected_id = id;
+    document.getElementById("dataOn").value = null;
+    $("#editDateOn").modal('show');
+};
+
+function editdateoff(id) {
+    selected_id = id;
+    document.getElementById("dataOn").value = null;
+    $("#editDateOff").modal('show');
+};
+
+function saveNewDateOn() {
+    var d = document.getElementById("dataOn").value;
+    if (d === '') {
+        alert("Выберите дату!");
+    } else {
+    $.ajax({
+    		type: 'get',
+    		url: '/userPage/employee-siz/edit-staffing/employee/siz/'+selected_id +'/date-on/' + d,
+    		success: function(data) {
+    			$('.table-issuedSiz').html(data);
+    		},
+    	})
+    	 $("#editDateOn").modal('hide');
+    }
+}
+
+function saveNewDateOff() {
+    var d = document.getElementById("dataOff").value;
+    if (d === '') {
+        alert("Выберите дату!");
+    } else {
+       $.ajax({
+          		type: 'get',
+          		url: '/userPage/employee-siz/edit-staffing/employee/siz/'+selected_id +'/date-off/' + d,
+          		success: function(data) {
+          			$('.table-issuedSiz').html(data);
+          		},
+          	})
+          	 $("#editDateOff").modal('hide');
+    }
+}
+
 function showModalWindow3(value) {
 	$.ajax({
             type: 'get',
@@ -36,6 +81,8 @@ function closeModalWindow() {
 	$("#exampleModalLive2").modal('hide');
     $("#exampleModalLive3").modal('hide');
     $("#historyModalLive3").modal('hide');
+    $("#editDateOn").modal('hide');
+    $("#editDateOff").modal('hide');
 };
 ///////////////open sidebar///////////////////
       var menu_btn = document.querySelector("#menu-btn");
@@ -139,3 +186,14 @@ function updateSizForEmployee() {
 		},
 	})
 };
+
+function post(path, method = 'post') {
+    const form = document.createElement('form');
+    form.method = method;
+    form.action = path;
+    const hiddenField = document.createElement('input');
+    hiddenField.type = 'hidden';
+    form.appendChild(hiddenField);
+    document.body.appendChild(form);
+    form.submit();
+}
