@@ -10,6 +10,9 @@
     <style>
             #tb tr:hover {background:#E2EEFF;}
             #tb .activeRow, #tb .activeRow:hover {background:#6598C7; color:#fff;}
+
+
+
     </style>
 </head>
 <body>
@@ -29,15 +32,16 @@
             <div class="modal-body">
                 <label class="md-2" for="protocol">Протокол</label>
                 <input type="text" id="protocol" name="protocol" class="form-control"
-                       placeholder="Введите наименование протокола продления" onchange="setProtocolExtending(this.value)"/>
+                       placeholder="Введите наименование протокола продления"
+                       onchange="setProtocolExtending(this.value)"/>
                 <label class="md-2" for="protocolDate">Выберите дату протокола</label>
                 <input type="date" id="protocolDate" name="protocolDate" class="form-control"
                        placeholder="Выберите дату" onchange="setDateProtocol(this.value)"/>
-<!--                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>-->
+                <!--                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>-->
                 <label class="md-2" for="extendDate">Выберите дату продления ресурса</label>
                 <input type="date" id="extendDate" name="extendDate" class="form-control"
                        placeholder="Выберите дату" onchange="setDateExtending(this.value)"/>
-<!--                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>-->
+                <!--                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>-->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow()">
@@ -120,7 +124,8 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                        onclick="closeModalWindow()">
                     Закрыть
                 </button>
             </div>
@@ -144,7 +149,7 @@
             <div class="modal-body">
                 <div class="table-history-extended-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto;"
                      th:fragment="table-history-extended-siz">
-<!--                    <h6 th:text="${exSiz.siz.nameSIZ}"></h6>-->
+                    <!--                    <h6 th:text="${exSiz.siz.nameSIZ}"></h6>-->
                     <table class="table table-hover">
                         <thead>
                         <tr>
@@ -155,9 +160,54 @@
                         </thead>
                         <tbody>
                         <tr th:each="p : ${protocols}" style="cursor: pointer">
-                            <td th:text="${p.protocolName}"></td>
-                            <td th:text="${#dates.format(p.protocolDate, 'dd.MM.yyyy')}"></td>
-                            <td th:text="${#dates.format(p.dateExtending, 'dd.MM.yyyy')}"></td>
+                            <td>
+                                <div class="row">
+                                    <div class="col-md-auto">
+                                        <p th:text="${p.protocolName}"></p>
+                                    </div>
+                                    <div class="col-md-auto" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
+                                        <button type="button" class="btn btn-link btn-sm"
+                                                th:onclick="'javascript:editprotocolname(\'' + ${p.id} + '\');'">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="col-md-auto">
+                                        <p th:text="${#dates.format(p.protocolDate, 'dd.MM.yyyy')}"></p>
+                                    </div>
+                                    <div class="col-md-auto" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
+                                        <button type="button" class="btn btn-link btn-sm"
+                                                th:onclick="'javascript:editdateprotocol(\'' + ${p.id} + '\');'">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="col-md-auto">
+                                        <p th:text="${#dates.format(p.dateExtending, 'dd.MM.yyyy')}"></p>
+                                    </div>
+                                    <div class="col-md-auto" sec:authorize="hasAnyRole('ROLE_USER','ROLE_MTO')">
+                                        <button type="button" class="btn btn-link btn-sm"
+                                                th:onclick="'javascript:editdateextending(\'' + ${p.id} + '\');'">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -165,13 +215,94 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" onclick="closeModalWindow()">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"
+                        onclick="closeModalWindow()">
                     Закрыть
                 </button>
             </div>
         </div>
     </div>
 </div>
+<!-- Modal window for changing name protocol extending -->
+<div id="protocolNameChangeModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="protocolNameChangeModalLabel2"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="protocolNameChangeModalLabel2">Редактирование название протокола продления</h5>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow2()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label class="md-2" for="protocolNewName">Наименование</label>
+                <input type="text" id="protocolNewName" name="protocolNewName" class="form-control"
+                       placeholder="Введите наименование протокола" onchange="setNewProtocolName(this.value)"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow2()">
+                    Закрыть
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveNewProtocolName()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
+<!-- Modal window for changing date protocol-->
+<div id="protocolDateChangeModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="protocolDateChangeModalLabel2"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="protocolDateChangeModalLabel2">Редактирование даты протокола продления</h5>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow2()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label class="md-2" for="protocolNewDate">Дата протокола</label>
+                <input type="date" id="protocolNewDate" name="protocolNewDate" class="form-control"
+                       placeholder="Введите дату протокола" onchange="setNewProtocolDate(this.value)"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow2()">
+                    Закрыть
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveNewProtocolDate()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window for changing date extending protocol-->
+<div id="protocolExtendingChangeModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="protocolExtendingChangeModalLabel2"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="protocolExtendingChangeModalLabel2">Редактирование даты продления в протоколе</h5>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close"
+                        onclick="closeModalWindow2()">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label class="md-2" for="protocolNewExtending">Дата продления</label>
+                <input type="date" id="protocolNewExtending" name="protocolNewExtending" class="form-control"
+                       placeholder="Введите дату продления" onchange="setNewProtocolExtending(this.value)"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModalWindow2()">
+                    Закрыть
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveNewProtocolExtnding()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal window -->
 <!-- Modal window -->
 <div id="editDateOn" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editDateLabel"
      aria-hidden="true">
@@ -250,7 +381,8 @@
             <div class="row align-items-md-stretch mb-4">
                 <div class="col-sm-6">
                     <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
-                        <p class="display-6" th:text="${employee.surname}+' '+${employee.name}+' '+${employee.patronymic}"></p>
+                        <p class="display-6"
+                           th:text="${employee.surname}+' '+${employee.name}+' '+${employee.patronymic}"></p>
                         <p th:text="${'Должность: '+employee.post.postName}"></p>
                         <p th:text="${'Подразделение: '+employee.komplex.shortName}"></p>
                         <p th:text="${'Размер одежды: '+employee.clothingSize}"></p>
@@ -262,10 +394,12 @@
                 <br>
                 <div class="col-sm-6">
                     <div class="h-100 p-2 bg-light border mb-4 rounded-3 shadow-sm">
-                        <div class="table-siz" style="max-height: 40vh; min-height: 40vh; overflow-y: auto; font-size: 14px;"
+                        <div class="table-siz"
+                             style="max-height: 40vh; min-height: 40vh; overflow-y: auto; font-size: 14px;"
                              th:fragment="table-siz">
                             <div class="col-sm-12">
-                                <span class="lead" th:text="'Список СИЗ для должности '+${employee.post.postName}"></span>
+                                <span class="lead"
+                                      th:text="'Список СИЗ для должности '+${employee.post.postName}"></span>
                             </div>
                             <table class="table table-hover">
                                 <thead>
@@ -273,19 +407,21 @@
                                     <th>Наименование</th>
                                     <th style="width: 100px">По норме</th>
                                     <th style="width: 100px">На складе</th>
-<!--                                    <th style="width: 80px;"></th>-->
+                                    <!--                                    <th style="width: 80px;"></th>-->
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="s : ${siz}" style="cursor: pointer">
                                     <td th:text="${s.individualProtectionMeans.nameSIZ}"></td>
                                     <td align="center" th:text="${s.issuanceRate}"></td>
-                                    <td align="center" sec:authorize="isAuthenticated() && !hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRateForKomplex(s.id,employee.komplex.id)}"></td>
-                                    <td align="center" sec:authorize="hasAnyRole('ROLE_USER')" th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
-<!--                                    <td>-->
-<!--                                        <button class="btn btn-danger btn-sm" name="iss-btn"-->
-<!--                                                th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</button>-->
-<!--                                    </td>-->
+                                    <td align="center" sec:authorize="isAuthenticated() && !hasAnyRole('ROLE_USER')"
+                                        th:text="${ipmStandardRepository.notIssuanceRateForKomplex(s.id,employee.komplex.id)}"></td>
+                                    <td align="center" sec:authorize="hasAnyRole('ROLE_USER')"
+                                        th:text="${ipmStandardRepository.notIssuanceRate(s.id)}"></td>
+                                    <!--                                    <td>-->
+                                    <!--                                        <button class="btn btn-danger btn-sm" name="iss-btn"-->
+                                    <!--                                                th:onclick="'javascript:updateIssuedSiz(\'' + ${s.id} + '\');'">Выдать</button>-->
+                                    <!--                                    </td>-->
                                 </tr>
                                 </tbody>
                             </table>
@@ -301,16 +437,19 @@
                             <span class="lead"
                                   th:text="'Список выданного СИЗ сотруднику '+${employee.surname}+' '+${employee.name}+' '+${employee.patronymic}"></span>
                             </div>
-<!--                            <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">-->
-<!--                                   -->
-<!--                            </div>-->
+                            <!--                            <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">-->
+                            <!--                                   -->
+                            <!--                            </div>-->
                             <div class="col-sm-1 d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="button" class="btn btn-outline-secondary btn-sm float-right" th:onclick="'javascript:showModalWindow3(\'' + ${employee.id} + '\');'" title="Информация о ранее выданном СИЗ"
+                                <button type="button" class="btn btn-outline-secondary btn-sm float-right"
+                                        th:onclick="'javascript:showModalWindow3(\'' + ${employee.id} + '\');'"
+                                        title="Информация о ранее выданном СИЗ"
                                         aria-label="История выданного СИЗ">
                                     <img src="/images/bootstrap-icons/clock-history.svg" alt="Bootstrap" width="24"
                                          height="24">
                                 </button>
-                                <form th:action="'/userPage/employee-siz/print-personal-card/'+${employee.id}" method="get">
+                                <form th:action="'/userPage/employee-siz/print-personal-card/'+${employee.id}"
+                                      method="get">
                                     <button type="submit" class="btn btn-outline-secondary btn-sm float-right"
                                             aria-label="Распечатать" title="Личная карточка">
                                         <img src="/images/bootstrap-icons/printer.svg" alt="Bootstrap" width="24"
@@ -320,7 +459,8 @@
                             </div>
                         </div>
                         <p class="fs-6 text-danger" th:text="${issuedError}"></p>
-                        <div class="table-responsive" style="max-height: 40vh; min-height: 40vh; overflow-y: auto; font-size: 14px;">
+                        <div class="table-responsive"
+                             style="max-height: 40vh; min-height: 40vh; overflow-y: auto; font-size: 14px;">
                             <table class="table table-hover">
                                 <thead>
                                 <tr>
@@ -337,7 +477,7 @@
                                     <td th:text="${s.siz.nameSIZ}"></td>
                                     <td align="center" th:text="${s.nomenclatureNumber}"></td>
                                     <td align="center" th:text="${s.incomeNumber}"></td>
-                                    <td align="center" >
+                                    <td align="center">
                                         <div class="row">
                                             <div class="col-md-auto">
                                                 <p th:text="${#dates.format(s.dateIssued, 'dd.MM.yyyy')}"></p>
@@ -372,19 +512,25 @@
                                     </td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" type="button"
-                                                th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'" title="Списать СИЗ">
+                                                th:onclick="'javascript:showModalWindow2(\'' + ${s.id} + '\');'"
+                                                title="Списать СИЗ">
                                             <img src="/images/bootstrap-icons/trash-fill.svg" width="24" height="24">
                                         </button>
                                         <button type="button" class="btn btn-primary btn-sm"
-                                                th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'" title="Продлить носку">
-                                            <img src="/images/bootstrap-icons/calendar2-plus.svg" width="24" height="24">
+                                                th:onclick="'javascript:showModalWindow(\'' + ${s.id} + '\');'"
+                                                title="Продлить носку">
+                                            <img src="/images/bootstrap-icons/calendar2-plus.svg" width="24"
+                                                 height="24">
                                         </button>
                                         <button class="btn btn-warning btn-sm" type="button"
-                                                th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'" title="Отменить выдачу и возврат СИЗ на склад">
-                                            <img src="/images/bootstrap-icons/arrow-clockwise.svg" width="24" height="24">
+                                                th:onclick="'javascript:cancelIssed(\'' + ${s.id} + '\');'"
+                                                title="Отменить выдачу и возврат СИЗ на склад">
+                                            <img src="/images/bootstrap-icons/arrow-clockwise.svg" width="24"
+                                                 height="24">
                                         </button>
                                         <button class="btn btn-secondary btn-sm" type="button"
-                                                th:onclick="'javascript:showHistoryWindow(\'' + ${s.id} + '\');'" title="История продления">
+                                                th:onclick="'javascript:showHistoryWindow(\'' + ${s.id} + '\');'"
+                                                title="История продления">
                                             <img src="/images/bootstrap-icons/clock-history.svg" width="24" height="24">
                                         </button>
                                     </td>

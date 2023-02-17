@@ -2638,19 +2638,22 @@ public class SIZController {
 
     /**
      * <b>Установка новой даты выдачи уже выданному СИЗ</b>
-     * @param id ID СИЗ
-     * @param date новая дата выдачи
+     *
+     * @param id             ID СИЗ
+     * @param date           новая дата выдачи
      * @param authentication данные пользователя вошедшего в систему
-     * @param model модель данных страницы
+     * @param model          модель данных страницы
      * @return таблицу с выданным СИЗ
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/siz/{id}/date-on/{date}")
     public String setNewDateIssuedForSiz(@PathVariable(value = "id") long id, @PathVariable(value = "date") String date, Authentication
             authentication, Model model) throws ParseException {
-        log.info(setUserLog(authentication.getName()) + "Set new date of issued for SIZ: {}", id);
-        IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow(() -> new NotFoundException("Siz with id="+id+" not found"));
+
+        IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow(() -> new NotFoundException("Siz with id=" + id + " not found"));
         Employee employee = employeeRepository.findById(siz.getEmployee().getId()).orElse(null);
+
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        log.info(setUserLog(authentication.getName()) + "Change date of issued SIZ (id = " + id + ") from " + format.format(siz.getDateIssued()) + " to " + date);
         Date d = format.parse(date);
         siz.setDateIssued(d);
         issuedSIZRepository.save(siz);
@@ -2660,21 +2663,23 @@ public class SIZController {
         model.addAttribute("vidanSIZ", issuedSIZS);
         return "user/mto/siz/issued/issued-siz-edit :: table-issuedSiz";
     }
+
     /**
      * <b>Установка новой даты окончания носки уже выданному СИЗ</b>
-     * @param id ID СИЗ
-     * @param date новая дата окончания носки
+     *
+     * @param id             ID СИЗ
+     * @param date           новая дата окончания носки
      * @param authentication данные пользователя вошедшего в систему
-     * @param model модель данных страницы
+     * @param model          модель данных страницы
      * @return таблицу с выданным СИЗ
      */
     @GetMapping("/userPage/employee-siz/edit-staffing/employee/siz/{id}/date-off/{date}")
     public String setNewDateEndOfIssuedForSiz(@PathVariable(value = "id") long id, @PathVariable(value = "date") String date, Authentication
             authentication, Model model) throws ParseException {
-        log.info(setUserLog(authentication.getName()) + "Set end date of issued for SIZ: {}", id);
-        IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow(() -> new NotFoundException("Siz with id="+id+" not found"));
+        IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow(() -> new NotFoundException("Siz with id=" + id + " not found"));
         Employee employee = employeeRepository.findById(siz.getEmployee().getId()).orElse(null);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        log.info(setUserLog(authentication.getName()) + "Change end date of issued SIZ (id = " + id + ") from " + format.format(siz.getDateEndWear()) + " to " + date);
         Date d = format.parse(date);
         siz.setDateEndWear(d);
         issuedSIZRepository.save(siz);
@@ -2852,6 +2857,68 @@ public class SIZController {
         log.info(setUserLog(authentication.getName()) + "Fetching from DB list of Protocol Extending: {}", protocols);
         IssuedSIZ siz = issuedSIZRepository.findById(id).orElseThrow(() -> new NotFoundException("СИЗ с ID: " + id + " не найден!"));
         log.info(setUserLog(authentication.getName()) + "Fetching from DB Issued SIZ: {}", siz);
+        model.addAttribute("exSiz", siz);
+        model.addAttribute("protocols", protocols);
+        return "user/mto/siz/issued/issued-siz-edit :: table-history-extended-siz";
+    }
+
+    /**
+     * Сохранение нового имени протокола продления СИЗ
+     *
+     */
+    @GetMapping("/userPage/employee-siz/edit-protocol/{id}/name/{name}")
+    public String setNewNameOfProtocolExtending(@PathVariable(value = "id") long id,
+                                                        @PathVariable(value = "name") String name,
+                                                        Model model, Authentication authentication) {
+        log.info(setUserLog(authentication.getName()) + "Receive protocol ID from request: {}", id);
+        ProtocolExtending protocol = protocolRepository.findById(id).orElseThrow(() -> new NotFoundException("Protocol with ID: " + id + " not found!"));
+        log.info(setUserLog(authentication.getName()) + "Change protocol (ID = "+id+") name from "+protocol.getProtocolName()+" to "+name);
+        protocol.setProtocolName(name);
+        protocolRepository.save(protocol);
+        IssuedSIZ siz = protocol.getIssuedSIZ();
+        List<ProtocolExtending> protocols = protocolRepository.findAllByIssuedSIZId(siz.getId());
+        model.addAttribute("exSiz", siz);
+        model.addAttribute("protocols", protocols);
+        return "user/mto/siz/issued/issued-siz-edit :: table-history-extended-siz";
+    }
+
+    /**
+     * Сохранение новой даты протокола продления СИЗ
+     *
+     */
+    @GetMapping("/userPage/employee-siz/edit-protocol/{id}/date/{date}")
+    public String setNewDateOfProtocolExtending(@PathVariable(value = "id") long id,
+                                                @PathVariable(value = "date") String date,
+                                                Model model, Authentication authentication) throws ParseException {
+        log.info(setUserLog(authentication.getName()) + "Receive protocol ID from request: {}", id);
+        ProtocolExtending protocol = protocolRepository.findById(id).orElseThrow(() -> new NotFoundException("Protocol with ID: " + id + " not found!"));
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        log.info(setUserLog(authentication.getName()) + "Change protocol (ID = "+id+") date from "+format.format(protocol.getProtocolDate())+" to "+date);
+        protocol.setProtocolDate(format.parse(date));
+        protocolRepository.save(protocol);
+        IssuedSIZ siz = protocol.getIssuedSIZ();
+        List<ProtocolExtending> protocols = protocolRepository.findAllByIssuedSIZId(siz.getId());
+        model.addAttribute("exSiz", siz);
+        model.addAttribute("protocols", protocols);
+        return "user/mto/siz/issued/issued-siz-edit :: table-history-extended-siz";
+    }
+
+    /**
+     * Сохранение новой даты продления в протоколе СИЗ
+     *
+     */
+    @GetMapping("/userPage/employee-siz/edit-protocol/{id}/date-ext/{date}")
+    public String setNewDateExtendingOfProtocolExtending(@PathVariable(value = "id") long id,
+                                                @PathVariable(value = "date") String date,
+                                                Model model, Authentication authentication) throws ParseException {
+        log.info(setUserLog(authentication.getName()) + "Receive protocol ID from request: {}", id);
+        ProtocolExtending protocol = protocolRepository.findById(id).orElseThrow(() -> new NotFoundException("Protocol with ID: " + id + " not found!"));
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        log.info(setUserLog(authentication.getName()) + "Change protocol (ID = "+id+") date extending from "+format.format(protocol.getDateExtending())+" to "+date);
+        protocol.setDateExtending(format.parse(date));
+        protocolRepository.save(protocol);
+        IssuedSIZ siz = protocol.getIssuedSIZ();
+        List<ProtocolExtending> protocols = protocolRepository.findAllByIssuedSIZId(siz.getId());
         model.addAttribute("exSiz", siz);
         model.addAttribute("protocols", protocols);
         return "user/mto/siz/issued/issued-siz-edit :: table-history-extended-siz";

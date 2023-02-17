@@ -76,6 +76,12 @@ function showHistoryWindow(value) {
         });
 }
 
+function closeModalWindow2() {
+	$("#protocolNameChangeModal").modal('hide');
+	$("#protocolDateChangeModal").modal('hide');
+    $("#protocolExtendingChangeModal").modal('hide');
+};
+
 function closeModalWindow() {
 	$("#exampleModalLive").modal('hide');
 	$("#exampleModalLive2").modal('hide');
@@ -133,6 +139,68 @@ function extendSIZ() {
 	    })
 	} else alert("Не все данные введены");
 };
+
+////////////////////////////changing protocol info////////////
+var protocol_id;
+var newPName;
+var newPDate;
+var newPExtending;
+
+function editprotocolname(value){
+    protocol_id = value;
+    $("#protocolNameChangeModal").modal('show');
+}
+function editdateprotocol(value){
+    protocol_id = value;
+    $("#protocolDateChangeModal").modal('show');
+}
+function editdateextending(value){
+    protocol_id = value;
+    $("#protocolExtendingChangeModal").modal('show');
+}
+
+function setNewProtocolName(value){
+    newPName = value;
+}
+function setNewProtocolDate(value){
+    newPDate = value;
+}
+function setNewProtocolExtending(value){
+    newPExtending = value;
+}
+
+function saveNewProtocolName(){
+     $.ajax({
+    		    type: 'get',
+    		    url: '/userPage/employee-siz/edit-protocol/' + protocol_id + '/name/' + newPName,
+    		    success: function(data) {
+    			    $('.table-history-extended-siz').html(data);
+    			    closeModalWindow2();
+    		    },
+    	    })
+}
+
+function saveNewProtocolDate(){
+     $.ajax({
+    		    type: 'get',
+    		    url: '/userPage/employee-siz/edit-protocol/' + protocol_id + '/date/' + newPDate,
+    		    success: function(data) {
+    			    $('.table-history-extended-siz').html(data);
+    			    closeModalWindow2();
+    		    },
+    	    })
+}
+
+function saveNewProtocolExtnding(){
+     $.ajax({
+    		    type: 'get',
+    		    url: '/userPage/employee-siz/edit-protocol/' + protocol_id + '/date-ext/' + newPExtending,
+    		    success: function(data) {
+    			    $('.table-history-extended-siz').html(data);
+    			    closeModalWindow2();
+    		    },
+    	    })
+}
 //////////////////////////////////
 var actName;
 
